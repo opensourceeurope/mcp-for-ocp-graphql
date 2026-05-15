@@ -1,0 +1,22 @@
+{
+  "name": "opencollective-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the Open Collective GraphQL API",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Lukasz Gornicki",
+    "url": "https://github.com/derberg"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test 'test/**/*.test.js'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "^4.21.0"
+  }
+}
