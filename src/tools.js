@@ -75,6 +75,19 @@ function isLeafType(typeName, typeMap) {
   return info.kind === 'SCALAR' || info.kind === 'ENUM';
 }
 
+function leafFieldNames(typeName, typeMap) {
+  const info = typeMap[typeName];
+  if (!info?.fields) return [];
+  return info.fields
+    .filter(f => {
+      if (f.args?.some(a => a.type?.kind === 'NON_NULL')) return false;
+      const core = unwrapType(f.type);
+      const coreInfo = typeMap[core.name];
+      return coreInfo && !coreInfo.fields;
+    })
+    .map(f => f.name);
+}
+
 function camelToWords(str) {
   return str.replace(/([A-Z])/g, ' $1').toLowerCase().replace(/^./, c => c.toUpperCase());
 }
@@ -130,22 +143,43 @@ export function buildTools(schema, endpoint, tokenOrGetter) {
   const typeMap = Object.fromEntries(schema.types.map(t => [t.name, t]));
 
   return schema.queryType.fields.map(op => {
+    const returnTypeName = unwrapType(op.type).name;
+    const isLeaf = isLeafType(returnTypeName, typeMap);
+    const isCollection = !isLeaf && typeMap[returnTypeName]?.fields?.some(f => f.name === 'nodes');
+
+    const properties = Object.fromEntries(
+      op.args.map(a => [
+        a.name,
+        {
+          ...graphqlTypeToJsonSchema(a.type, typeMap),
+          ...(a.description ? { description: a.description } : {}),
+        },
+      ])
+    );
+
+    if (!isLeaf) {
+      let itemTypeName = returnTypeName;
+      if (isCollection) {
+        const nodesField = typeMap[returnTypeName]?.fields?.find(f => f.name === 'nodes');
+        if (nodesField) itemTypeName = unwrapType(nodesField.type).name;
+      }
+      const available = leafFieldNames(itemTypeName, typeMap);
+      const hint = available.length ? ` Available leaf fields: ${available.join(', ')}.` : '';
+      properties.fields = {
+        type: 'array',
+        items: { type: 'string' },
+        description: isCollection
+          ? `Fields to return for each item in nodes. totalCount is always included. Nested GraphQL syntax supported, e.g. "address { city }".${hint}`
+          : `Fields to return. Nested GraphQL syntax supported, e.g. "location { country }".${hint}`,
+      };
+    }
+
     const inputSchema = {
       type: 'object',
-      properties: Object.fromEntries(
-        op.args.map(a => [
-          a.name,
-          {
-            ...graphqlTypeToJsonSchema(a.type, typeMap),
-            ...(a.description ? { description: a.description } : {}),
-          },
-        ])
-      ),
+      properties,
       required: op.args.filter(a => a.type.kind === 'NON_NULL').map(a => a.name),
     };
 
-    const returnTypeName = unwrapType(op.type).name;
-    const isLeaf = isLeafType(returnTypeName, typeMap);
     const selection = isLeaf ? null : (buildSelection(returnTypeName, typeMap) ?? '__typename');
     const subSel = selection ? ` { ${selection} }` : '';
 
@@ -157,17 +191,49 @@ export function buildTools(schema, endpoint, tokenOrGetter) {
       : `{ ${op.name}${subSel} }`;
 
     async function handler(args = {}) {
+      const { fields: requestedFields, ...queryArgs } = args;
       const token = getToken();
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Personal-Token'] = token;
+
+      const fieldsArr = Array.isArray(requestedFields) ? requestedFields
+        : typeof requestedFields === 'string' ? requestedFields.split(/[\s,]+/).filter(Boolean)
+        : null;
+      let activeQuery = query;
+      if (!isLeaf && fieldsArr?.length) {
+        const fieldSel = fieldsArr.join(' ');
+        const customSub = isCollection
+          ? ` { totalCount nodes { ${fieldSel} } }`
+          : ` { ${fieldSel} }`;
+        activeQuery = op.args.length
+          ? `query ${op.name}(${argsDef}) { ${op.name}(${argsUse})${customSub} }`
+          : `{ ${op.name}${customSub} }`;
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ query: activeQuery, variables: queryArgs }),
+        });
+        const resBody = await res.json();
+        if (!res.ok) {
+          const detail = resBody?.errors?.map(e => e.message).join(', ') ?? JSON.stringify(resBody);
+          throw new Error(`GraphQL request failed: ${res.status} ${detail}`);
+        }
+        if (resBody.errors?.length) throw new Error(resBody.errors.map(e => e.message).join(', '));
+        return resBody.data?.[op.name];
+      }
 
       for (let attempt = 0; attempt < 2; attempt++) {
         const res = await fetch(endpoint, {
           method: 'POST',
           headers,
-          body: JSON.stringify({ query, variables: args }),
+          body: JSON.stringify({ query, variables: queryArgs }),
         });
-        if (!res.ok) throw new Error(`GraphQL request failed: ${res.status} ${res.statusText}`);
+        if (!res.ok) {
+          let detail = `${res.status} ${res.statusText}`;
+          try { const b = await res.json(); detail = b?.errors?.map(e => e.message).join(', ') ?? detail; } catch {}
+          throw new Error(`GraphQL request failed: ${detail}`);
+        }
         const { data, errors } = await res.json();
         const result = data?.[op.name];
         if (result != null) return result;

@@ -2,7 +2,7 @@ MCP server for the [Open Collective GraphQL API](https://api.opencollective.com/
 
 Introspects the full OC schema on startup and exposes every query operation as an MCP tool. Mutations are excluded.
 
-Implements OAuth 2.1 with PKCE. Each user authenticates with their own OC personal token through a browser form — no shared server-side token is needed.
+Implements OAuth 2.1 with PKCE as a passthrough: each user pastes their own OC personal token into a browser form, and that same token is handed back to the MCP client as the OAuth access token. The server mints no tokens of its own and stores no shared credentials.
 
 ## Requirements
 
