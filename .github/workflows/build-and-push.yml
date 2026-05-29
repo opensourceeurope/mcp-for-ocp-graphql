@@ -80,4 +80,4 @@ jobs:
           SCW_DEFAULT_REGION: ${{ env.SCW_REGION }}
           CONTAINER_ID: ${{ vars.SCW_CONTAINER_ID }}
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-        run: scw container container update "$CONTAINER_ID" registry-image="$IMAGE"
+        run: scw container container update "$CONTAINER_ID" image="$IMAGE"
