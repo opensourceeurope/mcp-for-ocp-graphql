@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { readFileSync } from 'node:fs';
 import express from 'express';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
-import { fetchSchema } from './src/schema.js';
 import { buildTools } from './src/tools.js';
 import { createOAuthProvider } from './src/auth.js';
 
@@ -18,12 +18,12 @@ if (Number.isNaN(PORT)) {
   process.exit(1);
 }
 
-process.stderr.write('Fetching Open Collective schema…\n');
+const schemaPath = new URL('./schema.json', import.meta.url);
 let schema;
 try {
-  schema = await fetchSchema(ENDPOINT);
+  schema = JSON.parse(readFileSync(schemaPath, 'utf8'));
 } catch (err) {
-  process.stderr.write(`Failed to fetch schema: ${err.message}\n`);
+  process.stderr.write(`Failed to load schema.json — run 'npm run fetch-schema' first: ${err.message}\n`);
   process.exit(1);
 }
 process.stderr.write(`Ready — ${schema.queryType.fields.length} operations available\n`);

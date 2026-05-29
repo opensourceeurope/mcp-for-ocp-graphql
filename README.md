@@ -70,9 +70,12 @@ docker start oc-mcp
 ## Development
 
 ```bash
-npm test      # run unit tests
-node index.js # run locally
+npm run fetch-schema  # introspect OC and write schema.json (gitignored)
+npm test              # run unit tests
+node index.js         # run locally (reads schema.json baked at build time)
 ```
+
+The Docker build runs `fetch-schema` automatically. `schema.json` is fetched at image build time, not at container startup, so cold starts skip the introspection round-trip. The GitHub Actions workflow rebuilds weekly to keep the baked schema fresh.
 
 Start the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) against a locally running server:
 
