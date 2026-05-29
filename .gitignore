@@ -5,6 +5,7 @@
 node_modules/
 
 *.graphql.cache
+schema.json
 
 .DS_Store
 .idea/
