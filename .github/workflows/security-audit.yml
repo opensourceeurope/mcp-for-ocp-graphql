@@ -1,0 +1,38 @@
+# Audit workflow files for supply-chain issues with zizmor.
+# Catches: unpinned actions, @latest CLI installs, dangerous triggers, etc.
+name: Security audit (zizmor)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - '.github/zizmor.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/zizmor.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Install zizmor
+        # pipx is preinstalled on ubuntu-latest runners.
+        # Pin zizmor explicitly — bump deliberately after reviewing the changelog.
+        run: pipx install zizmor==1.25.2
+
+      - name: Run zizmor on workflow files
+        # Default severity (exits non-zero on any finding). To get the noisier
+        # findings (template-injection on secret interpolation, concurrency,
+        # anonymous jobs, etc.) re-run locally with --pedantic.
+        run: zizmor .github/workflows/
