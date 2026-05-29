@@ -437,6 +437,129 @@ describe('buildTools', () => {
     assert.equal(tools[1].description, 'List something');
   });
 
+  // Helpers for fields-parameter tests
+  const COLLECTION_SCHEMA = {
+    queryType: {
+      fields: [{
+        name: 'accounts',
+        description: 'List accounts',
+        args: [{ name: 'limit', description: null, defaultValue: null, type: { kind: 'SCALAR', name: 'Int', ofType: null } }],
+        type: { kind: 'OBJECT', name: 'AccountCollection', ofType: null },
+      }],
+    },
+    types: [
+      { kind: 'SCALAR', name: 'String', fields: null, enumValues: null },
+      { kind: 'SCALAR', name: 'Int', fields: null, enumValues: null },
+      {
+        kind: 'OBJECT', name: 'AccountCollection',
+        fields: [
+          { name: 'totalCount', args: [], type: { kind: 'SCALAR', name: 'Int', ofType: null } },
+          { name: 'nodes', args: [], type: { kind: 'LIST', name: null, ofType: { kind: 'OBJECT', name: 'Account', ofType: null } } },
+        ],
+        enumValues: null,
+      },
+      {
+        kind: 'OBJECT', name: 'Account',
+        fields: [
+          { name: 'slug', args: [], type: { kind: 'SCALAR', name: 'String', ofType: null } },
+          { name: 'name', args: [], type: { kind: 'SCALAR', name: 'String', ofType: null } },
+        ],
+        enumValues: null,
+      },
+    ],
+  };
+
+  test('fields property is added to inputSchema for non-leaf return types with available field names', () => {
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    const { fields } = tools[0].inputSchema.properties;
+    assert.ok(fields, 'fields property should exist');
+    assert.equal(fields.type, 'array');
+    assert.equal(fields.items.type, 'string');
+    assert.ok(fields.description.includes('slug'), 'description should list available leaf fields');
+    assert.ok(fields.description.includes('name'), 'description should list available leaf fields');
+    assert.ok(fields.description.includes('totalCount'), 'collection description should mention totalCount');
+  });
+
+  test('fields property is NOT added to inputSchema for scalar return types', () => {
+    const schema = {
+      queryType: {
+        fields: [{ name: 'ping', description: null, args: [], type: { kind: 'SCALAR', name: 'String', ofType: null } }],
+      },
+      types: [{ kind: 'SCALAR', name: 'String', fields: null, enumValues: null }],
+    };
+    const tools = buildTools(schema, 'https://example.com', null);
+    assert.ok(!tools[0].inputSchema.properties.fields, 'fields should not exist for scalar ops');
+  });
+
+  test('fields is NOT in inputSchema required array', () => {
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    assert.ok(!tools[0].inputSchema.required.includes('fields'));
+  });
+
+  test('handler uses custom selection for collection when fields provided', async () => {
+    let capturedBody;
+    globalThis.fetch = async (_url, opts) => {
+      capturedBody = JSON.parse(opts.body);
+      return { ok: true, json: async () => ({ data: { accounts: { totalCount: 1, nodes: [{ name: 'Foo' }] } } }) };
+    };
+
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    const result = await tools[0].handler({ fields: ['name', 'slug'] });
+    assert.ok(capturedBody.query.includes('totalCount nodes { name slug }'), 'collection query should wrap fields in totalCount nodes');
+    assert.equal(result.nodes[0].name, 'Foo');
+  });
+
+  test('handler uses custom selection for non-collection object when fields provided', async () => {
+    let capturedBody;
+    globalThis.fetch = async (_url, opts) => {
+      capturedBody = JSON.parse(opts.body);
+      return { ok: true, json: async () => ({ data: { currencyExchangeRate: [{ value: 1.1 }] } }) };
+    };
+
+    const tools = buildTools(FIXTURE_SCHEMA, 'https://api.example.com/graphql', null);
+    await tools[0].handler({ requests: [], fields: ['value'] });
+    assert.ok(capturedBody.query.includes('{ value }'), 'non-collection query should use fields directly');
+    assert.ok(!capturedBody.query.includes('totalCount'), 'non-collection query should not include totalCount');
+  });
+
+  test('fields arg is excluded from GraphQL variables when fields provided', async () => {
+    let capturedBody;
+    globalThis.fetch = async (_url, opts) => {
+      capturedBody = JSON.parse(opts.body);
+      return { ok: true, json: async () => ({ data: { accounts: { totalCount: 0, nodes: [] } } }) };
+    };
+
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    await tools[0].handler({ limit: 5, fields: ['name'] });
+    assert.ok(!('fields' in capturedBody.variables), 'fields should not be sent as a GraphQL variable');
+    assert.equal(capturedBody.variables.limit, 5);
+  });
+
+  test('custom fields query throws errors without retrying', async () => {
+    let callCount = 0;
+    globalThis.fetch = async () => {
+      callCount++;
+      return { ok: true, json: async () => ({ data: { accounts: null }, errors: [{ message: 'Bad field' }] }) };
+    };
+
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    await assert.rejects(() => tools[0].handler({ fields: ['unknownField'] }), /Bad field/);
+    assert.equal(callCount, 1, 'custom fields query should not retry');
+  });
+
+  test('handler falls back to auto-selected query when fields not provided', async () => {
+    let capturedBody;
+    globalThis.fetch = async (_url, opts) => {
+      capturedBody = JSON.parse(opts.body);
+      return { ok: true, json: async () => ({ data: { accounts: { totalCount: 0, nodes: [] } } }) };
+    };
+
+    const tools = buildTools(COLLECTION_SCHEMA, 'https://example.com', null);
+    await tools[0].handler({ limit: 3 });
+    assert.ok(capturedBody.query.includes('nodes'), 'auto query should include nodes');
+    assert.ok(!capturedBody.query.includes('{ name slug }'), 'auto query should not use custom field list');
+  });
+
   test('ENUM arg includes valid values in inputSchema', () => {
     const schema = {
       queryType: {
