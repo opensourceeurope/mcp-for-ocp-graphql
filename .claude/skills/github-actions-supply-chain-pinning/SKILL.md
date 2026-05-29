@@ -1,6 +1,6 @@
 ---
 name: github-actions-supply-chain-pinning
-description: Use when editing any file under .github/workflows/, adding a new GitHub Actions workflow, reviewing a workflow, or installing a CLI tool in a CI step (npm install -g, pipx install, uses: someone/setup-*). Enforces commit-SHA pinning for actions and explicit version pinning for installed tools — the two most common supply-chain holes in GitHub Actions.
+description: "Use when editing any file under .github/workflows/, adding a new GitHub Actions workflow, reviewing a workflow, or installing a CLI tool in a CI step (npm install -g, pipx install, uses: someone/setup-*). Enforces commit-SHA pinning for actions and explicit version pinning for installed tools — the two most common supply-chain holes in GitHub Actions."
 ---
 
 # GitHub Actions Supply-Chain Pinning
