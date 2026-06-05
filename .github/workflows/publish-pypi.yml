@@ -43,7 +43,7 @@ jobs:
 
       - name: Build the embeddings + Milvus index from committed chunks.json
         run: |
-          uvx opencrane embed
+          uvx --from "opencrane==0.18.5" opencrane embed
           uv run python -c "from mcp_for_ocp_graphql.indexer import build_index; build_index('.opencrane/chunks.json', '.opencrane/embeddings.json', 'mcp_for_ocp_graphql/data/milvus.db')"
 
       - name: Build wheel + sdist
