@@ -2,6 +2,9 @@ import json
 
 
 def type_str(t) -> str:
+    # Renders a GraphQL type ref to a string (e.g. "String!", "[Int!]"). Assumes the
+    # introspected ofType nesting is captured deep enough; deeper wrappers than the
+    # introspection query fetched would truncate to "Unknown" (not a concern for OC's schema).
     if not t:
         return "Unknown"
     kind = t.get("kind")
