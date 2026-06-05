@@ -1,6 +1,8 @@
-# Audit workflow files for supply-chain issues with zizmor.
-# Catches: unpinned actions, @latest CLI installs, dangerous triggers, etc.
-name: Security audit (zizmor)
+# Supply-chain + dependency security audits.
+#   * zizmor    — audits the workflow files themselves (unpinned actions,
+#                 @latest CLI installs, dangerous triggers, etc.).
+#   * pip-audit — audits the Python runtime dependencies for known CVEs.
+name: Security audit
 
 on:
   push:
@@ -9,17 +11,21 @@ on:
     paths:
       - '.github/workflows/**'
       - '.github/zizmor.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     paths:
       - '.github/workflows/**'
       - '.github/zizmor.yml'
+      - 'pyproject.toml'
+      - 'uv.lock'
 
 permissions:
   contents: read
 
 jobs:
   zizmor:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -27,7 +33,7 @@ jobs:
           persist-credentials: false
 
       - name: Install zizmor
-        # pipx is preinstalled on ubuntu-latest runners.
+        # pipx is preinstalled on ubuntu runners.
         # Pin zizmor explicitly — bump deliberately after reviewing the changelog.
         run: pipx install zizmor==1.25.2
 
@@ -36,3 +42,28 @@ jobs:
         # findings (template-injection on secret interpolation, concurrency,
         # anonymous jobs, etc.) re-run locally with --pedantic.
         run: zizmor .github/workflows/
+
+  pip-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        with:
+          version: "0.8.19"
+
+      - name: Install the locked runtime dependencies
+        # Materialize the exact locked runtime deps (no dev group) into the project
+        # venv so pip-audit can scan a real, resolved environment instead of
+        # spinning up its own resolution venv from a requirements file.
+        run: uv sync --no-dev --frozen
+
+      - name: Audit dependencies for known vulnerabilities
+        # Pin pip-audit explicitly (no @latest). Bump deliberately.
+        # `--python` (a uvx flag) points pip-audit at the synced project venv;
+        # `--skip-editable` skips the unpublished local project itself.
+        run: uvx --python .venv/bin/python "pip-audit==2.9.0" --skip-editable
