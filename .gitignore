@@ -26,5 +26,6 @@ dist/
 # RAG corpus build artifacts (regenerate with corpus build scripts)
 mcp_for_ocp_graphql/data/milvus.db/
 corpus/sources/
+.opencrane/*.log
 .opencrane/embeddings.json
 .opencrane/llmstxt/
