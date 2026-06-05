@@ -15,9 +15,3 @@ __pycache__
 .opencrane/embeddings.json
 .opencrane/llmstxt
 corpus/sources
-# JS app files — not used by the Python image.
-index.js
-src
-scripts
-package.json
-package-lock.json
