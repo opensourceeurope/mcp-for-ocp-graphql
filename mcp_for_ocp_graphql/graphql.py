@@ -1,6 +1,5 @@
-from graphql import parse, OperationType
-from graphql.language.ast import OperationDefinitionNode
 import httpx
+from graphql import parse, OperationType, OperationDefinitionNode
 
 
 def read_only(query: str) -> bool:
