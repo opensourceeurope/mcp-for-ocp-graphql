@@ -1,10 +1,10 @@
-# opencollective-mcp — Agent Instructions
+# mcp-for-ocp-graphql — Agent Instructions
 
-MCP server that introspects the Open Collective GraphQL API at startup and exposes every query operation as an MCP tool. HTTP-only, OAuth 2.1 with PKCE. Licensed under MIT.
+A Python MCP server for the [Open Collective GraphQL API v2](https://api.opencollective.com/graphql/v2). It exposes **three tools** — `search_docs`, `schema_lookup`, `graphql_query` — that let an assistant learn the schema and docs, then run **read-only** queries. Mutations and subscriptions are rejected. Published to PyPI; run via `uvx mcp-for-ocp-graphql`. Python ≥3.11, MIT-licensed.
 
 ## Authorship Rules
 
-- **NEVER add `Co-Authored-By:` with yourself as a co-author of any commit.** Agents are assistants and tools — they are not authors. Only humans can be authors of commits.
+- **NEVER add `Co-Authored-By:` with yourself (an agent) as a co-author of any commit.** Agents are assistants and tools — they are not authors. Only humans can be authors of commits.
 - AI assistance disclosure belongs in the pull request description using the exact format below — not in commit authorship metadata:
   ```
   Generated-by: <Agent Name and Version> following [AI Policy](https://github.com/opensourceeurope/.github/blob/main/AI-POLICY.md)
@@ -13,30 +13,63 @@ MCP server that introspects the Open Collective GraphQL API at startup and expos
 ## Commit Conventions
 
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `ci:`, `chore:`
-- This project is MIT-licensed — do not introduce incompatibly licensed material
+- This project is MIT-licensed — do not introduce incompatibly licensed material.
 
 ## Running Tests
 
 ```bash
-npm test
+uv sync           # install runtime + dev deps from uv.lock
+uv run pytest     # run the suite
 ```
 
-Tests use the Node.js built-in test runner (`node --test`). No Jest, no Vitest. Follow TDD: write the failing test first, watch it fail, then implement.
+Tests live in `tests/` and use `pytest`. Follow TDD: write the failing test first, watch it fail, then implement.
 
 ## Architecture
 
-**Startup**: `fetchSchema(endpoint)` introspects the OC GraphQL API anonymously (no token needed). `buildTools(schema, endpoint, tokenGetter)` maps each query field to an MCP tool.
+### Two transports / entry points
 
-**Per request**: The bearer token from the OAuth handshake is threaded through `AsyncLocalStorage` into the tool handlers, which forward it as a `Personal-Token` header on every GraphQL call. OC validates the token naturally on each query — there is no server-side token cache.
+Both serve the **same three tools** built by `server.register_tools`; they differ only in how the OC token is supplied.
 
-**Auth flow**: `createOAuthProvider` in `src/auth.js` implements the full OAuth 2.1 authorization server. Authorization codes live in memory for 30 seconds and are deleted after a single exchange. `verifyAccessToken` is intentionally a presence-only check — it does not call the OC API. OC rejects bad tokens on first use.
+- **stdio** — console script `mcp-for-ocp-graphql` (`app_stdio.main`). Single user. Token comes from the `OC_PERSONAL_TOKEN` env var and is **optional**: no token → anonymous public-data mode. The token is a plain string passed to the tools.
+- **hosted HTTP** — console script `mcp-for-ocp-graphql-http` (`app_http.main`). Streamable HTTP with an OAuth 2.1 / PKCE passthrough. Each user pastes their own OC personal token into the browser form at `/oc-login`; that token becomes the OAuth bearer and is read per-request from the auth context and forwarded as the `Personal-Token` header. `OC_PERSONAL_TOKEN` is **not** used here. Env: `PORT` (default 3000), `PUBLIC_URL` (OAuth issuer; https in prod), `OC_GRAPHQL_ENDPOINT`. Deployed via the Docker image (Scaleway/OVH/Hetzner).
+
+### Module map
+
+| Module | Responsibility |
+|---|---|
+| `graphql.py` | `read_only()` query-op check + `execute_query()` HTTP proxy to the OC endpoint. Rejects non-query ops (`ReadOnlyError`). |
+| `schema_index.py` | `SchemaIndex` — loads the introspected schema, `lookup()`/`search()` by name, renders type refs. `format_lookup()` for the tool output. |
+| `schema_fetch.py` | Introspects the live OC API and writes `data/schema.json` (run as `python -m ...schema_fetch`). |
+| `schema_ref.py` | Renders an introspection schema as markdown (the schema-reference corpus source). |
+| `server.py` | `register_tools()` / `build_server()` — wires the three tools onto a `FastMCP`. `resolve_call_token()` allows a per-call callable token. |
+| `app_stdio.py` | stdio entry point: loads baked schema + docs index, resolves env token, runs FastMCP over stdio. |
+| `app_http.py` | hosted HTTP entry point: builds the Starlette app, OAuth provider, `/oc-login` routes, per-request token from auth context. |
+| `auth.py` | `OCAuthProvider` (OAuth 2.1 authorization server), `verify_oc_token()`, `render_auth_form()`, single-use short-TTL auth codes. |
+| `embedding.py` | Sentence-Transformers embedder (`nomic-embed-text-v1.5`) with the nomic `search_query:` prefix. |
+| `search.py` | `DocSearch` — Milvus Lite client wrapping the baked vector index for `search_docs`. |
+| `indexer.py` | Build-time: loads OpenCrane `chunks.json` + `embeddings.json` into a Milvus Lite collection. |
+
+### The three tools (learn, then execute)
+
+1. `search_docs(query, top_k=5)` — semantic search over the baked docs/schema-reference index. Use **first**.
+2. `schema_lookup(name)` — exact type/query-field definition incl. args (name, type, required, default); substring matches return candidates.
+3. `graphql_query(query, variables=None)` — read-only proxy; every operation parsed and required to be a `query`, else rejected.
+
+### RAG build pipeline (build-time only)
+
+The docs index is built **at build time**, never at runtime:
+
+- The OpenCrane CLI (`uvx opencrane`) runs `llms` / `chunk` / `embed` over the corpus in `corpus/sources/` — the six OC GraphQL guides (from `github.com/opencollective/graphql-docs-v2`), a generated schema reference, and the querying skill — producing `.opencrane/chunks.json` (committed, reproducible input) and `.opencrane/embeddings.json` (gitignored).
+- **Our own `indexer.py`** then loads those chunks + embeddings into a Milvus Lite collection at `data/milvus.db/`. We do **not** use OpenCrane's MCP server — OpenCrane is a build-time CLI only, and we index into Milvus ourselves.
+- `data/milvus.db/` and `data/schema.json` are baked into the wheel (gitignored in source). CI bakes them on the runner before `docker build`.
 
 ## Key Decisions — Do Not Quietly Undo
 
-- **No stdio mode, no `OC_PERSONAL_TOKEN`.** HTTP + OAuth only. Every user authenticates with their own token.
-- **`verifyAccessToken` does not call OC.** It checks that a token string is present. Double-validation on every request was explicitly removed as unnecessary — OC does it when the tool actually runs.
-- **Read-only.** Only query operations are exposed. Mutations are excluded at schema introspection time and must stay excluded.
-- **`buildSelection` caps depth at 3 and skips UNION types.** This keeps generated GraphQL queries from becoming unboundedly large. Do not raise the depth limit without understanding the query size implications.
-- **Hardcoded descriptions in `src/tools.js`.** The `DESCRIPTIONS` map provides meaningful per-operation descriptions that the OC schema itself lacks. If new query operations appear, add entries there rather than falling back to the camelCase→words conversion.
-- **XSS escaping in `src/auth.js`.** The `escape()` function must be applied to every user-controlled value rendered into HTML. The auth form is a security boundary — treat it accordingly.
-- **Never log tokens.** The bearer token / `Personal-Token` value must never appear in logs, error messages, or stack traces. When adding debug output, log operation names and status codes — not headers or request bodies that may contain the token.
+- **Read-only proxy.** `graphql_query` parses the document and rejects anything that is not a `query` operation (mutations, subscriptions). This is the core safety property — do not relax it.
+- **`OC_PERSONAL_TOKEN` is stdio-only.** The HTTP server gets each user's token via OAuth and forwards it per-request; it must never read a shared `OC_PERSONAL_TOKEN`.
+- **Token may be absent (stdio).** No token → anonymous public-data mode. Do not make the token mandatory for stdio.
+- **Presence-only access-token verification.** In HTTP mode, the OAuth provider checks only that a bearer string is present per request — it does not re-call OC on every request. The token is validated exactly once, at form-submit time (`verify_oc_token` → `{ me { id } }`). OC rejects bad tokens naturally when a tool runs.
+- **Never log or persist tokens.** The personal token / `Personal-Token` value must never appear in logs, error messages, or stack traces, and is not cached server-side. Log operation names and status codes, not headers or bodies.
+- **OpenCrane is build-time only.** The RAG corpus pipeline runs at build time via the CLI; the server depends only on the baked `milvus.db/`. Do not add a runtime dependency on OpenCrane or its MCP.
+- **Milvus Lite is baked, not a server.** `search.py` opens the baked `data/milvus.db/` file directly; there is no separate Milvus server to run or connect to.
+- **XSS escaping in `auth.py`.** Every user-controlled value rendered into the login form HTML must be escaped (`html.escape`). The auth form is a security boundary.
