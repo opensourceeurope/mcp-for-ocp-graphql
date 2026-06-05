@@ -1,6 +1,6 @@
 import asyncio
 import json
-from mcp_for_ocp_graphql.server import build_server, format_search
+from mcp_for_ocp_graphql.server import build_server, format_search, resolve_call_token
 from mcp_for_ocp_graphql.schema_index import SchemaIndex
 
 FIXTURE = {"queryType": {"fields": []}, "types": [
@@ -68,3 +68,54 @@ def test_search_docs_tool_returns_unavailable_when_no_doc_search():
     mcp = build_server(SchemaIndex(FIXTURE), endpoint="https://oc/graphql", token=None)
     result = asyncio.run(mcp.call_tool("search_docs", {"query": "anything"}))
     assert _tool_text(result) == "Docs search is unavailable (no index loaded)."
+
+
+def test_resolve_call_token_passthrough_for_str_and_none():
+    assert resolve_call_token("static") == "static"
+    assert resolve_call_token(None) is None
+
+
+def test_resolve_call_token_calls_callable():
+    assert resolve_call_token(lambda: "dynamic") == "dynamic"
+
+
+class _CapturingClient:
+    """Fake httpx client capturing the Personal-Token header sent to the endpoint."""
+
+    def __init__(self):
+        self.sent_token = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def post(self, endpoint, json=None, headers=None):
+        self.sent_token = (headers or {}).get("Personal-Token")
+
+        class _Resp:
+            status_code = 200
+
+            def raise_for_status(self_inner):
+                return None
+
+            def json(self_inner):
+                return {"data": {"ok": True}}
+
+        return _Resp()
+
+
+def test_graphql_query_forwards_dynamic_token():
+    """A callable token is resolved at call time and forwarded as Personal-Token."""
+    captured = _CapturingClient()
+    mcp = build_server(
+        SchemaIndex(FIXTURE),
+        endpoint="https://oc/graphql",
+        token=lambda: "dynamic",
+        client_factory=lambda: captured,
+    )
+    result = asyncio.run(mcp.call_tool("graphql_query", {"query": "{ me { id } }"}))
+    parsed = json.loads(_tool_text(result))
+    assert parsed == {"data": {"ok": True}}
+    assert captured.sent_token == "dynamic"
