@@ -14,3 +14,11 @@ schema.json
 docs/superpowers
 
 reports/
+
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+mcp_for_ocp_graphql/data/schema.json
+dist/
+*.egg-info/
