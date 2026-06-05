@@ -14,10 +14,12 @@ dependencies = [
   "milvus-lite>=2.4",
   "sentence-transformers>=3",
   "einops>=0.7",
+  "uvicorn>=0.30",
 ]
 
 [project.scripts]
 mcp-for-ocp-graphql = "mcp_for_ocp_graphql.app_stdio:main"
+mcp-for-ocp-graphql-http = "mcp_for_ocp_graphql.app_http:main"
 
 [dependency-groups]
 dev = ["pytest>=8"]
