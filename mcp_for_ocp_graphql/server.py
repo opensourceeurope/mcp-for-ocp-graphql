@@ -13,16 +13,32 @@ def format_search(doc_search, query: str, top_k: int) -> str:
     return json.dumps(hits, indent=2)
 
 
-def build_server(index: SchemaIndex, *, endpoint: str, token, client_factory=None, doc_search=None) -> FastMCP:
+def resolve_call_token(token):
+    """Resolve the token to use for a single tool call.
+
+    ``token`` may be a plain string (static, e.g. stdio mode), ``None`` (anonymous),
+    or a zero-arg callable (HTTP mode, where the per-request bearer is read from the
+    auth context at call time). Callables are invoked here so the value is never
+    captured at registration time.
+    """
+    return token() if callable(token) else token
+
+
+def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, doc_search=None, client_factory=None) -> FastMCP:
+    """Register the three OC tools (graphql_query, schema_lookup, search_docs) on ``mcp``.
+
+    ``token`` is resolved per call via :func:`resolve_call_token`, so a callable may be
+    supplied to forward a per-request token. Returns ``mcp`` for convenience.
+    """
     factory = client_factory or (lambda: httpx.Client(timeout=30))
-    mcp = FastMCP("mcp-for-ocp-graphql")
 
     @mcp.tool()
     def graphql_query(query: str, variables: dict | None = None) -> str:
         """Execute a read-only Open Collective GraphQL v2 query and return the JSON result.
         Mutations and subscriptions are rejected. Use schema_lookup to find fields/args first."""
+        call_token = resolve_call_token(token)
         with factory() as client:
-            data = execute_query(query, variables, endpoint=endpoint, token=token, client=client)
+            data = execute_query(query, variables, endpoint=endpoint, token=call_token, client=client)
         return json.dumps(data, indent=2)
 
     @mcp.tool()
@@ -39,3 +55,15 @@ def build_server(index: SchemaIndex, *, endpoint: str, token, client_factory=Non
         return format_search(doc_search, query, top_k)
 
     return mcp
+
+
+def build_server(index: SchemaIndex, *, endpoint: str, token, client_factory=None, doc_search=None) -> FastMCP:
+    mcp = FastMCP("mcp-for-ocp-graphql")
+    return register_tools(
+        mcp,
+        index=index,
+        endpoint=endpoint,
+        token=token,
+        doc_search=doc_search,
+        client_factory=client_factory,
+    )
