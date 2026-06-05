@@ -30,6 +30,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mcp_for_ocp_graphql"]
+artifacts = [
+  "mcp_for_ocp_graphql/data/schema.json",
+  "mcp_for_ocp_graphql/data/milvus.db/**/*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
