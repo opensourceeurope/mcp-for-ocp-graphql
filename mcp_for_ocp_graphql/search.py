@@ -11,6 +11,9 @@ class DocSearch:
         self._client = MilvusClient(db_path)
         self._collection = collection
         self._embedder = embedder
+        # pymilvus 3.0 / Milvus Lite: collection must be loaded before search
+        if self._client.has_collection(collection):
+            self._client.load_collection(collection)
 
     def search(self, query: str, top_k: int = 5) -> list[dict]:
         vector = self._embedder(query)

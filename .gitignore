@@ -22,3 +22,9 @@ __pycache__/
 mcp_for_ocp_graphql/data/schema.json
 dist/
 *.egg-info/
+
+# RAG corpus build artifacts (regenerate with corpus build scripts)
+mcp_for_ocp_graphql/data/milvus.db/
+corpus/sources/
+.opencrane/embeddings.json
+.opencrane/llmstxt/
