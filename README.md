@@ -122,7 +122,7 @@ Both are **committed to the repo** (along with the corpus under `.opencrane/`) a
 schema_fetch → schema_ref → opencrane fetch → llms → chunk → embed → index
 ```
 
-The corpus combines the six Open Collective GraphQL guides from [opencollective/graphql-docs-v2](https://github.com/opencollective/graphql-docs-v2) (fetched into `.opencrane/sources/`), a generated schema reference, and the querying skill — see [corpus/NOTICE.md](corpus/NOTICE.md). `corpus-refresh` runs weekly (and on demand) on Linux CI and opens a PR with the regenerated artifacts; image/wheel builds just consume the committed data, so they never download the embedding model or re-introspect the schema at build time.
+The corpus combines the six Open Collective GraphQL guides from [opencollective/graphql-docs-v2](https://github.com/opencollective/graphql-docs-v2) (fetched into `.opencrane/sources/`; original content © Open Collective, Inc., used under its upstream license), a generated schema reference, and the querying skill. `corpus-refresh` runs weekly (and on demand) on Linux CI and opens a PR with the regenerated artifacts; image/wheel builds just consume the committed data, so they never download the embedding model or re-introspect the schema at build time.
 
 ## Stack & credits
 
