@@ -1,5 +1,7 @@
 """TDD tests for schema_ref.schema_to_markdown."""
-from mcp_for_ocp_graphql.schema_ref import schema_to_markdown
+import json
+
+from mcp_for_ocp_graphql.schema_ref import main, schema_to_markdown
 
 
 def nn(of):
@@ -113,3 +115,19 @@ def test_scalar_type_not_a_section():
     # String is a scalar; it should not appear as a heading
     headings = [l for l in md.splitlines() if l.startswith("#") and "String" in l]
     assert not headings, f"Scalar String unexpectedly got a heading: {headings}"
+
+
+def test_main_writes_reference_from_baked_schema(tmp_path, monkeypatch):
+    """`main` reads data/schema.json and writes the rendered markdown to OUTPUT."""
+    import mcp_for_ocp_graphql.schema_ref as sr
+
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "schema.json").write_text(json.dumps(FIXTURE))
+    monkeypatch.setattr(sr, "__file__", str(tmp_path / "schema_ref.py"))
+
+    out = tmp_path / "nested" / "schema-reference.md"
+    main([str(out)])
+
+    assert out.exists()
+    assert "collective" in out.read_text()

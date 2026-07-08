@@ -4,8 +4,6 @@ on:
   push:
     branches: [main]
     tags: ['v*']
-  schedule:
-    - cron: '0 4 * * 1'  # weekly Monday 04:00 UTC — refreshes schema.json
   workflow_dispatch:
 
 env:
@@ -13,7 +11,6 @@ env:
   IMAGE_NAME: opensourceeurope/opencollective-mcp
   SCW_REGION: pl-waw
   SCW_CLI_VERSION: 2.56.1
-  UV_VERSION: 0.8.19
 
 jobs:
   build-push:
@@ -27,19 +24,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
-        with:
-          version: ${{ env.UV_VERSION }}
-
-      # Bake the data on the runner BEFORE docker build so the image just COPYs it
-      # (avoids re-downloading the nomic embedding model inside every image build).
-      - name: Bake the schema
-        run: uv run python -m mcp_for_ocp_graphql.schema_fetch
-
-      - name: Build the embeddings + Milvus index from committed chunks.json
-        run: |
-          uvx --from "opencrane==0.18.5" opencrane embed
-          uv run python -c "from mcp_for_ocp_graphql.indexer import build_index; build_index('.opencrane/chunks.json', '.opencrane/embeddings.json', 'mcp_for_ocp_graphql/data/milvus.db')"
+      # The RAG/schema data (mcp_for_ocp_graphql/data/, .opencrane/) is committed to
+      # the repo and refreshed by corpus-refresh.yml — no bake step here; the image
+      # just COPYs it (see Dockerfile).
 
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 

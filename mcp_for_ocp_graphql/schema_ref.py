@@ -3,8 +3,21 @@
 One section per query field and per named OBJECT / INPUT_OBJECT type.
 Reuses `type_str` and `arg_required` from schema_index so the rendering is
 consistent with the rest of the package.
+
+Run as a module to (re)generate the corpus reference from the baked schema:
+
+    python -m mcp_for_ocp_graphql.schema_ref [OUTPUT_MD]
+
+Reads ``mcp_for_ocp_graphql/data/schema.json`` (produced by ``schema_fetch``)
+and writes ``OUTPUT_MD`` (default ``.opencrane/sources/local/schema-reference.md``).
 """
+import json
+import sys
+from pathlib import Path
+
 from .schema_index import type_str, arg_required
+
+DEFAULT_OUTPUT = ".opencrane/sources/local/schema-reference.md"
 
 # Type kinds that get their own reference section.
 _SECTION_KINDS = {"OBJECT", "INPUT_OBJECT"}
@@ -94,3 +107,17 @@ def schema_to_markdown(schema: dict) -> str:
         sections.extend(type_sections)
 
     return "\n".join(sections)
+
+
+def main(argv: list[str] | None = None) -> None:
+    argv = sys.argv[1:] if argv is None else argv
+    out = Path(argv[0]) if argv else Path(DEFAULT_OUTPUT)
+    schema_path = Path(__file__).parent / "data" / "schema.json"
+    schema = json.loads(schema_path.read_text())
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(schema_to_markdown(schema))
+    sys.stderr.write(f"Wrote {out}\n")
+
+
+if __name__ == "__main__":
+    main()
