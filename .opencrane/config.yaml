@@ -1,0 +1,18 @@
+# OpenCrane source mapping for the Open Collective GraphQL MCP RAG corpus.
+#
+# Auto-discovered because it lives in .opencrane/ (no --config flag needed).
+# Consumed by:
+#   - `opencrane fetch` — clones each source repo into corpus/sources/
+#   - `opencrane llms`  — builds the companion llms.txt of per-page source URLs
+#
+# The six OC GraphQL guides referenced in corpus/NOTICE.md come from the repo
+# below, under pages/ (01.Welcome.md, 02.Access.md, 03.First Queries/*.md).
+# schema-reference.md and querying-skill.md are produced locally, not fetched.
+
+sources:
+  opencollective/graphql-docs-v2:
+    url: https://github.com/opencollective/graphql-docs-v2
+    docs_path: pages
+    docs_url: https://graphql-docs-v2.opencollective.com
+    branch: main   # swap for `sha: <commit>` if you want a fully pinned corpus
+    manual: true   # hand-authored — don't let `fetch` auto-discovery overwrite it
