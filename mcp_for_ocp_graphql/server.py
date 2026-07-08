@@ -35,7 +35,8 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
     @mcp.tool()
     def graphql_query(query: str, variables: dict | None = None) -> str:
         """Execute a read-only Open Collective GraphQL v2 query and return the JSON result.
-        Mutations and subscriptions are rejected. Use schema_lookup to find fields/args first."""
+        Mutations and subscriptions are rejected. Before querying, use search_docs to find the
+        right queries/fields, then schema_lookup to confirm their exact fields, args, and types."""
         call_token = resolve_call_token(token)
         with factory() as client:
             data = execute_query(query, variables, endpoint=endpoint, token=call_token, client=client)
