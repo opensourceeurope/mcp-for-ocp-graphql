@@ -75,7 +75,8 @@ jobs:
 
       - name: Chunk
         # docling + tiktoken are required by chunk's strategies but not in opencrane's deps.
-        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with docling --with tiktoken opencrane chunk
+        # --force is a no-op here (chunk always regenerates) — kept for consistency with llms/embed.
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with docling --with tiktoken opencrane chunk --force
 
       - name: Embed
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane embed --force
