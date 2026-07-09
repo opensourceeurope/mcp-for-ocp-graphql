@@ -61,6 +61,18 @@
       "max_length": 512,
       "name": "source_file",
       "nullable": false
+    },
+    {
+      "auto_id": false,
+      "default_value": null,
+      "dim": null,
+      "dtype": "varchar",
+      "element_type": null,
+      "is_primary": false,
+      "max_capacity": null,
+      "max_length": 1024,
+      "name": "source_url",
+      "nullable": false
     }
   ],
   "schema_format_version": 2,

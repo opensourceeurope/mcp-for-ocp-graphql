@@ -21,7 +21,7 @@ class DocSearch:
             collection_name=self._collection,
             data=[vector],
             limit=top_k,
-            output_fields=["content", "source_name", "source_file"],
+            output_fields=["content", "source_name", "source_file", "source_url"],
             anns_field="embedding",
         )
         hits = results[0] if results else []
@@ -31,6 +31,7 @@ class DocSearch:
             out.append({
                 "text": entity.get("content"),
                 "source": entity.get("source_name") or entity.get("source_file"),
+                "source_url": entity.get("source_url") or None,
                 "score": h.get("distance"),
             })
         return out

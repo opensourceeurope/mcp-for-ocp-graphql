@@ -18,7 +18,7 @@ CHUNKS = [
         "chunk_type": "text",
         "content": "How to list expenses in Open Collective",
         "line_start": None,
-        "metadata": {"is_complete": True},
+        "metadata": {"is_complete": True, "source_url": "https://example.com/expenses.md"},
         "source_file": ".opencrane/llmstxt/llms-full.txt",
         "source_name": "oc-06-expenses",
         "token_count": 8,
@@ -110,4 +110,5 @@ def test_search_returns_hit_via_docsearch(chunks_file, embeddings_file, db_path)
     top = results[0]
     assert "expenses" in top["text"].lower() or "expense" in top["text"].lower()
     assert top["source"] == "oc-06-expenses"
+    assert top["source_url"] == "https://example.com/expenses.md"
     assert top["score"] is not None

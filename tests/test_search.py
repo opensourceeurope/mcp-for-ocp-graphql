@@ -26,6 +26,7 @@ def milvus_db(tmp_path):
     schema.add_field("embedding", DataType.FLOAT_VECTOR, dim=8)
     schema.add_field("content", DataType.VARCHAR, max_length=512)
     schema.add_field("source_name", DataType.VARCHAR, max_length=256)
+    schema.add_field("source_url", DataType.VARCHAR, max_length=1024)
 
     # pymilvus 3.0.0 requires an explicit index_type; HNSW works with COSINE
     index_params = MilvusClient.prepare_index_params()
@@ -45,12 +46,14 @@ def milvus_db(tmp_path):
                 "embedding": [1, 0, 0, 0, 0, 0, 0, 0],
                 "content": "how to list expenses",
                 "source_name": "expenses.md",
+                "source_url": "https://example.com/expenses",
             },
             {
                 "chunk_id": "b",
                 "embedding": [0, 1, 0, 0, 0, 0, 0, 0],
                 "content": "about backers",
                 "source_name": "backers.md",
+                "source_url": "https://example.com/backers",
             },
         ],
     )
@@ -73,6 +76,7 @@ def test_search_ranks_most_similar_first(milvus_db):
     assert len(hits) == 1
     assert hits[0]["text"] == "how to list expenses"
     assert hits[0]["source"] == "expenses.md"
+    assert hits[0]["source_url"] == "https://example.com/expenses"
     assert "score" in hits[0]
 
 

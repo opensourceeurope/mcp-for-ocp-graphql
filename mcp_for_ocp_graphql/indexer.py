@@ -36,6 +36,7 @@ The Milvus Lite collection ``ai_docs_chunks_v1`` (default) uses:
   content     VARCHAR(65535)
   source_name VARCHAR(512)
   source_file VARCHAR(512)
+  source_url  VARCHAR(1024)  from chunk ``metadata.source_url`` (may be empty)
 with a COSINE / HNSW index on ``embedding``.
 """
 from __future__ import annotations
@@ -105,6 +106,7 @@ def build_index(
     schema.add_field("content", DataType.VARCHAR, max_length=65535)
     schema.add_field("source_name", DataType.VARCHAR, max_length=512)
     schema.add_field("source_file", DataType.VARCHAR, max_length=512)
+    schema.add_field("source_url", DataType.VARCHAR, max_length=1024)
 
     # ── Define index params ────────────────────────────────────────────────────
     index_params = client.prepare_index_params()
@@ -135,6 +137,7 @@ def build_index(
                 "content": (chunk.get("content") or "")[:65535],
                 "source_name": (chunk.get("source_name") or "")[:512],
                 "source_file": (chunk.get("source_file") or "")[:512],
+                "source_url": (((chunk.get("metadata") or {}).get("source_url")) or "")[:1024],
             }
         )
 
