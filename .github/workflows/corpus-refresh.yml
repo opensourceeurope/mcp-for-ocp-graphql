@@ -46,15 +46,13 @@ jobs:
       - name: Fetch the live GraphQL schema
         run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_fetch
 
-      - name: Build local corpus docs (curated query-field map + querying skill)
+      - name: Build the curated query-field map
         run: |
           mkdir -p .opencrane/sources/local
           # Curated: only the top-level query fields (entry points), NOT the full
           # per-type dump — that would bloat the index and duplicate schema_lookup.
           uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref \
             --queries-only .opencrane/sources/local/schema-queries.md
-          cp .claude/skills/querying-opencollective-graphql/SKILL.md \
-            .opencrane/sources/local/querying-skill.md
 
       - name: Fetch documentation sources (opencollective/graphql-docs-v2)
         env:
@@ -66,16 +64,13 @@ jobs:
       - name: Generate llms bundle
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane llms --force
 
-      - name: Append local corpus docs to the llms bundle
+      - name: Append the query-field map to the llms bundle
         # opencrane's llms step only processes configured GitHub sources, so our
-        # generated query-field map and authored skill are concatenated in here so
-        # `chunk` includes them.
+        # generated query-field map is concatenated in here so `chunk` includes it.
         run: |
           {
             printf '\n\n# Open Collective GraphQL — query fields (entry points)\n\n'
             cat .opencrane/sources/local/schema-queries.md
-            printf '\n\n# Querying Open Collective GraphQL (skill)\n\n'
-            cat .opencrane/sources/local/querying-skill.md
           } >> .opencrane/llmstxt/llms-full.txt
 
       - name: Chunk
