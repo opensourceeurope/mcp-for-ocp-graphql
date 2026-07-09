@@ -18,11 +18,14 @@ A Python MCP server for the [Open Collective GraphQL API v2](https://api.opencol
 ## Running Tests
 
 ```bash
-uv sync           # install runtime + dev deps from uv.lock
-uv run pytest     # run the suite
+uv sync            # install runtime + dev deps from uv.lock
+uv run pytest      # fast suite (offline; e2e is excluded by default)
+uv run pytest -m e2e   # opt-in end-to-end: LIVE OC API + baked OpenCrane index
 ```
 
 Tests live in `tests/` and use `pytest`. Follow TDD: write the failing test first, watch it fail, then implement.
+
+`tests/test_e2e.py` is the whole-stack gate — run `uv run pytest -m e2e` **after bumping OpenCrane** (or the embedding model / schema). It builds the server like `app_stdio` (real baked `schema.json` + `milvus.db`) and drives every tool through `mcp.call_tool`: the three tools are registered, `schema_lookup` returns real query args, `search_docs` returns a relevant hit **with `source_url`** from the OpenCrane index, `graphql_query` runs a live tokenless query over the public `asyncapi` collective, and a mutation is rejected. It's excluded from the default run (`addopts = -m 'not e2e'`) because it downloads the embedding model and hits the network.
 
 ## Architecture
 

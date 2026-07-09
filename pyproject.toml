@@ -37,3 +37,8 @@ artifacts = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# e2e tests hit the live OC API and load the embedding model — opt in with `pytest -m e2e`.
+addopts = "-m 'not e2e'"
+markers = [
+  "e2e: real end-to-end checks (live Open Collective API + baked OpenCrane index)",
+]
