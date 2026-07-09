@@ -47,14 +47,12 @@ jobs:
         run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_fetch
 
       - name: Build the curated query-field map (a `local` source in config.yaml)
-        run: |
-          mkdir -p .opencrane/sources/local
-          # Curated: only the top-level query fields (entry points), NOT the full
-          # per-type dump — that would bloat the index and duplicate schema_lookup.
-          # `.opencrane/sources/local` is registered as a `local: true` source in
-          # .opencrane/config.yaml, so `opencrane llms` processes it natively.
-          uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref \
-            --queries-only .opencrane/sources/local/schema-queries.md
+        # Curated: only the top-level query fields (entry points), NOT the full
+        # per-type dump — that would bloat the index and duplicate schema_lookup.
+        # Writes ONE file per query into .opencrane/sources/local (registered as a
+        # `local: true` source in .opencrane/config.yaml) so `opencrane llms` pages
+        # and chunks each query separately instead of as one blob.
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref --queries-only .opencrane/sources/local
 
       - name: Fetch documentation sources (opencollective/graphql-docs-v2)
         env:

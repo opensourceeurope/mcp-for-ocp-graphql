@@ -6,10 +6,13 @@ consistent with the rest of the package.
 
 Run as a module to (re)generate the corpus reference from the baked schema:
 
-    python -m mcp_for_ocp_graphql.schema_ref [OUTPUT_MD]
+    python -m mcp_for_ocp_graphql.schema_ref [OUTPUT_MD]          # full reference, one file
+    python -m mcp_for_ocp_graphql.schema_ref --queries-only [DIR] # one file per query field
 
-Reads ``mcp_for_ocp_graphql/data/schema.json`` (produced by ``schema_fetch``)
-and writes ``OUTPUT_MD`` (default ``.opencrane/sources/local/schema-reference.md``).
+Reads ``mcp_for_ocp_graphql/data/schema.json`` (produced by ``schema_fetch``).
+``--queries-only`` writes one markdown file per top-level query field into ``DIR``
+(default ``.opencrane/sources/local``) so OpenCrane pages and chunks each query
+separately (one file = one page = focused chunks), instead of one giant blob.
 """
 import json
 import sys
@@ -18,6 +21,7 @@ from pathlib import Path
 from .schema_index import type_str, arg_required
 
 DEFAULT_OUTPUT = ".opencrane/sources/local/schema-reference.md"
+DEFAULT_QUERIES_DIR = ".opencrane/sources/local"
 
 # Type kinds that get their own reference section.
 _SECTION_KINDS = {"OBJECT", "INPUT_OBJECT"}
@@ -38,6 +42,54 @@ def _render_args(args: list) -> list[str]:
     for a in args:
         lines.append(_render_arg(a))
     return lines
+
+
+def query_field_doc(field: dict) -> str:
+    """Render ONE top-level query field as a standalone markdown document.
+
+    Used to emit one file per query so OpenCrane pages/chunks each separately.
+    Arguments are rendered as a single prose sentence (NOT a bullet list): the
+    chunker splits markdown lists into one chunk *per item*, which would explode
+    each query into dozens of one-arg chunks. Prose keeps the whole query — name,
+    return type, and all arg names — in one focused, searchable chunk.
+    """
+    name = field.get("name", "")
+    ret_type = type_str(field.get("type"))
+    description = (field.get("description") or "").strip()
+    lines = [f"# `{name}` query", "", f"Returns `{ret_type}`.", ""]
+    if description:
+        lines += [description, ""]
+    args = field.get("args") or []
+    if args:
+        rendered = ", ".join(
+            f"`{a.get('name', '')}` ({type_str(a.get('type'))}"
+            + (", required)" if arg_required(a) else ")")
+            for a in args
+        )
+        lines.append(f"Arguments: {rendered}.")
+    else:
+        lines.append("Takes no arguments.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def write_query_field_files(schema: dict, out_dir) -> int:
+    """Write one ``<query>.md`` per top-level query field into ``out_dir``.
+
+    Removes stale ``*.md`` in ``out_dir`` first so removed queries don't linger.
+    Returns the number of files written.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in out_dir.glob("*.md"):
+        stale.unlink()
+    query_fields = (schema.get("queryType") or {}).get("fields") or []
+    for field in query_fields:
+        name = field.get("name", "")
+        if not name:
+            continue
+        (out_dir / f"{name}.md").write_text(query_field_doc(field))
+    return len(query_fields)
 
 
 def schema_to_markdown(schema: dict, *, queries_only: bool = False) -> str:
@@ -125,12 +177,19 @@ def main(argv: list[str] | None = None) -> None:
     if "--queries-only" in argv:
         queries_only = True
         argv.remove("--queries-only")
-    out = Path(argv[0]) if argv else Path(DEFAULT_OUTPUT)
     schema_path = Path(__file__).parent / "data" / "schema.json"
     schema = json.loads(schema_path.read_text())
+
+    if queries_only:
+        out_dir = Path(argv[0]) if argv else Path(DEFAULT_QUERIES_DIR)
+        n = write_query_field_files(schema, out_dir)
+        sys.stderr.write(f"Wrote {n} query-field files to {out_dir}\n")
+        return
+
+    out = Path(argv[0]) if argv else Path(DEFAULT_OUTPUT)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(schema_to_markdown(schema, queries_only=queries_only))
-    sys.stderr.write(f"Wrote {out}{' (queries only)' if queries_only else ''}\n")
+    out.write_text(schema_to_markdown(schema))
+    sys.stderr.write(f"Wrote {out}\n")
 
 
 if __name__ == "__main__":

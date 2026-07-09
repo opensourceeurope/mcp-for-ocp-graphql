@@ -366,14 +366,434 @@
     "token_count": 32
   },
   {
-    "chunk_id": "a4c6ab0907bb0368ecdd4ceef8dd705278ea459df954129edadbf1180bbfd6c8",
+    "chunk_id": "ae6b130b9be88cb4543cc93dac99e879d92a6b61084fd2ef48efc1e7227a440c",
     "chunk_type": "prose",
-    "content": "# Query Fields\n\n## `account` → `Account`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `accounts` → `AccountCollection!`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `searchTerm: String`\n  - `tag: [String]`\n  - `tagSearchOperator: TagSearchOperator!`\n  - `includeArchived: Boolean`\n  - `skipGuests: Boolean`\n  - `isActive: Boolean`\n  - `skipRecentAccounts: Boolean`\n  - `country: [CountryISO]`\n  - `host: [AccountReferenceInput]`\n  - `parent: [AccountReferenceInput]`\n  - `type: [AccountType]`\n  - `isHost: Boolean`\n  - `onlyOpenToApplications: Boolean`\n  - `hasCustomContributionsEnabled: Boolean`\n  - `orderBy: OrderByInput`\n  - `includeVendorsForHost: AccountReferenceInput`\n  - `consolidatedBalance: AmountRangeInput`\n  - `plan: [String]`\n  - `isPlatformSubscriber: Boolean`\n  - `isVerified: Boolean`\n  - `isFirstPartyHost: Boolean`\n  - `lastTransactionFrom: DateTime`\n  - `lastTransactionTo: DateTime`\n\n## `activities` → `ActivityCollection!`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `individual: AccountReferenceInput`\n  - `account: [AccountReferenceInput!]`\n  - `host: AccountReferenceInput`\n  - `includeChildrenAccounts: Boolean!`\n  - `excludeParentAccount: Boolean!`\n  - `includeHostedAccounts: Boolean!`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n  - `type: [ActivityAndClassesType!]`\n  - `timeline: Boolean!`\n  - `orderBy: ChronologicalOrderInput!`\n\n## `application` → `Application`\n\n  **Args:**\n  - `id: String`\n  - `clientId: String`\n\n## `collective` → `Collective`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `conversation` → `Conversation`\n\n  **Args:**\n  - `id: String!` (required)\n\n## `community` → `AccountCollection!`\n\nReturn accounts that have interacted with a given account or host\n\n  **Args:**\n  - `account: AccountReferenceInput`\n  - `host: AccountReferenceInput!` (required)\n  - `type: [AccountType]`\n  - `searchTerm: String`\n  - `relation: [CommunityRelationType!]`\n  - `orderBy: OrderByInput`\n  - `totalContributed: AmountRangeInput`\n  - `totalExpended: AmountRangeInput`\n  - `limit: Int!`\n  - `offset: Int!`\n\n## `currencyExchangeRate` → `[CurrencyExchangeRate!]!`\n\nGet exchange rates from Open Collective\n\n  **Args:**\n  - `requests: [CurrencyExchangeRateRequest!]!` (required)\n\n## `event` → `Event`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `expense` → `Expense`\n\n  **Args:**\n  - `expense: ExpenseReferenceInput`\n  - `draftKey: String`\n\n## `expenses` → `ExpenseCollection!`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `fromAccount: AccountReferenceInput`\n  - `fromAccounts: [AccountReferenceInput]`\n  - `account: AccountReferenceInput`\n  - `accounts: [AccountReferenceInput]`\n  - `host: AccountReferenceInput`\n  - `fromHost: AccountReferenceInput`\n  - `hostContext: HostContext`\n  - `createdByAccount: AccountReferenceInput`\n  - `paidByAccount: AccountReferenceInput`\n  - `approvedByAccount: AccountReferenceInput`\n  - `rejectedByAccount: AccountReferenceInput`\n  - `invitedByAccount: AccountReferenceInput`\n  - `status: [ExpenseStatusFilter]`\n  - `type: ExpenseType`\n  - `types: [ExpenseType]`\n  - `tag: [String]`\n  - `orderBy: ChronologicalOrderInput!`\n  - `amount: AmountRangeInput`\n  - `minAmount: Int`\n  - `maxAmount: Int`\n  - `payoutMethodType: PayoutMethodType`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n  - `searchTerm: String`\n  - `includeChildrenExpenses: Boolean!`\n  - `customData: JSON`\n  - `chargeHasReceipts: Boolean`\n  - `virtualCards: [VirtualCardReferenceInput]`\n  - `lastCommentBy: [LastCommentBy]`\n  - `accountingCategory: [String]`\n  - `payoutMethod: PayoutMethodReferenceInput`\n  - `activity: ExpenseActivityFilter`\n  - `kycStatus: ExpenseKYCStatusFilter`\n\n## `expenseTagStats` → `TagStatsCollection!`\n\n  **Args:**\n  - `tagSearchTerm: String`\n  - `host: AccountReferenceInput`\n  - `account: AccountReferenceInput`\n  - `limit: Int!`\n  - `offset: Int!`\n\n## `exportRequest` → `ExportRequest`\n\n  **Args:**\n  - `exportRequest: ExportRequestReferenceInput!` (required)\n  - `throwIfMissing: Boolean!`\n\n## `exportRequests` → `ExportRequestCollection!`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `account: AccountReferenceInput!` (required)\n  - `type: ExportRequestType`\n  - `status: ExportRequestStatus`\n\n## `fund` → `Fund`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `host` → `Host`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `hosts` → `HostCollection`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `searchTerm: String`\n  - `tag: [String]`\n  - `tagSearchOperator: TagSearchOperator!`\n  - `includeArchived: Boolean`\n  - `skipGuests: Boolean`\n  - `isActive: Boolean`\n  - `skipRecentAccounts: Boolean`\n  - `country: [CountryISO]`\n  - `currency: String`\n\n## `individual` → `Individual`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `memberInvitations` → `[MemberInvitation]`\n\nReturns the pending invitations, or null if not allowed.\n\n  **Args:**\n  - `memberAccount: AccountReferenceInput`\n  - `account: AccountReferenceInput`\n  - `role: [MemberRole]`\n\n## `order` → `Order`\n\n  **Args:**\n  - `order: OrderReferenceInput!` (required)\n\n## `orders` → `OrderCollection!`\n\n  **Args:**\n  - `account: AccountReferenceInput`\n  - `limit: Int!`\n  - `offset: Int!`\n  - `accountingCategory: [String]`\n  - `hostContext: HostContext`\n  - `includeChildrenAccounts: Boolean!`\n  - `pausedBy: [OrderPausedBy]`\n  - `paymentMethod: [PaymentMethodReferenceInput]`\n  - `paymentMethodService: [PaymentMethodService]`\n  - `paymentMethodType: [PaymentMethodType]`\n  - `manualPaymentProvider: [ManualPaymentProviderReferenceInput!]`\n  - `includeIncognito: Boolean`\n  - `filter: AccountOrdersFilter`\n  - `frequency: [ContributionFrequency]`\n  - `status: [OrderStatus]`\n  - `orderBy: ChronologicalOrderInput!`\n  - `amount: AmountRangeInput`\n  - `minAmount: Int`\n  - `maxAmount: Int`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n  - `expectedDateFrom: DateTime`\n  - `expectedDateTo: DateTime`\n  - `chargedDateFrom: DateTime`\n  - `chargedDateTo: DateTime`\n  - `searchTerm: String`\n  - `tier: [TierReferenceInput]`\n  - `onlySubscriptions: Boolean`\n  - `onlyActiveSubscriptions: Boolean`\n  - `expectedFundsFilter: ExpectedFundsFilter`\n  - `oppositeAccount: AccountReferenceInput`\n  - `hostedAccounts: [AccountReferenceInput]`\n  - `host: AccountReferenceInput`\n  - `oppositeAccountScope: OppositeAccountScope`\n  - `createdBy: [AccountReferenceInput]`\n\n## `organization` → `Organization`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `project` → `Project`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `githubHandle: String`\n  - `throwIfMissing: Boolean`\n\n## `search` → `SearchResponse!`\n\n[!] Warning: this query is currently in beta and the API might change\n\n  **Args:**\n  - `searchTerm: String!` (required)\n  - `account: AccountReferenceInput`\n  - `host: AccountReferenceInput`\n  - `useTopHits: Boolean!`\n  - `timeout: Int!`\n  - `defaultLimit: Int!`\n\n## `tagStats` → `TagStatsCollection!`\n\n  **Args:**\n  - `searchTerm: String`\n  - `tagSearchTerm: String`\n  - `host: AccountReferenceInput`\n  - `limit: Int!`\n  - `offset: Int!`\n\n## `tier` → `Tier`\n\n  **Args:**\n  - `tier: TierReferenceInput!` (required)\n  - `throwIfMissing: Boolean!`\n\n## `transaction` → `Transaction`\n\nFetch a single transaction\n\n  **Args:**\n  - `transaction: TransactionReferenceInput`\n\n## `transactions` → `TransactionCollection!`\n\n  **Args:**\n  - `account: [AccountReferenceInput!]`\n  - `limit: Int!`\n  - `offset: Int!`\n  - `type: TransactionType`\n  - `paymentMethodType: [PaymentMethodType]`\n  - `paymentMethodService: [PaymentMethodService]`\n  - `excludeAccount: [AccountReferenceInput]`\n  - `fromAccount: AccountReferenceInput`\n  - `host: AccountReferenceInput`\n  - `orderBy: ChronologicalOrderInput!`\n  - `amount: AmountRangeInput`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n  - `clearedFrom: DateTime`\n  - `clearedTo: DateTime`\n  - `searchTerm: String`\n  - `hasDebt: Boolean`\n  - `hasExpense: Boolean`\n  - `expense: ExpenseReferenceInput`\n  - `expenseType: [ExpenseType]`\n  - `hasOrder: Boolean`\n  - `order: OrderReferenceInput`\n  - `manualPaymentProvider: [ManualPaymentProviderReferenceInput!]`\n  - `includeHost: Boolean!`\n  - `includeRegularTransactions: Boolean!`\n  - `includeIncognitoTransactions: Boolean!`\n  - `includeChildrenTransactions: Boolean!`\n  - `includeGiftCardTransactions: Boolean!`\n  - `includeDebts: Boolean!`\n  - `includeEditedReversedTransactions: Boolean!`\n  - `kind: [TransactionKind]`\n  - `group: [String]`\n  - `virtualCard: [VirtualCardReferenceInput]`\n  - `isRefund: Boolean`\n  - `merchantId: [String]`\n  - `accountingCategory: [String]`\n  - `paymentMethod: [PaymentMethodReferenceInput]`\n  - `payoutMethod: PayoutMethodReferenceInput`\n\n## `transactionGroups` → `TransactionGroupCollection!`\n\n[!] Warning: this query is currently in beta and the API might change\n\n  **Args:**\n  - `account: AccountReferenceInput!` (required)\n  - `limit: Int!`\n  - `offset: Int!`\n  - `type: TransactionType`\n  - `kind: TransactionKind`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n\n## `transactionsImport` → `TransactionsImport`\n\nFetch a transactions import\n\n  **Args:**\n  - `id: NonEmptyString!` (required)\n\n## `update` → `Update`\n\n  **Args:**\n  - `id: String`\n  - `slug: String`\n  - `account: AccountReferenceInput`\n\n## `updates` → `UpdateCollection!`\n\nThis query currently returns only published updates\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `accountTag: [String]`\n  - `accountType: [AccountType]`\n  - `host: [AccountReferenceInput]`\n  - `onlyChangelogUpdates: Boolean`\n  - `orderBy: UpdateChronologicalOrderInput!`\n\n## `paypalPlan` → `PaypalPlan!`\n\n  **Args:**\n  - `account: AccountReferenceInput!` (required)\n  - `amount: AmountInput!` (required)\n  - `frequency: ContributionFrequency!` (required)\n  - `order: OrderReferenceInput`\n  - `tier: TierReferenceInput`\n\n## `personalToken` → `PersonalToken`\n\nGet a personal token by reference\n\n  **Args:**\n  - `id: String`\n\n## `virtualCard` → `VirtualCard`\n\n  **Args:**\n  - `virtualCard: VirtualCardReferenceInput!` (required)\n  - `throwIfMissing: Boolean!`\n\n## `virtualCardRequest` → `VirtualCardRequest`\n\n  **Args:**\n  - `virtualCardRequest: VirtualCardRequestReferenceInput!` (required)\n  - `throwIfMissing: Boolean!`\n\n## `virtualCardRequests` → `VirtualCardRequestCollection!`\n\n  **Args:**\n  - `limit: Int!`\n  - `offset: Int!`\n  - `host: AccountReferenceInput!` (required)\n  - `status: [VirtualCardRequestStatus]`\n  - `collective: [AccountReferenceInput]`\n\n## `hostApplication` → `HostApplication`\n\n  **Args:**\n  - `hostApplication: HostApplicationReferenceInput`\n\n## `offPlatformTransactionsInstitutions` → `[OffPlatformTransactionsInstitution!]!`\n\nGet financial institutions for off-platform transactions\n\n  **Args:**\n  - `country: String!` (required)\n  - `provider: OffPlatformTransactionsProvider!` (required)\n\n## `loggedInAccount` → `Individual`\n\n## `me` → `Individual`\n\n## `paymentIntents` → `PaymentIntentCollection!`\n\nReturns a list of payment intents\n\n  **Args:**\n  - `account: AccountReferenceInput`\n  - `limit: Int!`\n  - `offset: Int!`\n  - `host: AccountReferenceInput`\n  - `direction: PaymentIntentDirection`\n  - `includeChildrenPaymentIntents: Boolean!`\n  - `status: [PaymentIntentStatus!]`\n  - `type: [PaymentIntentType!]`\n  - `dateFrom: DateTime`\n  - `dateTo: DateTime`\n  - `counterparty: AccountReferenceInput`\n\n## `platformSubscriptionTiers` → `[PlatformSubscriptionTier]`",
+    "content": "# `account` query\n\nReturns `Account`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
     "line_start": null,
     "metadata": {},
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": null,
-    "token_count": 3462
+    "token_count": 39
+  },
+  {
+    "chunk_id": "6660b341d8d6d5c58da5685b85fcb85b825f3b48f9444dc83322af91478170f3",
+    "chunk_type": "prose",
+    "content": "# `accounts` query\n\nReturns `AccountCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `host` ([AccountReferenceInput]), `parent` ([AccountReferenceInput]), `type` ([AccountType]), `isHost` (Boolean), `onlyOpenToApplications` (Boolean), `hasCustomContributionsEnabled` (Boolean), `orderBy` (OrderByInput), `includeVendorsForHost` (AccountReferenceInput), `consolidatedBalance` (AmountRangeInput), `plan` ([String]), `isPlatformSubscriber` (Boolean), `isVerified` (Boolean), `isFirstPartyHost` (Boolean), `lastTransactionFrom` (DateTime), `lastTransactionTo` (DateTime).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 211
+  },
+  {
+    "chunk_id": "e472f27c55932808b8a565b8057bdd87edda6f229c6868dd7a0a376bbd21dc07",
+    "chunk_type": "prose",
+    "content": "# `activities` query\n\nReturns `ActivityCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `individual` (AccountReferenceInput), `account` ([AccountReferenceInput!]), `host` (AccountReferenceInput), `includeChildrenAccounts` (Boolean!), `excludeParentAccount` (Boolean!), `includeHostedAccounts` (Boolean!), `dateFrom` (DateTime), `dateTo` (DateTime), `type` ([ActivityAndClassesType!]), `timeline` (Boolean!), `orderBy` (ChronologicalOrderInput!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 115
+  },
+  {
+    "chunk_id": "c47367e04d07a8836f23b248a698a9c2d5af7017c1caf58761ce2222bec63f2b",
+    "chunk_type": "prose",
+    "content": "# `application` query\n\nReturns `Application`.\n\nArguments: `id` (String), `clientId` (String).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 24
+  },
+  {
+    "chunk_id": "bfba9c684831fd4b9a922e776a38d9e581ba78c3b8c2cac9ea8afd9a3faa81ac",
+    "chunk_type": "prose",
+    "content": "# `collective` query\n\nReturns `Collective`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 41
+  },
+  {
+    "chunk_id": "1d99a0e3bc8db04f04df05d734cbaa5f067a6fe6213ca63b3bb634b0a6e01443",
+    "chunk_type": "prose",
+    "content": "# `community` query\n\nReturns `AccountCollection!`.\n\nReturn accounts that have interacted with a given account or host\n\nArguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeInput), `totalExpended` (AmountRangeInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 107
+  },
+  {
+    "chunk_id": "89a82aa57a7e1a2e3a045f4e91f6c47186c1d0220be9c65e261283f4ee883689",
+    "chunk_type": "prose",
+    "content": "# `conversation` query\n\nReturns `Conversation`.\n\nArguments: `id` (String!, required).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 20
+  },
+  {
+    "chunk_id": "f9f884ae20d12c30c97e78aa2a65dd6392c389eac7007487d9b9dc4446b01b65",
+    "chunk_type": "prose",
+    "content": "# `currencyExchangeRate` query\n\nReturns `[CurrencyExchangeRate!]!`.\n\nGet exchange rates from Open Collective\n\nArguments: `requests` ([CurrencyExchangeRateRequest!]!, required).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 37
+  },
+  {
+    "chunk_id": "6e85a78483504a24875b8bfd2ad703698677058f10c8b3fab1d6c9bfe6f0f23c",
+    "chunk_type": "prose",
+    "content": "# `event` query\n\nReturns `Event`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "4c3ab85793982824f05a90bfcbd6c9bb2f605152cb0530e21e6b678b98a9c1b1",
+    "chunk_type": "prose",
+    "content": "# `expense` query\n\nReturns `Expense`.\n\nArguments: `expense` (ExpenseReferenceInput), `draftKey` (String).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 27
+  },
+  {
+    "chunk_id": "bbeed9092c95236731e6299d428116945d768030ba759e798fbd0085655c9f94",
+    "chunk_type": "prose",
+    "content": "# `expenseTagStats` query\n\nReturns `TagStatsCollection!`.\n\nArguments: `tagSearchTerm` (String), `host` (AccountReferenceInput), `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 53
+  },
+  {
+    "chunk_id": "b19cc311e2354e8de0ce3a3db25ebf053a2cfa1159fcc62da30cb2e30850a1dc",
+    "chunk_type": "prose",
+    "content": "# `expenses` query\n\nReturns `ExpenseCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `fromAccount` (AccountReferenceInput), `fromAccounts` ([AccountReferenceInput]), `account` (AccountReferenceInput), `accounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `fromHost` (AccountReferenceInput), `hostContext` (HostContext), `createdByAccount` (AccountReferenceInput), `paidByAccount` (AccountReferenceInput), `approvedByAccount` (AccountReferenceInput), `rejectedByAccount` (AccountReferenceInput), `invitedByAccount` (AccountReferenceInput), `status` ([ExpenseStatusFilter]), `type` (ExpenseType), `types` ([ExpenseType]), `tag` ([String]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `payoutMethodType` (PayoutMethodType), `dateFrom` (DateTime), `dateTo` (DateTime), `searchTerm` (String), `includeChildrenExpenses` (Boolean!), `customData` (JSON), `chargeHasReceipts` (Boolean), `virtualCards` ([VirtualCardReferenceInput]), `lastCommentBy` ([LastCommentBy]), `accountingCategory` ([String]), `payoutMethod` (PayoutMethodReferenceInput), `activity` (ExpenseActivityFilter), `kycStatus` (ExpenseKYCStatusFilter).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 313
+  },
+  {
+    "chunk_id": "db13f3504eb8c223229d51f6af67f1304f53c7ee28fd15a29afd30478d191c5d",
+    "chunk_type": "prose",
+    "content": "# `exportRequest` query\n\nReturns `ExportRequest`.\n\nArguments: `exportRequest` (ExportRequestReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 34
+  },
+  {
+    "chunk_id": "19b28da963f5b10f976ec556ff8ff95e658e2b98c6bb9619e0171e6c3b7def3d",
+    "chunk_type": "prose",
+    "content": "# `exportRequests` query\n\nReturns `ExportRequestCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `account` (AccountReferenceInput!, required), `type` (ExportRequestType), `status` (ExportRequestStatus).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 54
+  },
+  {
+    "chunk_id": "7aea306e4f984f1fa819e6ccda205248878a1650b44b5d90f7ed305da5f0fa6b",
+    "chunk_type": "prose",
+    "content": "# `fund` query\n\nReturns `Fund`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "54d48abd4b70d6a7c1b4ffdb216de2401481add09f4601bc6dadfbd910ecd95c",
+    "chunk_type": "prose",
+    "content": "# `host` query\n\nReturns `Host`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "4be9af2fa6d7fe00a7db61d5b9f89c48b85a52bc75d5ad1ed95912060acdbc45",
+    "chunk_type": "prose",
+    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 24
+  },
+  {
+    "chunk_id": "8a908ce1e9042a6e5939df84d419c732c33f05cdb19a491bde4427f50c87f67c",
+    "chunk_type": "prose",
+    "content": "# `hosts` query\n\nReturns `HostCollection`.\n\nArguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `currency` (String).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 91
+  },
+  {
+    "chunk_id": "3d02e88a4a0eed5c2972f3e452fe45766626b0a6c33d2ac3932bd2b503c63c44",
+    "chunk_type": "prose",
+    "content": "# `individual` query\n\nReturns `Individual`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "fbf85c702dfc66737c1471c4694d8f21d7ea0ab2f9d89b484e0d9f34d81d7823",
+    "chunk_type": "prose",
+    "content": "# `loggedInAccount` query\n\nReturns `Individual`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 16
+  },
+  {
+    "chunk_id": "91ca3bff2ece2dff9c0624b28bf1ee77b4dd65b6d9090a92c507a6f1a2147b0b",
+    "chunk_type": "prose",
+    "content": "# `me` query\n\nReturns `Individual`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 15
+  },
+  {
+    "chunk_id": "5c6553687b78e5cedd19b209eb5750130037877bd4cdf776be534138bc8be966",
+    "chunk_type": "prose",
+    "content": "# `memberInvitations` query\n\nReturns `[MemberInvitation]`.\n\nReturns the pending invitations, or null if not allowed.\n\nArguments: `memberAccount` (AccountReferenceInput), `account` (AccountReferenceInput), `role` ([MemberRole]).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 52
+  },
+  {
+    "chunk_id": "298824bccc0f25eb0d1514bd43f7370692fd8d0db71405010d9fb12a8add8641",
+    "chunk_type": "prose",
+    "content": "# `offPlatformTransactionsInstitutions` query\n\nReturns `[OffPlatformTransactionsInstitution!]!`.\n\nGet financial institutions for off-platform transactions\n\nArguments: `country` (String!, required), `provider` (OffPlatformTransactionsProvider!, required).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 49
+  },
+  {
+    "chunk_id": "b30d6ffafb54598adec594c4cd3df5c456f79e2355a659a724fdfaee8c7a6ff9",
+    "chunk_type": "prose",
+    "content": "# `order` query\n\nReturns `Order`.\n\nArguments: `order` (OrderReferenceInput!, required).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 22
+  },
+  {
+    "chunk_id": "55396b4e46a80516c5bfe108448d306994a9d251f1bd96edbc7ee6f680e81847",
+    "chunk_type": "prose",
+    "content": "# `orders` query\n\nReturns `OrderCollection!`.\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 311
+  },
+  {
+    "chunk_id": "8d0e7de2ce7d4a778cc4d5476dcbd368501e2e06ff493355d62143680c828b24",
+    "chunk_type": "prose",
+    "content": "# `organization` query\n\nReturns `Organization`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "b45411c0eb2dbf89e184a71fda9b8072764ad75dfb6b360ba72573a1b757b2e5",
+    "chunk_type": "prose",
+    "content": "# `paymentIntents` query\n\nReturns `PaymentIntentCollection!`.\n\nReturns a list of payment intents\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 111
+  },
+  {
+    "chunk_id": "9d0452ff27b82c7094debb68ba0b2cfeac100cf3a8c36bc4847032a0a2634e09",
+    "chunk_type": "prose",
+    "content": "# `paypalPlan` query\n\nReturns `PaypalPlan!`.\n\nArguments: `account` (AccountReferenceInput!, required), `amount` (AmountInput!, required), `frequency` (ContributionFrequency!, required), `order` (OrderReferenceInput), `tier` (TierReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 61
+  },
+  {
+    "chunk_id": "0d6793ab9f90ce67d933c5ea32c98b9d0b89f3f4d28e3abdd52da2e4b800d6e0",
+    "chunk_type": "prose",
+    "content": "# `personalToken` query\n\nReturns `PersonalToken`.\n\nGet a personal token by reference\n\nArguments: `id` (String).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 27
+  },
+  {
+    "chunk_id": "0fc2321f1c95e54644590a81a37ece4925198a6827de87be4046cd0576f12ef9",
+    "chunk_type": "prose",
+    "content": "# `platformSubscriptionTiers` query\n\nReturns `[PlatformSubscriptionTier]`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 21
+  },
+  {
+    "chunk_id": "2b86da2f34f1de4e6c740a979af9a7b5e1b78b4cbf21ee1917fbb580f2d3af43",
+    "chunk_type": "prose",
+    "content": "# `project` query\n\nReturns `Project`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 39
+  },
+  {
+    "chunk_id": "8d566412889869869b8f0b59d89a7c19c5cf903af90b4b3f6214714688427273",
+    "chunk_type": "prose",
+    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 76
+  },
+  {
+    "chunk_id": "437853109fa932167c46f9341ad4d0f88dc7d1761f0d67b3886025672930ef24",
+    "chunk_type": "prose",
+    "content": "# `tagStats` query\n\nReturns `TagStatsCollection!`.\n\nArguments: `searchTerm` (String), `tagSearchTerm` (String), `host` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 51
+  },
+  {
+    "chunk_id": "296717285fed25fb9bc8865c8d43fdbcf2a922af383e9f3633dac7a3329b11d5",
+    "chunk_type": "prose",
+    "content": "# `tier` query\n\nReturns `Tier`.\n\nArguments: `tier` (TierReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 30
+  },
+  {
+    "chunk_id": "b8384035de6501d119a8e0b2b03b48e3819ac446567f888981c247758b61d63d",
+    "chunk_type": "prose",
+    "content": "# `transaction` query\n\nReturns `Transaction`.\n\nFetch a single transaction\n\nArguments: `transaction` (TransactionReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 25
+  },
+  {
+    "chunk_id": "fba2335656fce2267cd7ac3452974b02f696944ee8130b14b07cb232c04cff62",
+    "chunk_type": "prose",
+    "content": "# `transactionGroups` query\n\nReturns `TransactionGroupCollection!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `account` (AccountReferenceInput!, required), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `kind` (TransactionKind), `dateFrom` (DateTime), `dateTo` (DateTime).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 82
+  },
+  {
+    "chunk_id": "d90c57ea3cc34562ae146ca4225a6103ce5a1116c21a376a805c7fed2d16d935",
+    "chunk_type": "prose",
+    "content": "# `transactions` query\n\nReturns `TransactionCollection!`.\n\nArguments: `account` ([AccountReferenceInput!]), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `paymentMethodType` ([PaymentMethodType]), `paymentMethodService` ([PaymentMethodService]), `excludeAccount` ([AccountReferenceInput]), `fromAccount` (AccountReferenceInput), `host` (AccountReferenceInput), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `dateFrom` (DateTime), `dateTo` (DateTime), `clearedFrom` (DateTime), `clearedTo` (DateTime), `searchTerm` (String), `hasDebt` (Boolean), `hasExpense` (Boolean), `expense` (ExpenseReferenceInput), `expenseType` ([ExpenseType]), `hasOrder` (Boolean), `order` (OrderReferenceInput), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeHost` (Boolean!), `includeRegularTransactions` (Boolean!), `includeIncognitoTransactions` (Boolean!), `includeChildrenTransactions` (Boolean!), `includeGiftCardTransactions` (Boolean!), `includeDebts` (Boolean!), `includeEditedReversedTransactions` (Boolean!), `kind` ([TransactionKind]), `group` ([String]), `virtualCard` ([VirtualCardReferenceInput]), `isRefund` (Boolean), `merchantId` ([String]), `accountingCategory` ([String]), `paymentMethod` ([PaymentMethodReferenceInput]), `payoutMethod` (PayoutMethodReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 329
+  },
+  {
+    "chunk_id": "eddfda2bda81afee572931618e8a977795923844af59b437c5dfa12f94e220be",
+    "chunk_type": "prose",
+    "content": "# `transactionsImport` query\n\nReturns `TransactionsImport`.\n\nFetch a transactions import\n\nArguments: `id` (NonEmptyString!, required).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 29
+  },
+  {
+    "chunk_id": "286076699240b47f7617bf69ea87a73ec23dbb0bb474ed37ac6151c5ac8e6e9a",
+    "chunk_type": "prose",
+    "content": "# `update` query\n\nReturns `Update`.\n\nArguments: `id` (String), `slug` (String), `account` (AccountReferenceInput).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 32
+  },
+  {
+    "chunk_id": "eaaf69170afc179d840481b8538949c3d1910ba72811ae9baf1d4a3964acd55b",
+    "chunk_type": "prose",
+    "content": "# `updates` query\n\nReturns `UpdateCollection!`.\n\nThis query currently returns only published updates\n\nArguments: `limit` (Int!), `offset` (Int!), `accountTag` ([String]), `accountType` ([AccountType]), `host` ([AccountReferenceInput]), `onlyChangelogUpdates` (Boolean), `orderBy` (UpdateChronologicalOrderInput!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 76
+  },
+  {
+    "chunk_id": "f3b7d466cbeb25fd740aee81b14e153fc258497fa94e78038bfb931a6a07f6f4",
+    "chunk_type": "prose",
+    "content": "# `virtualCard` query\n\nReturns `VirtualCard`.\n\nArguments: `virtualCard` (VirtualCardReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 34
+  },
+  {
+    "chunk_id": "6b84ba62b63fd821f480c2a67def704a941876255ca91c9e0dc9130ee7c3a593",
+    "chunk_type": "prose",
+    "content": "# `virtualCardRequest` query\n\nReturns `VirtualCardRequest`.\n\nArguments: `virtualCardRequest` (VirtualCardRequestReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 38
+  },
+  {
+    "chunk_id": "f078ffb769a89119b92d4e471297fb5914949e58968bdbe945828a1b26d60daa",
+    "chunk_type": "prose",
+    "content": "# `virtualCardRequests` query\n\nReturns `VirtualCardRequestCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput!, required), `status` ([VirtualCardRequestStatus]), `collective` ([AccountReferenceInput]).",
+    "line_start": null,
+    "metadata": {},
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": null,
+    "token_count": 58
   },
   {
     "chunk_id": "5295c273ae181f4c263cbcea7cc403c2399488a28c3b98ee6a6ffbf8660582f5",

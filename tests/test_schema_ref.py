@@ -130,16 +130,35 @@ def test_queries_only_omits_type_sections():
     assert len(slim) < len(full)
 
 
-def test_main_queries_only_flag(tmp_path, monkeypatch):
+def test_main_queries_only_writes_one_file_per_query(tmp_path, monkeypatch):
+    """--queries-only DIR writes one <query>.md per top-level query field."""
     import mcp_for_ocp_graphql.schema_ref as sr
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     (data_dir / "schema.json").write_text(json.dumps(FIXTURE))
     monkeypatch.setattr(sr, "__file__", str(tmp_path / "schema_ref.py"))
-    out = tmp_path / "queries.md"
-    main(["--queries-only", str(out)])
-    text = out.read_text()
-    assert "# Query Fields" in text and "# Types" not in text
+    out_dir = tmp_path / "local"
+    main(["--queries-only", str(out_dir)])
+    # FIXTURE has one query field: collective
+    files = sorted(p.name for p in out_dir.glob("*.md"))
+    assert files == ["collective.md"]
+    text = (out_dir / "collective.md").read_text()
+    assert text.startswith("# `collective` query")
+    assert "Returns `Collective`." in text
+    # no per-type dump leaked into the query file
+    assert "CollectiveInput" not in text
+
+
+def test_write_query_field_files_removes_stale(tmp_path):
+    """Stale .md files from a previous run are cleared before writing."""
+    from mcp_for_ocp_graphql.schema_ref import write_query_field_files
+    out_dir = tmp_path / "local"
+    out_dir.mkdir()
+    (out_dir / "gone.md").write_text("stale")
+    n = write_query_field_files(FIXTURE, out_dir)
+    assert n == 1
+    assert not (out_dir / "gone.md").exists()
+    assert (out_dir / "collective.md").exists()
 
 
 def test_main_writes_reference_from_baked_schema(tmp_path, monkeypatch):

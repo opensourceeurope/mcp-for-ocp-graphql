@@ -1,471 +1,405 @@
-# Query Fields
+# `account` query
 
-## `account` → `Account`
+Returns `Account`.
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
 
-## `accounts` → `AccountCollection!`
 
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `searchTerm: String`
-  - `tag: [String]`
-  - `tagSearchOperator: TagSearchOperator!`
-  - `includeArchived: Boolean`
-  - `skipGuests: Boolean`
-  - `isActive: Boolean`
-  - `skipRecentAccounts: Boolean`
-  - `country: [CountryISO]`
-  - `host: [AccountReferenceInput]`
-  - `parent: [AccountReferenceInput]`
-  - `type: [AccountType]`
-  - `isHost: Boolean`
-  - `onlyOpenToApplications: Boolean`
-  - `hasCustomContributionsEnabled: Boolean`
-  - `orderBy: OrderByInput`
-  - `includeVendorsForHost: AccountReferenceInput`
-  - `consolidatedBalance: AmountRangeInput`
-  - `plan: [String]`
-  - `isPlatformSubscriber: Boolean`
-  - `isVerified: Boolean`
-  - `isFirstPartyHost: Boolean`
-  - `lastTransactionFrom: DateTime`
-  - `lastTransactionTo: DateTime`
+<!-- opencrane:page -->
 
-## `activities` → `ActivityCollection!`
+# `accounts` query
 
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `individual: AccountReferenceInput`
-  - `account: [AccountReferenceInput!]`
-  - `host: AccountReferenceInput`
-  - `includeChildrenAccounts: Boolean!`
-  - `excludeParentAccount: Boolean!`
-  - `includeHostedAccounts: Boolean!`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-  - `type: [ActivityAndClassesType!]`
-  - `timeline: Boolean!`
-  - `orderBy: ChronologicalOrderInput!`
+Returns `AccountCollection!`.
 
-## `application` → `Application`
+Arguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `host` ([AccountReferenceInput]), `parent` ([AccountReferenceInput]), `type` ([AccountType]), `isHost` (Boolean), `onlyOpenToApplications` (Boolean), `hasCustomContributionsEnabled` (Boolean), `orderBy` (OrderByInput), `includeVendorsForHost` (AccountReferenceInput), `consolidatedBalance` (AmountRangeInput), `plan` ([String]), `isPlatformSubscriber` (Boolean), `isVerified` (Boolean), `isFirstPartyHost` (Boolean), `lastTransactionFrom` (DateTime), `lastTransactionTo` (DateTime).
 
-  **Args:**
-  - `id: String`
-  - `clientId: String`
 
-## `collective` → `Collective`
+<!-- opencrane:page -->
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
+# `activities` query
 
-## `conversation` → `Conversation`
+Returns `ActivityCollection!`.
 
-  **Args:**
-  - `id: String!` (required)
+Arguments: `limit` (Int!), `offset` (Int!), `individual` (AccountReferenceInput), `account` ([AccountReferenceInput!]), `host` (AccountReferenceInput), `includeChildrenAccounts` (Boolean!), `excludeParentAccount` (Boolean!), `includeHostedAccounts` (Boolean!), `dateFrom` (DateTime), `dateTo` (DateTime), `type` ([ActivityAndClassesType!]), `timeline` (Boolean!), `orderBy` (ChronologicalOrderInput!).
 
-## `community` → `AccountCollection!`
+
+<!-- opencrane:page -->
+
+# `application` query
+
+Returns `Application`.
+
+Arguments: `id` (String), `clientId` (String).
+
+
+<!-- opencrane:page -->
+
+# `collective` query
+
+Returns `Collective`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `community` query
+
+Returns `AccountCollection!`.
 
 Return accounts that have interacted with a given account or host
 
-  **Args:**
-  - `account: AccountReferenceInput`
-  - `host: AccountReferenceInput!` (required)
-  - `type: [AccountType]`
-  - `searchTerm: String`
-  - `relation: [CommunityRelationType!]`
-  - `orderBy: OrderByInput`
-  - `totalContributed: AmountRangeInput`
-  - `totalExpended: AmountRangeInput`
-  - `limit: Int!`
-  - `offset: Int!`
+Arguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeInput), `totalExpended` (AmountRangeInput), `limit` (Int!), `offset` (Int!).
 
-## `currencyExchangeRate` → `[CurrencyExchangeRate!]!`
+
+<!-- opencrane:page -->
+
+# `conversation` query
+
+Returns `Conversation`.
+
+Arguments: `id` (String!, required).
+
+
+<!-- opencrane:page -->
+
+# `currencyExchangeRate` query
+
+Returns `[CurrencyExchangeRate!]!`.
 
 Get exchange rates from Open Collective
 
-  **Args:**
-  - `requests: [CurrencyExchangeRateRequest!]!` (required)
+Arguments: `requests` ([CurrencyExchangeRateRequest!]!, required).
 
-## `event` → `Event`
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
+<!-- opencrane:page -->
 
-## `expense` → `Expense`
+# `event` query
 
-  **Args:**
-  - `expense: ExpenseReferenceInput`
-  - `draftKey: String`
+Returns `Event`.
 
-## `expenses` → `ExpenseCollection!`
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
 
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `fromAccount: AccountReferenceInput`
-  - `fromAccounts: [AccountReferenceInput]`
-  - `account: AccountReferenceInput`
-  - `accounts: [AccountReferenceInput]`
-  - `host: AccountReferenceInput`
-  - `fromHost: AccountReferenceInput`
-  - `hostContext: HostContext`
-  - `createdByAccount: AccountReferenceInput`
-  - `paidByAccount: AccountReferenceInput`
-  - `approvedByAccount: AccountReferenceInput`
-  - `rejectedByAccount: AccountReferenceInput`
-  - `invitedByAccount: AccountReferenceInput`
-  - `status: [ExpenseStatusFilter]`
-  - `type: ExpenseType`
-  - `types: [ExpenseType]`
-  - `tag: [String]`
-  - `orderBy: ChronologicalOrderInput!`
-  - `amount: AmountRangeInput`
-  - `minAmount: Int`
-  - `maxAmount: Int`
-  - `payoutMethodType: PayoutMethodType`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-  - `searchTerm: String`
-  - `includeChildrenExpenses: Boolean!`
-  - `customData: JSON`
-  - `chargeHasReceipts: Boolean`
-  - `virtualCards: [VirtualCardReferenceInput]`
-  - `lastCommentBy: [LastCommentBy]`
-  - `accountingCategory: [String]`
-  - `payoutMethod: PayoutMethodReferenceInput`
-  - `activity: ExpenseActivityFilter`
-  - `kycStatus: ExpenseKYCStatusFilter`
 
-## `expenseTagStats` → `TagStatsCollection!`
+<!-- opencrane:page -->
 
-  **Args:**
-  - `tagSearchTerm: String`
-  - `host: AccountReferenceInput`
-  - `account: AccountReferenceInput`
-  - `limit: Int!`
-  - `offset: Int!`
+# `expense` query
 
-## `exportRequest` → `ExportRequest`
+Returns `Expense`.
 
-  **Args:**
-  - `exportRequest: ExportRequestReferenceInput!` (required)
-  - `throwIfMissing: Boolean!`
+Arguments: `expense` (ExpenseReferenceInput), `draftKey` (String).
 
-## `exportRequests` → `ExportRequestCollection!`
 
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `account: AccountReferenceInput!` (required)
-  - `type: ExportRequestType`
-  - `status: ExportRequestStatus`
+<!-- opencrane:page -->
 
-## `fund` → `Fund`
+# `expenseTagStats` query
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
+Returns `TagStatsCollection!`.
 
-## `host` → `Host`
+Arguments: `tagSearchTerm` (String), `host` (AccountReferenceInput), `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
 
-## `hosts` → `HostCollection`
+<!-- opencrane:page -->
 
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `searchTerm: String`
-  - `tag: [String]`
-  - `tagSearchOperator: TagSearchOperator!`
-  - `includeArchived: Boolean`
-  - `skipGuests: Boolean`
-  - `isActive: Boolean`
-  - `skipRecentAccounts: Boolean`
-  - `country: [CountryISO]`
-  - `currency: String`
+# `expenses` query
 
-## `individual` → `Individual`
+Returns `ExpenseCollection!`.
 
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
+Arguments: `limit` (Int!), `offset` (Int!), `fromAccount` (AccountReferenceInput), `fromAccounts` ([AccountReferenceInput]), `account` (AccountReferenceInput), `accounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `fromHost` (AccountReferenceInput), `hostContext` (HostContext), `createdByAccount` (AccountReferenceInput), `paidByAccount` (AccountReferenceInput), `approvedByAccount` (AccountReferenceInput), `rejectedByAccount` (AccountReferenceInput), `invitedByAccount` (AccountReferenceInput), `status` ([ExpenseStatusFilter]), `type` (ExpenseType), `types` ([ExpenseType]), `tag` ([String]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `payoutMethodType` (PayoutMethodType), `dateFrom` (DateTime), `dateTo` (DateTime), `searchTerm` (String), `includeChildrenExpenses` (Boolean!), `customData` (JSON), `chargeHasReceipts` (Boolean), `virtualCards` ([VirtualCardReferenceInput]), `lastCommentBy` ([LastCommentBy]), `accountingCategory` ([String]), `payoutMethod` (PayoutMethodReferenceInput), `activity` (ExpenseActivityFilter), `kycStatus` (ExpenseKYCStatusFilter).
 
-## `memberInvitations` → `[MemberInvitation]`
+
+<!-- opencrane:page -->
+
+# `exportRequest` query
+
+Returns `ExportRequest`.
+
+Arguments: `exportRequest` (ExportRequestReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `exportRequests` query
+
+Returns `ExportRequestCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `account` (AccountReferenceInput!, required), `type` (ExportRequestType), `status` (ExportRequestStatus).
+
+
+<!-- opencrane:page -->
+
+# `fund` query
+
+Returns `Fund`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `host` query
+
+Returns `Host`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `hostApplication` query
+
+Returns `HostApplication`.
+
+Arguments: `hostApplication` (HostApplicationReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `hosts` query
+
+Returns `HostCollection`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `currency` (String).
+
+
+<!-- opencrane:page -->
+
+# `individual` query
+
+Returns `Individual`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `loggedInAccount` query
+
+Returns `Individual`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `me` query
+
+Returns `Individual`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `memberInvitations` query
+
+Returns `[MemberInvitation]`.
 
 Returns the pending invitations, or null if not allowed.
 
-  **Args:**
-  - `memberAccount: AccountReferenceInput`
-  - `account: AccountReferenceInput`
-  - `role: [MemberRole]`
+Arguments: `memberAccount` (AccountReferenceInput), `account` (AccountReferenceInput), `role` ([MemberRole]).
 
-## `order` → `Order`
 
-  **Args:**
-  - `order: OrderReferenceInput!` (required)
+<!-- opencrane:page -->
 
-## `orders` → `OrderCollection!`
+# `offPlatformTransactionsInstitutions` query
 
-  **Args:**
-  - `account: AccountReferenceInput`
-  - `limit: Int!`
-  - `offset: Int!`
-  - `accountingCategory: [String]`
-  - `hostContext: HostContext`
-  - `includeChildrenAccounts: Boolean!`
-  - `pausedBy: [OrderPausedBy]`
-  - `paymentMethod: [PaymentMethodReferenceInput]`
-  - `paymentMethodService: [PaymentMethodService]`
-  - `paymentMethodType: [PaymentMethodType]`
-  - `manualPaymentProvider: [ManualPaymentProviderReferenceInput!]`
-  - `includeIncognito: Boolean`
-  - `filter: AccountOrdersFilter`
-  - `frequency: [ContributionFrequency]`
-  - `status: [OrderStatus]`
-  - `orderBy: ChronologicalOrderInput!`
-  - `amount: AmountRangeInput`
-  - `minAmount: Int`
-  - `maxAmount: Int`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-  - `expectedDateFrom: DateTime`
-  - `expectedDateTo: DateTime`
-  - `chargedDateFrom: DateTime`
-  - `chargedDateTo: DateTime`
-  - `searchTerm: String`
-  - `tier: [TierReferenceInput]`
-  - `onlySubscriptions: Boolean`
-  - `onlyActiveSubscriptions: Boolean`
-  - `expectedFundsFilter: ExpectedFundsFilter`
-  - `oppositeAccount: AccountReferenceInput`
-  - `hostedAccounts: [AccountReferenceInput]`
-  - `host: AccountReferenceInput`
-  - `oppositeAccountScope: OppositeAccountScope`
-  - `createdBy: [AccountReferenceInput]`
-
-## `organization` → `Organization`
-
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
-
-## `project` → `Project`
-
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `githubHandle: String`
-  - `throwIfMissing: Boolean`
-
-## `search` → `SearchResponse!`
-
-[!] Warning: this query is currently in beta and the API might change
-
-  **Args:**
-  - `searchTerm: String!` (required)
-  - `account: AccountReferenceInput`
-  - `host: AccountReferenceInput`
-  - `useTopHits: Boolean!`
-  - `timeout: Int!`
-  - `defaultLimit: Int!`
-
-## `tagStats` → `TagStatsCollection!`
-
-  **Args:**
-  - `searchTerm: String`
-  - `tagSearchTerm: String`
-  - `host: AccountReferenceInput`
-  - `limit: Int!`
-  - `offset: Int!`
-
-## `tier` → `Tier`
-
-  **Args:**
-  - `tier: TierReferenceInput!` (required)
-  - `throwIfMissing: Boolean!`
-
-## `transaction` → `Transaction`
-
-Fetch a single transaction
-
-  **Args:**
-  - `transaction: TransactionReferenceInput`
-
-## `transactions` → `TransactionCollection!`
-
-  **Args:**
-  - `account: [AccountReferenceInput!]`
-  - `limit: Int!`
-  - `offset: Int!`
-  - `type: TransactionType`
-  - `paymentMethodType: [PaymentMethodType]`
-  - `paymentMethodService: [PaymentMethodService]`
-  - `excludeAccount: [AccountReferenceInput]`
-  - `fromAccount: AccountReferenceInput`
-  - `host: AccountReferenceInput`
-  - `orderBy: ChronologicalOrderInput!`
-  - `amount: AmountRangeInput`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-  - `clearedFrom: DateTime`
-  - `clearedTo: DateTime`
-  - `searchTerm: String`
-  - `hasDebt: Boolean`
-  - `hasExpense: Boolean`
-  - `expense: ExpenseReferenceInput`
-  - `expenseType: [ExpenseType]`
-  - `hasOrder: Boolean`
-  - `order: OrderReferenceInput`
-  - `manualPaymentProvider: [ManualPaymentProviderReferenceInput!]`
-  - `includeHost: Boolean!`
-  - `includeRegularTransactions: Boolean!`
-  - `includeIncognitoTransactions: Boolean!`
-  - `includeChildrenTransactions: Boolean!`
-  - `includeGiftCardTransactions: Boolean!`
-  - `includeDebts: Boolean!`
-  - `includeEditedReversedTransactions: Boolean!`
-  - `kind: [TransactionKind]`
-  - `group: [String]`
-  - `virtualCard: [VirtualCardReferenceInput]`
-  - `isRefund: Boolean`
-  - `merchantId: [String]`
-  - `accountingCategory: [String]`
-  - `paymentMethod: [PaymentMethodReferenceInput]`
-  - `payoutMethod: PayoutMethodReferenceInput`
-
-## `transactionGroups` → `TransactionGroupCollection!`
-
-[!] Warning: this query is currently in beta and the API might change
-
-  **Args:**
-  - `account: AccountReferenceInput!` (required)
-  - `limit: Int!`
-  - `offset: Int!`
-  - `type: TransactionType`
-  - `kind: TransactionKind`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-
-## `transactionsImport` → `TransactionsImport`
-
-Fetch a transactions import
-
-  **Args:**
-  - `id: NonEmptyString!` (required)
-
-## `update` → `Update`
-
-  **Args:**
-  - `id: String`
-  - `slug: String`
-  - `account: AccountReferenceInput`
-
-## `updates` → `UpdateCollection!`
-
-This query currently returns only published updates
-
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `accountTag: [String]`
-  - `accountType: [AccountType]`
-  - `host: [AccountReferenceInput]`
-  - `onlyChangelogUpdates: Boolean`
-  - `orderBy: UpdateChronologicalOrderInput!`
-
-## `paypalPlan` → `PaypalPlan!`
-
-  **Args:**
-  - `account: AccountReferenceInput!` (required)
-  - `amount: AmountInput!` (required)
-  - `frequency: ContributionFrequency!` (required)
-  - `order: OrderReferenceInput`
-  - `tier: TierReferenceInput`
-
-## `personalToken` → `PersonalToken`
-
-Get a personal token by reference
-
-  **Args:**
-  - `id: String`
-
-## `virtualCard` → `VirtualCard`
-
-  **Args:**
-  - `virtualCard: VirtualCardReferenceInput!` (required)
-  - `throwIfMissing: Boolean!`
-
-## `virtualCardRequest` → `VirtualCardRequest`
-
-  **Args:**
-  - `virtualCardRequest: VirtualCardRequestReferenceInput!` (required)
-  - `throwIfMissing: Boolean!`
-
-## `virtualCardRequests` → `VirtualCardRequestCollection!`
-
-  **Args:**
-  - `limit: Int!`
-  - `offset: Int!`
-  - `host: AccountReferenceInput!` (required)
-  - `status: [VirtualCardRequestStatus]`
-  - `collective: [AccountReferenceInput]`
-
-## `hostApplication` → `HostApplication`
-
-  **Args:**
-  - `hostApplication: HostApplicationReferenceInput`
-
-## `offPlatformTransactionsInstitutions` → `[OffPlatformTransactionsInstitution!]!`
+Returns `[OffPlatformTransactionsInstitution!]!`.
 
 Get financial institutions for off-platform transactions
 
-  **Args:**
-  - `country: String!` (required)
-  - `provider: OffPlatformTransactionsProvider!` (required)
+Arguments: `country` (String!, required), `provider` (OffPlatformTransactionsProvider!, required).
 
-## `loggedInAccount` → `Individual`
 
-## `me` → `Individual`
+<!-- opencrane:page -->
 
-## `paymentIntents` → `PaymentIntentCollection!`
+# `order` query
+
+Returns `Order`.
+
+Arguments: `order` (OrderReferenceInput!, required).
+
+
+<!-- opencrane:page -->
+
+# `orders` query
+
+Returns `OrderCollection!`.
+
+Arguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).
+
+
+<!-- opencrane:page -->
+
+# `organization` query
+
+Returns `Organization`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `paymentIntents` query
+
+Returns `PaymentIntentCollection!`.
 
 Returns a list of payment intents
 
-  **Args:**
-  - `account: AccountReferenceInput`
-  - `limit: Int!`
-  - `offset: Int!`
-  - `host: AccountReferenceInput`
-  - `direction: PaymentIntentDirection`
-  - `includeChildrenPaymentIntents: Boolean!`
-  - `status: [PaymentIntentStatus!]`
-  - `type: [PaymentIntentType!]`
-  - `dateFrom: DateTime`
-  - `dateTo: DateTime`
-  - `counterparty: AccountReferenceInput`
+Arguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).
 
-## `platformSubscriptionTiers` → `[PlatformSubscriptionTier]`
+
+<!-- opencrane:page -->
+
+# `paypalPlan` query
+
+Returns `PaypalPlan!`.
+
+Arguments: `account` (AccountReferenceInput!, required), `amount` (AmountInput!, required), `frequency` (ContributionFrequency!, required), `order` (OrderReferenceInput), `tier` (TierReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `personalToken` query
+
+Returns `PersonalToken`.
+
+Get a personal token by reference
+
+Arguments: `id` (String).
+
+
+<!-- opencrane:page -->
+
+# `platformSubscriptionTiers` query
+
+Returns `[PlatformSubscriptionTier]`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `project` query
+
+Returns `Project`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `search` query
+
+Returns `SearchResponse!`.
+
+[!] Warning: this query is currently in beta and the API might change
+
+Arguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `tagStats` query
+
+Returns `TagStatsCollection!`.
+
+Arguments: `searchTerm` (String), `tagSearchTerm` (String), `host` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `tier` query
+
+Returns `Tier`.
+
+Arguments: `tier` (TierReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `transaction` query
+
+Returns `Transaction`.
+
+Fetch a single transaction
+
+Arguments: `transaction` (TransactionReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `transactionGroups` query
+
+Returns `TransactionGroupCollection!`.
+
+[!] Warning: this query is currently in beta and the API might change
+
+Arguments: `account` (AccountReferenceInput!, required), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `kind` (TransactionKind), `dateFrom` (DateTime), `dateTo` (DateTime).
+
+
+<!-- opencrane:page -->
+
+# `transactions` query
+
+Returns `TransactionCollection!`.
+
+Arguments: `account` ([AccountReferenceInput!]), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `paymentMethodType` ([PaymentMethodType]), `paymentMethodService` ([PaymentMethodService]), `excludeAccount` ([AccountReferenceInput]), `fromAccount` (AccountReferenceInput), `host` (AccountReferenceInput), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `dateFrom` (DateTime), `dateTo` (DateTime), `clearedFrom` (DateTime), `clearedTo` (DateTime), `searchTerm` (String), `hasDebt` (Boolean), `hasExpense` (Boolean), `expense` (ExpenseReferenceInput), `expenseType` ([ExpenseType]), `hasOrder` (Boolean), `order` (OrderReferenceInput), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeHost` (Boolean!), `includeRegularTransactions` (Boolean!), `includeIncognitoTransactions` (Boolean!), `includeChildrenTransactions` (Boolean!), `includeGiftCardTransactions` (Boolean!), `includeDebts` (Boolean!), `includeEditedReversedTransactions` (Boolean!), `kind` ([TransactionKind]), `group` ([String]), `virtualCard` ([VirtualCardReferenceInput]), `isRefund` (Boolean), `merchantId` ([String]), `accountingCategory` ([String]), `paymentMethod` ([PaymentMethodReferenceInput]), `payoutMethod` (PayoutMethodReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `transactionsImport` query
+
+Returns `TransactionsImport`.
+
+Fetch a transactions import
+
+Arguments: `id` (NonEmptyString!, required).
+
+
+<!-- opencrane:page -->
+
+# `update` query
+
+Returns `Update`.
+
+Arguments: `id` (String), `slug` (String), `account` (AccountReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `updates` query
+
+Returns `UpdateCollection!`.
+
+This query currently returns only published updates
+
+Arguments: `limit` (Int!), `offset` (Int!), `accountTag` ([String]), `accountType` ([AccountType]), `host` ([AccountReferenceInput]), `onlyChangelogUpdates` (Boolean), `orderBy` (UpdateChronologicalOrderInput!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCard` query
+
+Returns `VirtualCard`.
+
+Arguments: `virtualCard` (VirtualCardReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCardRequest` query
+
+Returns `VirtualCardRequest`.
+
+Arguments: `virtualCardRequest` (VirtualCardRequestReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCardRequests` query
+
+Returns `VirtualCardRequestCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput!, required), `status` ([VirtualCardRequestStatus]), `collective` ([AccountReferenceInput]).
