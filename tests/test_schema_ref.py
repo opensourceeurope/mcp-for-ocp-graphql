@@ -117,6 +117,31 @@ def test_scalar_type_not_a_section():
     assert not headings, f"Scalar String unexpectedly got a heading: {headings}"
 
 
+def test_queries_only_omits_type_sections():
+    """queries_only=True keeps the query fields but drops the per-type field dump."""
+    full = schema_to_markdown(FIXTURE)
+    slim = schema_to_markdown(FIXTURE, queries_only=True)
+    # query field is still present
+    assert "collective" in slim
+    assert "# Query Fields" in slim
+    # the "# Types" dump (e.g. the Collective/CollectiveInput type sections) is gone
+    assert "# Types" in full and "# Types" not in slim
+    assert "CollectiveInput" in full and "CollectiveInput" not in slim
+    assert len(slim) < len(full)
+
+
+def test_main_queries_only_flag(tmp_path, monkeypatch):
+    import mcp_for_ocp_graphql.schema_ref as sr
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "schema.json").write_text(json.dumps(FIXTURE))
+    monkeypatch.setattr(sr, "__file__", str(tmp_path / "schema_ref.py"))
+    out = tmp_path / "queries.md"
+    main(["--queries-only", str(out)])
+    text = out.read_text()
+    assert "# Query Fields" in text and "# Types" not in text
+
+
 def test_main_writes_reference_from_baked_schema(tmp_path, monkeypatch):
     """`main` reads data/schema.json and writes the rendered markdown to OUTPUT."""
     import mcp_for_ocp_graphql.schema_ref as sr

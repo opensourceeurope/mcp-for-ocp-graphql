@@ -47,8 +47,8 @@ Both serve the **same three tools** built by `server.register_tools`; they diffe
 | `auth.py` | `OCAuthProvider` (OAuth 2.1 authorization server), `verify_oc_token()`, `render_auth_form()`, single-use short-TTL auth codes. |
 | `embedding.py` | Sentence-Transformers embedder (`nomic-embed-text-v1.5`) with the nomic `search_query:` prefix. |
 | `search.py` | `DocSearch` — Milvus Lite client wrapping the baked vector index for `search_docs`. |
-| `schema_ref.py` | Renders the introspection schema to `schema-reference.md` for the corpus (`python -m …schema_ref`). |
-| `indexer.py` | Legacy/fallback indexer (loads chunks + embeddings into Milvus). Superseded by `opencrane index`; kept as a documented fallback. |
+| `schema_ref.py` | Renders the schema to markdown; `--queries-only` emits just the top-level query fields for the corpus (`python -m …schema_ref`). |
+| `indexer.py` | The pipeline's index step: loads OpenCrane chunks + embeddings into the Milvus collection the server reads (`python -m …indexer`). Used instead of `opencrane index` (version-incompatible — see below). |
 
 ### The three tools (learn, then execute)
 
@@ -60,9 +60,11 @@ Both serve the **same three tools** built by `server.register_tools`; they diffe
 
 The docs index is regenerated in CI and **committed to the repo**, never built at runtime:
 
-- [`corpus-refresh.yml`](.github/workflows/corpus-refresh.yml) runs the whole pipeline on Linux CI: `schema_fetch` → `schema_ref` (writes `.opencrane/sources/local/schema-reference.md`) → `opencrane fetch` (clones `opencollective/graphql-docs-v2` into `.opencrane/sources/`) → `llms` → `chunk` → `embed` → `index`.
-- `opencrane index` writes the Milvus Lite collection **directly** — env-configured via `COLLECTION_NAME=ai_docs_chunks_v1` and `MILVUS_DB_PATH=mcp_for_ocp_graphql/data/milvus.db` so `search.py` reads it unchanged. (opencrane's schema is a superset of what `search.py` queries.) A `search_docs` smoke test gates the run before anything is committed. We do **not** use OpenCrane's MCP server/`serve`/`pack`.
-- Committed artifacts: `.opencrane/sources/`, `.opencrane/llmstxt/`, `.opencrane/chunks.json`, `.opencrane/embeddings.json`, `mcp_for_ocp_graphql/data/milvus.db/`, `mcp_for_ocp_graphql/data/schema.json`. Image/wheel builds just consume them.
+- [`corpus-refresh.yml`](.github/workflows/corpus-refresh.yml) runs the whole pipeline on Linux CI: `schema_fetch` → build local corpus docs (`schema_ref --queries-only` + copy the querying skill) → `opencrane fetch` (clones `opencollective/graphql-docs-v2` into `.opencrane/sources/`) → `opencrane llms` → append the local docs to the bundle → `opencrane chunk` → `opencrane embed` → **`python -m …indexer`**.
+- **Corpus scope (deliberate):** the six OC guides + the querying skill + a *curated* schema slice — only the top-level query fields (`schema_ref --queries-only`), NOT the full per-type dump. The full dump is ~6000 low-value list-item chunks that duplicate `schema_lookup` and bloat embeddings to ~135 MB; excluding it keeps the index tiny (~50 chunks) and `schema_lookup` still serves every exact type/field from `schema.json`.
+- **Index step is `indexer.build_index`, not `opencrane index`.** opencrane pins `pymilvus<2.6` (single-file `milvus.db`) while the server runs `pymilvus 3.x` (directory `milvus.db/`) — incompatible on-disk formats. `build_index` uses the server's own pymilvus, so the format matches by construction. opencrane only does fetch/llms/chunk/embed. We do **not** use OpenCrane's `index`/`serve`/`pack`.
+- opencrane's uvx closure is missing some deps: `fetch` needs `--with PyGithub`, `chunk` needs `--with docling --with tiktoken`.
+- A `search_docs` smoke test gates the run before anything is committed. Committed artifacts (all small, no LFS): `.opencrane/sources/`, `.opencrane/llmstxt/`, `.opencrane/chunks.json`, `.opencrane/embeddings.json`, `mcp_for_ocp_graphql/data/milvus.db/`, `mcp_for_ocp_graphql/data/schema.json`.
 - The refresh runs weekly (and on demand). On `main` it opens a `chore/corpus-refresh` PR; dispatched on a feature branch it commits the artifacts straight back to that branch.
 
 ## Key Decisions — Do Not Quietly Undo

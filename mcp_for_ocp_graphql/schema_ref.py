@@ -40,7 +40,14 @@ def _render_args(args: list) -> list[str]:
     return lines
 
 
-def schema_to_markdown(schema: dict) -> str:
+def schema_to_markdown(schema: dict, *, queries_only: bool = False) -> str:
+    """Render the schema to markdown.
+
+    queries_only=True emits just the top-level query fields (the "what can I ask
+    for" entry-point map) and skips the per-type field dump — a high-signal,
+    low-noise slice for the semantic search corpus. schema_lookup still serves the
+    full per-type detail on demand from schema.json.
+    """
     sections: list[str] = []
 
     # ── Query fields ──────────────────────────────────────────────────────────
@@ -60,6 +67,9 @@ def schema_to_markdown(schema: dict) -> str:
                 lines.extend(arg_lines)
                 lines.append("")
             sections.append("\n".join(lines))
+
+    if queries_only:
+        return "\n".join(sections)
 
     # ── Named types (OBJECT + INPUT_OBJECT only) ───────────────────────────────
     types = schema.get("types") or []
@@ -110,13 +120,17 @@ def schema_to_markdown(schema: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> None:
-    argv = sys.argv[1:] if argv is None else argv
+    argv = list(sys.argv[1:] if argv is None else argv)
+    queries_only = False
+    if "--queries-only" in argv:
+        queries_only = True
+        argv.remove("--queries-only")
     out = Path(argv[0]) if argv else Path(DEFAULT_OUTPUT)
     schema_path = Path(__file__).parent / "data" / "schema.json"
     schema = json.loads(schema_path.read_text())
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(schema_to_markdown(schema))
-    sys.stderr.write(f"Wrote {out}\n")
+    out.write_text(schema_to_markdown(schema, queries_only=queries_only))
+    sys.stderr.write(f"Wrote {out}{' (queries only)' if queries_only else ''}\n")
 
 
 if __name__ == "__main__":

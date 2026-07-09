@@ -22,14 +22,11 @@ env:
   UV_VERSION: 0.8.19
   OPENCRANE_VERSION: 0.22.0
   OMP_NUM_THREADS: '1'
-  # OpenCrane pipeline I/O (defaults, made explicit here) + overrides so the index
-  # lands where the server reads it (search.py: collection ai_docs_chunks_v1).
+  # OpenCrane pipeline I/O (its defaults, made explicit).
   AI_DOCS_SOURCES_DIR: .opencrane/sources
   AI_DOCS_LLMSTXT_DIR: .opencrane/llmstxt
   AI_DOCS_CHUNKS_FILE: .opencrane/chunks.json
   AI_DOCS_EMBEDDINGS_FILE: .opencrane/embeddings.json
-  MILVUS_DB_PATH: mcp_for_ocp_graphql/data/milvus.db
-  COLLECTION_NAME: ai_docs_chunks_v1
 
 jobs:
   refresh:
@@ -49,11 +46,13 @@ jobs:
       - name: Fetch the live GraphQL schema
         run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_fetch
 
-      - name: Assemble local corpus sources (schema reference + querying skill)
+      - name: Build local corpus docs (curated query-field map + querying skill)
         run: |
           mkdir -p .opencrane/sources/local
+          # Curated: only the top-level query fields (entry points), NOT the full
+          # per-type dump — that would bloat the index and duplicate schema_lookup.
           uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref \
-            .opencrane/sources/local/schema-reference.md
+            --queries-only .opencrane/sources/local/schema-queries.md
           cp .claude/skills/querying-opencollective-graphql/SKILL.md \
             .opencrane/sources/local/querying-skill.md
 
@@ -61,19 +60,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
-        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane fetch
+        # PyGithub (module `github`) is required by `fetch` but not in opencrane's deps.
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with PyGithub opencrane fetch
 
-      - name: Generate llms bundles
+      - name: Generate llms bundle
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane llms --force
 
+      - name: Append local corpus docs to the llms bundle
+        # opencrane's llms step only processes configured GitHub sources, so our
+        # generated query-field map and authored skill are concatenated in here so
+        # `chunk` includes them.
+        run: |
+          {
+            printf '\n\n# Open Collective GraphQL — query fields (entry points)\n\n'
+            cat .opencrane/sources/local/schema-queries.md
+            printf '\n\n# Querying Open Collective GraphQL (skill)\n\n'
+            cat .opencrane/sources/local/querying-skill.md
+          } >> .opencrane/llmstxt/llms-full.txt
+
       - name: Chunk
-        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane chunk
+        # docling + tiktoken are required by chunk's strategies but not in opencrane's deps.
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with docling --with tiktoken opencrane chunk
 
       - name: Embed
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane embed --force
 
-      - name: Index into Milvus (collection ai_docs_chunks_v1)
-        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane index
+      - name: Index into Milvus (project build_index, pymilvus 3.x)
+        # NOT `opencrane index`: opencrane pins pymilvus <2.6 (single-file DB) while
+        # the server runs pymilvus 3.x (directory DB) — incompatible on-disk formats.
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.indexer
 
       - name: Smoke-test search_docs against the fresh index
         run: |

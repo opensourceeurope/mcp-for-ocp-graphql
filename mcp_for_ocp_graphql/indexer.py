@@ -143,3 +143,25 @@ def build_index(
         client.insert(collection_name=collection, data=rows)
 
     return len(rows)
+
+
+def main(argv: list[str] | None = None) -> None:
+    """CLI: python -m mcp_for_ocp_graphql.indexer [CHUNKS] [EMBEDDINGS] [DB_PATH]
+
+    Loads OpenCrane chunks + embeddings into the Milvus Lite collection the server
+    reads. Used as the pipeline's index step because `opencrane index` targets
+    pymilvus <2.6 (single-file DB) while this project runs pymilvus 3.x
+    (directory DB) — the on-disk formats are incompatible.
+    """
+    import sys
+
+    argv = sys.argv[1:] if argv is None else argv
+    chunks = argv[0] if len(argv) > 0 else ".opencrane/chunks.json"
+    embeddings = argv[1] if len(argv) > 1 else ".opencrane/embeddings.json"
+    db_path = argv[2] if len(argv) > 2 else "mcp_for_ocp_graphql/data/milvus.db"
+    n = build_index(chunks, embeddings, db_path)
+    sys.stderr.write(f"Indexed {n} rows into {db_path} (collection {DEFAULT_COLLECTION})\n")
+
+
+if __name__ == "__main__":
+    main()
