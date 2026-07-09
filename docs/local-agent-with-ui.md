@@ -48,21 +48,26 @@ In LM Studio, click the **🔍 Discover** icon in the left sidebar. Search for o
 | **32 GB RAM** | `qwen3-32b` | ~20 GB |
 | **48 GB+ RAM** | `llama-3.3-70b` | ~43 GB |
 
-> **Don't pick the smallest model.** This MCP exposes 43 tools, and smaller models (7–8 B) get confused with that many. Stick with the table.
+> **Don't pick the smallest model.** Answering these questions means writing real GraphQL queries and chaining a few tool calls; smaller models (7–8 B) get that wrong. Stick with the table.
 
 Download takes a few minutes on a fast connection. While it runs, continue to step 3.
 
 ---
 
-## Step 3 — Install Node.js (one-time, ~2 minutes)
+## Step 3 — Install uv (one-time, ~2 minutes)
 
-The MCP runs as a small program that LM Studio launches for you. It needs Node.js — a small free runtime. You will not write any code; it runs itself.
+The MCP runs as a small program that LM Studio launches for you. It needs **uv** — a small free runtime that also brings its own Python, so there's nothing else to install. You will not write any code; it runs itself. This is the one time you'll touch a terminal — a single pasted line.
 
-1. Go to [**nodejs.org**](https://nodejs.org/).
-2. Click the **big LTS download button** (left side). Pick the installer for your operating system.
-3. Run the installer with all default options — just keep clicking Next/Install.
+- **macOS / Linux** — open the **Terminal** app and paste:
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+- **Windows** — open **PowerShell** and paste:
+  ```powershell
+  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
 
-That's it. Node is installed. You will never open it directly.
+That's it. Close and reopen the terminal (and LM Studio, later) so it picks up the new `uvx` command. You will never open uv directly.
 
 ---
 
@@ -77,8 +82,8 @@ That's it. Node is installed. You will never open it directly.
    {
      "mcpServers": {
        "opencollective": {
-         "command": "npx",
-         "args": ["-y", "mcp-for-ocp-graphql"],
+         "command": "uvx",
+         "args": ["mcp-for-ocp-graphql"],
          "env": { "OC_PERSONAL_TOKEN": "PASTE-YOUR-TOKEN-HERE" }
        }
      }
@@ -87,7 +92,7 @@ That's it. Node is installed. You will never open it directly.
 
 5. Save (Cmd-S or Ctrl-S) and close the editor.
 
-LM Studio starts the MCP in the background. The very first time, it downloads the program (a few seconds), then it's ready — **no browser tab, no sign-in page**. Your token stays in this file on your laptop.
+LM Studio starts the MCP in the background. **The very first time it may take a few minutes** — it downloads the program and its components; after that it starts instantly. No browser tab, no sign-in page. Your token stays in this file on your laptop.
 
 > **Where your token lives:** the MCP program never saves your token or sends it anywhere except Open Collective — it only keeps it in memory while running. The one saved copy is this `mcp.json` file, in plain text. That's normal for a personal machine — just don't share the file or sync it to a public place.
 
@@ -136,7 +141,10 @@ The token in `mcp.json` is missing, wrong, or pasted with extra spaces/line brea
 You may have picked a model that's too small. Re-download a model one row higher in the table in Step 2.
 
 **"command not found" or the MCP won't start.**
-Node.js isn't installed or wasn't picked up. Re-do Step 3, then fully restart LM Studio so it sees the new install.
+uv isn't installed or wasn't picked up. Re-do Step 3, then fully restart LM Studio so it sees the new `uvx` command.
+
+**The first answer that searches the docs takes a while.**
+The first time the AI uses the docs-search tool, it downloads a small search model (~500 MB), once. After that it's fast. Plain data questions don't need it.
 
 **Everything is very slow.**
 The model is too big for your laptop. Pick the row above in Step 2 (smaller model). On Apple Silicon Macs, models in the table run smoothly; on older Intel laptops without a dedicated GPU, expect slower responses.
@@ -150,7 +158,7 @@ If you already use Ollama or want an open-source app:
 1. Install Ollama from [ollama.com](https://ollama.com/) and download a model with `ollama pull qwen3:14b`.
 2. Install Cherry Studio from [github.com/CherryHQ/cherry-studio/releases](https://github.com/CherryHQ/cherry-studio/releases) (DMG for macOS, EXE for Windows, AppImage/.deb for Linux).
 3. Open Cherry Studio → **Settings → MCP Servers → Add Server**.
-4. Set **Type**: `stdio`, **Command**: `npx`, **Arguments**: `-y mcp-for-ocp-graphql`, and add an **environment variable** `OC_PERSONAL_TOKEN` with your token.
+4. Set **Type**: `stdio`, **Command**: `uvx`, **Arguments**: `mcp-for-ocp-graphql`, and add an **environment variable** `OC_PERSONAL_TOKEN` with your token.
 5. Pick your Ollama model in the chat tab. Start chatting.
 
 No sign-in webpage here either — the token in the server settings is all it needs.
@@ -161,5 +169,5 @@ No sign-in webpage here either — the token in the server settings is all it ne
 
 - [LM Studio download](https://lmstudio.ai/) · [MCP docs](https://lmstudio.ai/docs/app/mcp)
 - [Cherry Studio releases](https://github.com/CherryHQ/cherry-studio/releases)
-- [Node.js download](https://nodejs.org/)
-- [`mcp-for-ocp-graphql` on npm](https://www.npmjs.com/package/mcp-for-ocp-graphql)
+- [uv installation](https://docs.astral.sh/uv/getting-started/installation/)
+- [`mcp-for-ocp-graphql` on PyPI](https://pypi.org/project/mcp-for-ocp-graphql/)

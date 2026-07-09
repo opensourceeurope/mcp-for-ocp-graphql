@@ -10,7 +10,7 @@ Open Collective data includes personally identifiable information (names, emails
 
 - Prefer running **locally** (the stdio transport below) so your data and token never leave your machine.
 - Prefer **anonymous mode** (no token) when you only need public data — you then only ever see what the public API exposes.
-- The bundled querying skill (`corpus/sources/querying-skill.md`, baked into the docs index) is the place where PII handling and safe field-selection guidance live. Keep it as the control point.
+- PII handling and safe field-selection guidance are prompt-level control points: the querying skill (`.claude/skills/querying-opencollective-graphql/`, auto-loaded by Claude Code), [AGENTS.md](AGENTS.md), and [docs/using-with-ai-safely.md](docs/using-with-ai-safely.md).
 
 Tokens are never logged or persisted by this server.
 
@@ -85,11 +85,11 @@ Runs on any EU container platform: Scaleway Serverless Containers (free tier), O
 
 The intended flow is **learn, then execute**:
 
-1. **`search_docs(query, top_k=5)`** — semantic search over a baked index of the Open Collective GraphQL guides plus a generated schema reference. Use this **first** to figure out which queries and fields you need.
+1. **`search_docs(query, top_k=5)`** — semantic search over a baked index of the Open Collective GraphQL guides plus a curated map of the top-level query fields (the entry points). Use this **first** to figure out which queries and fields you need. Each hit carries a `source_url` linking back to its source page.
 2. **`schema_lookup(name)`** — exact definition of a GraphQL type or query field: its description, fields, and arguments (name, type, required, default). Substring matches return candidate names.
 3. **`graphql_query(query, variables=None)`** — execute a read-only GraphQL query and return the JSON result. **Mutations and subscriptions are rejected**: every operation in the document is parsed and must be a `query`.
 
-There are no per-operation typed tools — `graphql_query` is a single generic proxy, which is why the docs index and querying skill carry the field-selection and PII guidance.
+There are no per-operation typed tools — `graphql_query` is a single generic proxy that takes raw GraphQL, so field-selection and PII guidance live at the prompt level (the querying skill, AGENTS.md, and the safe-usage doc), not in code.
 
 ## Configuration
 
@@ -104,9 +104,10 @@ There are no per-operation typed tools — `graphql_query` is a single generic p
 ## Development
 
 ```bash
-uv sync            # install runtime + dev deps from uv.lock
-uv run pytest      # run the test suite
-uvx mcp-for-ocp-graphql   # run the stdio server locally
+uv sync                # install runtime + dev deps from uv.lock
+uv run pytest          # fast suite (offline; the e2e tests are excluded by default)
+uv run pytest -m e2e   # opt-in end-to-end: live OC API + baked index (run after bumping OpenCrane)
+uv run mcp-for-ocp-graphql   # run the stdio server locally from the source tree
 ```
 
 ### The RAG corpus data
@@ -132,7 +133,7 @@ The corpus is the six Open Collective GraphQL guides from [opencollective/graphq
 - [graphql-core](https://github.com/graphql-python/graphql-core) — read-only query parsing/validation
 - [httpx](https://www.python-httpx.org/) — GraphQL transport
 - [Milvus Lite](https://milvus.io/) + [Sentence-Transformers](https://www.sbert.net/) (`nomic-embed-text-v1.5`) — docs search
-- OpenCrane CLI (`uvx opencrane`) — build-time RAG corpus pipeline (`fetch` / `llms` / `chunk` / `embed` / `index`)
+- OpenCrane CLI (`uvx opencrane`) — build-time RAG corpus pipeline (`fetch` / `llms` / `chunk` / `embed`; indexing is done by this project's own `indexer.py`)
 - [Open Collective GraphQL API v2](https://developers.opencollective.com/access)
 
 MIT licensed.

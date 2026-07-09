@@ -10,15 +10,16 @@ Why this stack:
 - **Goose** — open-source CLI agent with native Ollama and MCP support, no IDE required.
 - **`mcp-for-ocp-graphql` in stdio mode** — Goose launches the MCP as a local subprocess and talks to it over stdio. Your OC personal token is passed straight to it via an env var; nothing leaves your machine except the calls Open Collective itself has to answer.
 
-Everything runs on your machine. There is no remote MCP instance and no OAuth handshake — `npx` fetches and runs the server locally.
+Everything runs on your machine. There is no remote MCP instance and no OAuth handshake — `uvx` fetches and runs the server locally.
 
 ---
 
 ## Prerequisites
 
-- **macOS, Linux, or Windows** with at least **16 GB RAM** (24 GB+ recommended for the strongest small-tool-calling models).
-- **Node.js 18+** (to run `npx -y mcp-for-ocp-graphql`).
-- An **Open Collective personal token** — get one at [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens).
+- **macOS, Linux, or Windows** with at least **16 GB RAM** (24 GB+ recommended for the strongest models).
+- **[uv](https://docs.astral.sh/uv/getting-started/installation/)** (to run `uvx mcp-for-ocp-graphql`). uv manages its own Python, so you don't need Python installed separately.
+- A few GB of free disk and network for the **first run**: `uvx` installs the server's Python dependencies (including PyTorch), and the first `search_docs` call downloads the embedding model (~500 MB). `graphql_query`/`schema_lookup` work immediately without it.
+- An **Open Collective personal token** — get one at [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens). Optional: with no token the server runs anonymously against public data.
 
 ---
 
@@ -50,7 +51,7 @@ On macOS, the Ollama desktop app starts it automatically.
 
 ## Step 2 — Pull a model
 
-The MCP exposes **43 tools** (one per OC GraphQL query) and a typical analytics task needs the model to: pick the right tool, write a GraphQL `fields` selection string, paginate, and aggregate. That's a tool-calling-heavy load — smaller models struggle. Pick by RAM, not by hype:
+The MCP exposes **three tools** — `search_docs`, `schema_lookup`, `graphql_query` — and a typical analytics task needs the model to chain them: search the docs, confirm the exact fields, then **hand-write a raw GraphQL query**, paginate, and aggregate. Authoring valid GraphQL and following that multi-step flow is what smaller models struggle with. Pick by RAM, not by hype:
 
 | RAM available | Recommended | Disk size | Why |
 |---|---|---|---|
@@ -59,7 +60,7 @@ The MCP exposes **43 tools** (one per OC GraphQL query) and a typical analytics 
 | **32 GB** | `qwen3:32b` or `qwen2.5:32b` | 20 GB | Multi-step analytics with comfortable headroom. |
 | **48 GB+** | `llama3.3:70b` or `gpt-oss:120b` | 43–65 GB | Cloud-model-tier quality. Slow on CPU; fine on Apple Silicon with unified memory. |
 
-**Avoid for this workload**: anything ≤ 8B parameters. Goose contributors report that small models degrade sharply once a handful of tools are loaded — with dozens of tools attached, expect tool-format breakdown and silent failures (see [block/goose#6883](https://github.com/block/goose/issues/6883), [block/goose discussion #1403](https://github.com/block/goose/discussions/1403)).
+**Avoid for this workload**: anything ≤ 8B parameters. Small models are unreliable at authoring valid GraphQL and at chaining tool calls over several steps — expect malformed queries, repeated 400s from the API, and silent give-ups. (Goose contributors report the same fragility in tool-calling loops: [block/goose#6883](https://github.com/block/goose/issues/6883), [block/goose discussion #1403](https://github.com/block/goose/discussions/1403).)
 
 Pull your pick:
 
@@ -136,8 +137,8 @@ goose configure
 Choose **Add Extension → Command-line Extension** and fill in:
 
 - **Name**: `opencollective`
-- **Command**: `npx`
-- **Args**: `-y mcp-for-ocp-graphql`
+- **Command**: `uvx`
+- **Args**: `mcp-for-ocp-graphql`
 - **Timeout**: 300 (seconds)
 - **Environment variables**: add `OC_PERSONAL_TOKEN` = your Open Collective personal token
 
@@ -148,14 +149,15 @@ extensions:
   opencollective:
     enabled: true
     type: stdio
-    cmd: npx
+    cmd: uvx
     args:
-      - -y
       - mcp-for-ocp-graphql
     envs:
       OC_PERSONAL_TOKEN: "<your token>"
     timeout: 300
 ```
+
+> **First launch is slow.** The first time Goose starts the extension, `uvx` installs the server's Python dependencies (including PyTorch) — that can take a few minutes and may exceed the 300 s timeout on a slow connection. Pre-warm it once by running `uvx mcp-for-ocp-graphql` in a terminal (Ctrl-C after it prints its startup line), then start Goose.
 
 > **Where your token lives:** the MCP server never writes your token to disk or logs it — it only holds it in memory while running. The one persistent copy is this `config.yaml`, where Goose stores it in plaintext (Goose's `envs` takes literal values, so there's no env-variable indirection here). That's acceptable for a single-user local machine — treat the file like any other secret: don't commit it, don't sync it to a shared cloud drive.
 
@@ -176,7 +178,7 @@ How many active collectives are under the host with slug "opensource-europe"?
 Use the OC MCP. Just give me the totalCount.
 ```
 
-The agent should call `accounts` with `host: [{slug: "opensource-europe"}]`, `limit: 1`, read `totalCount`, and return a number. If it does, the stack is working.
+The agent should use `search_docs`/`schema_lookup` to shape the query, then call `graphql_query` with something like `{ accounts(host: [{slug: "opensource-europe"}], limit: 1) { totalCount } }`, read `totalCount`, and return a number. If it does, the stack is working.
 
 Then a real analytics question:
 
@@ -211,10 +213,13 @@ You're using a small model with too many tools loaded. Switch to `gpt-oss:20b` o
 You skipped Step 4. Ollama's 2048-token default isn't enough — bump `num_ctx` to at least 16384.
 
 **The extension fails to start / "command not found".**
-Make sure Node.js 18+ is installed and `npx` is on your `PATH` (`npx --version`). The first run downloads the package, which needs network access.
+Make sure `uv` is installed and `uvx` is on your `PATH` (`uvx --version`). The first run downloads the package and its Python dependencies (including PyTorch) — that needs network and can take a few minutes; pre-warm with `uvx mcp-for-ocp-graphql` in a terminal.
 
-**Every tool call returns an auth error.**
-`OC_PERSONAL_TOKEN` is missing or wrong in the extension's `envs`. The server exits immediately if the token is absent; an invalid token is rejected by Open Collective on first query. Re-check the value in `~/.config/goose/config.yaml`.
+**A query returns an auth error or empty private data.**
+The server does **not** require a token — with none it runs anonymously against public data. If you need private data, `OC_PERSONAL_TOKEN` in the extension's `envs` is missing or wrong; an invalid token is rejected by Open Collective on the first query. Re-check the value in `~/.config/goose/config.yaml`.
+
+**The first `search_docs` call hangs for a while.**
+That's the one-time embedding-model download (~500 MB). Subsequent searches are fast. `graphql_query` and `schema_lookup` don't need the model.
 
 **The model invents fields and gets 400s from the API.**
 The OC schema has inline-fragment quirks (e.g. `host`, `parent`, `isApproved` aren't on the base `Account` type). Paste the contents of [`.claude/skills/querying-opencollective-graphql/SKILL.md`](../.claude/skills/querying-opencollective-graphql/SKILL.md) into the system prompt — it's the same playbook hosted Claude uses.
@@ -229,4 +234,4 @@ Apple Silicon with unified memory handles `gpt-oss:20b` and `qwen3:14b` well. On
 - [Goose installation](https://goose-docs.ai/docs/getting-started/installation/) · [config file](https://block.github.io/goose/docs/guides/config-file/)
 - [Ollama tool calling](https://docs.ollama.com/capabilities/tool-calling) · [Goose integration](https://docs.ollama.com/integrations/goose)
 - Models: [qwen3](https://ollama.com/library/qwen3) · [qwen2.5](https://ollama.com/library/qwen2.5) · [gpt-oss](https://ollama.com/library/gpt-oss) · [llama3.3](https://ollama.com/library/llama3.3) · [mistral-small3.2](https://ollama.com/library/mistral-small3.2)
-- [`mcp-for-ocp-graphql` on npm](https://www.npmjs.com/package/mcp-for-ocp-graphql)
+- [`mcp-for-ocp-graphql` on PyPI](https://pypi.org/project/mcp-for-ocp-graphql/) · [uv installation](https://docs.astral.sh/uv/getting-started/installation/)

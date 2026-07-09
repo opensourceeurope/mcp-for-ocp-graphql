@@ -109,9 +109,9 @@ The MCP server in this repo:
 - Runs in one of two modes. **Hosted (HTTP + OAuth 2.1 + PKCE):** a shared server with no shared credentials — each user authenticates with their own Open Collective personal token. **Local (stdio):** you run the server yourself with your token in the `OC_PERSONAL_TOKEN` env var; it never touches a third-party host at all.
 - Does not persist tokens or query results. The token is held only in memory — in hosted mode for the duration of each request, in local stdio mode for the life of the running process — and is never written to disk or logged by the server. In local mode, the one on-disk copy is whatever you place in your own MCP client config.
 - Does not log tokens, headers, or request bodies (see [`AGENTS.md`](../AGENTS.md) › "Never log tokens").
-- Is read-only — only GraphQL `query` operations are exposed; mutations are stripped at schema-introspection time.
+- Is read-only — the `graphql_query` tool parses every operation in the document and rejects anything that isn't a `query` (mutations and subscriptions error before any network call).
 
-For maximum control, **run the server yourself** rather than using one operated by someone else. The most local option is **stdio mode on your own machine** (`npx -y mcp-for-ocp-graphql`) — then the only third party that sees your queries is Open Collective, which already holds the data. If you need a shared HTTP server for a team, host your own instance (Scaleway, OVH, Hetzner — see [`docs/scaleway-deployment.md`](scaleway-deployment.md)). With your own instance:
+For maximum control, **run the server yourself** rather than using one operated by someone else. The most local option is **stdio mode on your own machine** (`uvx mcp-for-ocp-graphql`) — then the only third party that sees your queries is Open Collective, which already holds the data. If you need a shared HTTP server for a team, host your own instance (Scaleway, OVH, Hetzner — see [`docs/scaleway-deployment.md`](scaleway-deployment.md)). With your own instance:
 
 - You control the host region (keep it in the EU for GDPR purposes).
 - You control the logs.
