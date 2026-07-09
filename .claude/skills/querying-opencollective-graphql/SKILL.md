@@ -1,90 +1,96 @@
 ---
 name: querying-opencollective-graphql
-description: Use when querying the Open Collective GraphQL MCP (opencollective-graphql-mcp tools such as account, accounts, expenses, host, transactions, me) — for resolving accounts/hosts, counting records, paging, building field selections, or any analysis over Open Collective data. Covers the inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, oversized-result handling, and required tool args.
+description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission-shaped nulls, and metrics behind argument-bearing fields.
 ---
 
 # Querying the Open Collective GraphQL MCP
 
 ## Overview
 
-The `opencollective-graphql-mcp` tools are generated from Open Collective's GraphQL schema. Each tool takes a `fields` array that selects what to return, and **nested GraphQL syntax is allowed inside a field string**. These notes capture the non-obvious mechanics so you don't rediscover them every session.
+This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there is **no** per-operation tool and no `fields` array. You write **raw GraphQL**:
+
+- **`graphql_query(query, variables=None)`** — runs a **read-only** GraphQL query and returns JSON. Mutations and subscriptions are rejected. `variables` is an optional dict.
+- **`schema_lookup(name)`** — exact definition of a type or query field (fields, args with name/type/required/default). Substring matches return candidate names.
+- **`search_docs(query, top_k=5)`** — semantic search over the OC docs + a query-field map.
+
+**Workflow: `search_docs` (find the right query/approach) → `schema_lookup` (confirm exact fields, args, required-ness) → `graphql_query` (run it).** Don't guess field names — look them up.
 
 ## Quick reference
 
 | Need | How |
 |------|-----|
-| Resolve an account/host by name | `accounts(searchTerm, …)` — the standalone `search` tool is broken (see #1) |
-| Fetch one account | `account(slug \| id \| githubHandle)` |
-| List accounts under a host | `accounts(host: [{slug}], type: […], limit, offset, tagSearchOperator)` |
-| Count records | query with `limit: 1`, read `totalCount` — never fetch rows just to count |
-| Include a parent's Projects/Events | `includeChildrenExpenses: true` |
-| Read a field not on base `Account` | wrap in an inline fragment (see #2) |
+| Discover which query/fields to use | `search_docs("list expenses for a collective")` |
+| Confirm a type/field's exact shape + required args | `schema_lookup("expenses")`, `schema_lookup("Account")` |
+| Fetch one account | `account(slug: $s)` — args: `slug`, `id`, or `githubHandle` |
+| Resolve/search accounts by name | `accounts(searchTerm: $q, limit: 5)` |
+| Count records | select `totalCount` with `limit: 1` — never fetch rows to count (#3) |
+| Read a field not on base `Account` | inline fragment (#1) |
+| Roll a parent's Projects/Events into one total | `includeChildrenExpenses: true` (#4) |
 
-## Gotchas (each one wasted real time)
+## Gotchas (each one wastes real time)
 
-**1. The `search` tool is broken** — it errors on unprovided required variables. Use `accounts` with `searchTerm` instead. An empty/error response from `search` is a tool bug, not "no results".
-
-**2. Many fields are NOT on the base `Account` type** and 400 if selected directly. Wrap them in inline fragments inside the `fields` array:
+**1. Many fields are NOT on the base `Account` type** and error if selected directly. Wrap them in inline fragments:
+```graphql
+query($s: String) {
+  account(slug: $s) {
+    slug name
+    ... on AccountWithHost { host { slug name } isApproved }
+    ... on AccountWithParent { parent { slug name type } }
+  }
+}
 ```
-"... on AccountWithHost { host { slug name } isApproved }"
-"... on AccountWithParent { parent { slug name type } }"
+The error message names the fragment type to use — read it and adapt. Use `schema_lookup` to confirm which interface a field lives on.
+
+**2. Only truly-required args must be supplied — trust `schema_lookup`, not the `!`.** An arg errors only if it is `NON_NULL` **and has no default**. Many args that look mandatory (e.g. `accounts`' `limit`/`offset`/`tagSearchOperator` are `Int!`/enum!) actually carry defaults, so you can omit them. `schema_lookup(name)` reports `required: true/false` per arg (it already accounts for defaults) — that flag is the source of truth, not the type's `!`.
+
+**3. To count, select `totalCount`, don't fetch rows.** Collections expose `totalCount` independent of how many nodes you request:
+```graphql
+query($s: String) { account(slug: $s) { expenses(limit: 1) { totalCount } } }
 ```
-The 400 error message lists which fragment type to use — read it and adapt.
+Fetching rows just to length them wastes tokens and can produce huge results (#5).
 
-**3. Nested selections go inside a single `fields` string**, full GraphQL syntax:
-`"members { totalCount, nodes { account { name slug } } }"`. Arguments work too: `"members(role: ADMIN) { … }"`.
+**4. Accounts have parent/child structure.** A Collective can own Project and Event sub-accounts, each with its own slug. When aggregating, resolve children to their parent (`... on AccountWithParent { parent { slug } }`) and count the parent once with `includeChildrenExpenses: true`, or you double-count / misattribute.
 
-**4. To count, use `limit: 1` and read `totalCount`.** Every list tool returns `totalCount` regardless of `limit`. Fetching rows to count wastes tokens and can overflow (see #6).
+**5. Keep results small.** `graphql_query` returns the JSON inline — a broad selection over a large collection can be enormous. Prefer `totalCount`; page with `limit`/`offset` (collections cap around `limit: 1000`); select only the fields you need.
 
-**5. Required args on list tools.** `expenses` requires `limit`, `offset`, `orderBy`, and `includeChildrenExpenses` on *every* call; `accounts` requires `limit`, `offset`, `tagSearchOperator`. Pass them even for a `limit: 1` count, or the call 400s.
-
-**6. Large results spill to a file** instead of returning inline. When that happens, don't read the whole file into context — query it with `jq`:
-```bash
-jq -r '.nodes[].account.slug' FILE | sort | uniq -c | sort -rn | head
+**6. Host-level queries reflect membership *at record time*, not now.** A query filtered by `host` (e.g. `expenses(host: {slug}, hostContext: HOSTED)`) returns records created while the account was under that host — an account that has since **migrated to another host still shows up**. Before asserting "account X belongs to host Y" today, confirm the *current* host:
+```graphql
+query($s: String) { account(slug: $s) { ... on AccountWithHost { host { slug } } } }
 ```
-List tools cap at `limit: 1000`; page with `offset` for more. Prefer per-account `totalCount` counts, which sidestep paging entirely.
 
-**7. Accounts have parent/child structure.** A Collective can own Project and Event sub-accounts, each with its own slug. When aggregating, raw high-frequency slugs are often `PROJECT`/`EVENT` children — resolve each with the `AccountWithParent` fragment (#2) and attribute to the parent, then count the parent once with `includeChildrenExpenses: true` to avoid double-counting.
+**7. `null` can mean "not visible to your persona", not "empty".** The token is the logged-in persona (`me`); field visibility follows its privileges. A field that is `null` for one account but populated for another often signals a permission/ownership difference — cross-check with #6 before concluding the data is absent.
 
-**8. Host-level queries reflect membership *at record time*, not now.** A query filtered by `host` (e.g. `expenses(host: {slug}, hostContext: HOSTED)`) returns records created while the account was under that host — an account that has since **migrated to a different host still shows up.** Before asserting "account X belongs to host Y", confirm the *current* host with `account(X, ["... on AccountWithHost { host { slug } }"])`.
-
-**9. `null` fields can mean "not visible to your persona", not "empty".** The token is the logged-in persona (`me`); field visibility follows its privileges. A field returning `null` for one account but a value for another often signals a permission/ownership difference (e.g. you administer one but not the other) — cross-check with #8 before concluding the data is absent.
-
-**10. Aggregate/metric data lives behind argument-bearing nested fields that the default selection won't surface.** Host analytics — `host.metrics { hostedCollectivesFinancialActivity }`, `hostedCollectivesMembership`, `hostedCollectivesHosting` (and fields like `unhostedAt`, `communityStats`) — each **require an argument**, so they're dropped from the auto-generated `fields` and never appear unless you ask. The tool's `fields` description lists them under **"Some fields require arguments"** with the exact arg name and input type. Pass the argument inline inside the field string:
+**8. Aggregate/metric data hides behind argument-bearing nested fields.** Host analytics — `host.metrics { hostedCollectivesFinancialActivity }`, `hostedCollectivesMembership`, etc. — each **require an argument**, so they never appear unless you ask with the argument inline:
+```graphql
+"metrics { hostedCollectivesFinancialActivity(input: { dateRange: {...}, measures: [...] }) { ... } }"
 ```
-"metrics { hostedCollectivesFinancialActivity(input: { dateRange: { ... }, measures: [ ... ] }) { ... } }"
-```
-The input object's shape (`dateRange`, `measures`, `bucket`, `groupBy`, `timezone`, …) is the `…MetricsInput` type in the schema; if you guess wrong, the 400 error names the missing/invalid fields. This is the general rule for any nested field with a required arg, not just metrics.
+`schema_lookup` on the type shows the exact `…MetricsInput` shape; a wrong guess returns a 400 naming the invalid fields. This is the general rule for any nested field with a required arg.
 
 ## Personal data — make the user aware before retrieving
 
-Some fields return **personal data** (`emails`, `email`, contact fields on Individual accounts). Retrieving a PII field into a tool result puts it in the model's processing context — for a hosted model that means transmission to the provider's servers, for a local model (Ollama, LM Studio, etc.) it stays on the user's machine. Writing it to a file, commit, log, or message is a further disclosure regardless of where the model runs. These actions cannot be undone — the only control point is before retrieval.
+Some fields return **personal data** (`email`/`emails` and contact fields on Individual accounts). Selecting a PII field puts it in the model's context — for a hosted model that means transmission to the provider; for a local model it stays on the user's machine. Writing it to a file, commit, log, or message is a further disclosure. These cannot be undone — the only control point is **before** you select the field.
 
-**Default: do not select these fields.** Don't include them silently in a wider selection, and don't have a subagent fetch them.
+**Default: do not select these fields.** Don't slip them into a wider selection, and don't have a subagent fetch them.
 
-**When the user asks for PII (or you'd recommend fetching it):**
+**When the user asks for PII (or you'd recommend it):**
+1. Tell them plainly what will happen — the data enters the model's context (provider's servers for a hosted model, their machine for a local one), and anywhere you then write it is a further disclosure. If you don't know which kind of model you're running under, say so.
+2. Once they confirm with that awareness, do what they asked — it's their data and their call.
 
-1. Tell them in plain language what will happen — the data enters the model's context (the provider's servers for a hosted model, their own machine for a local model), and anywhere you then write it (file, commit, message) is a further disclosure either way. If you don't know which kind of model you're running under, say so and let them decide.
-2. Once they confirm with that awareness, do what they asked. It's their data and their call; don't second-guess the scope.
-
-If they prefer to keep the data off the model entirely, hand them this command to run in their **own terminal** (output stays local, never enters any agent context):
-
+If they'd rather keep it off the model entirely, hand them this to run in their **own terminal** (output stays local):
 ```bash
-# NOT via Claude's `!` prefix — that routes output back through the model.
 export OC_TOKEN='<your personal token>'
 curl -s https://api.opencollective.com/graphql/v2 \
   -H 'Content-Type: application/json' \
   -H "Personal-Token: $OC_TOKEN" \
   -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}'
 ```
-
 This is the repo rule too — see `AGENTS.md` › "Handling Personal Data (PII)".
 
 ## Common mistakes
 
-- Treating a `search` error as "no results" → it's the broken tool (#1).
-- Selecting `host`/`parent`/`isApproved` on a plain `Account` → 400; needs a fragment (#2).
-- Counting by fetching and length-ing rows → use `totalCount` (#4), and remember the required args (#5).
-- Reading a spilled result file into context instead of `jq`-ing it (#6).
-- Aggregating by raw slug without rolling children into parents (#7) or without checking the current host (#8) → inflated, stale, or mis-attributed totals.
-- Expecting host metrics/aggregates in a normal `fields` selection → they need an inline argument and are listed under "Some fields require arguments" in the tool description (#10).
+- Expecting a `fields` array or a per-operation tool — there's only `graphql_query` taking raw GraphQL. Use `schema_lookup` to build the selection.
+- Selecting `host`/`parent`/`isApproved` on a plain `Account` → error; needs an inline fragment (#1).
+- Assuming every `!` arg is mandatory — most have defaults; only `schema_lookup`'s `required: true` args must be supplied (#2).
+- Counting by fetching and length-ing rows instead of selecting `totalCount` (#3).
+- Aggregating by raw slug without rolling children into parents (#4) or without checking the current host (#6) → inflated, stale, or misattributed totals.
+- Expecting host metrics in a normal selection — they need an inline argument (#8).
