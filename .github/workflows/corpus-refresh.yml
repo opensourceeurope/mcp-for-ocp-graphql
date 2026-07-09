@@ -46,11 +46,13 @@ jobs:
       - name: Fetch the live GraphQL schema
         run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_fetch
 
-      - name: Build the curated query-field map
+      - name: Build the curated query-field map (a `local` source in config.yaml)
         run: |
           mkdir -p .opencrane/sources/local
           # Curated: only the top-level query fields (entry points), NOT the full
           # per-type dump — that would bloat the index and duplicate schema_lookup.
+          # `.opencrane/sources/local` is registered as a `local: true` source in
+          # .opencrane/config.yaml, so `opencrane llms` processes it natively.
           uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref \
             --queries-only .opencrane/sources/local/schema-queries.md
 
@@ -61,17 +63,8 @@ jobs:
         # PyGithub (module `github`) is required by `fetch` but not in opencrane's deps.
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with PyGithub opencrane fetch
 
-      - name: Generate llms bundle
+      - name: Generate llms bundle (guides + the local query-field map)
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane llms --force
-
-      - name: Append the query-field map to the llms bundle
-        # opencrane's llms step only processes configured GitHub sources, so our
-        # generated query-field map is concatenated in here so `chunk` includes it.
-        run: |
-          {
-            printf '\n\n# Open Collective GraphQL — query fields (entry points)\n\n'
-            cat .opencrane/sources/local/schema-queries.md
-          } >> .opencrane/llmstxt/llms-full.txt
 
       - name: Chunk
         # docling + tiktoken are required by chunk's strategies but not in opencrane's deps.

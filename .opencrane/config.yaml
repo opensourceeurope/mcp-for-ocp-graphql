@@ -4,3 +4,7 @@ sources:
     docs_path: pages
     manual: true
     branch: main
+  local:
+    local: true
+    manual: true
+    docs_path: .opencrane/sources/local
