@@ -20,7 +20,7 @@ permissions:
 
 env:
   UV_VERSION: 0.8.19
-  OPENCRANE_VERSION: 0.22.0
+  OPENCRANE_VERSION: 0.23.0
   OMP_NUM_THREADS: '1'
   # OpenCrane pipeline I/O (its defaults, made explicit).
   AI_DOCS_SOURCES_DIR: .opencrane/sources
