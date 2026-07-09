@@ -8,3 +8,4 @@ sources:
     local: true
     manual: true
     docs_path: .opencrane/sources/local
+    url: https://github.com/opensourceeurope/mcp-for-ocp-graphql

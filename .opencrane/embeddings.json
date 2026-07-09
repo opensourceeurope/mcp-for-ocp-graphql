@@ -1,8 +1,8 @@
 {
   "model": "nomic-ai/nomic-embed-text-v1.5",
   "dimensions": 768,
-  "created_at": "2026-07-09T11:55:01.437013+00:00",
-  "chunks_sha256": "596df272db06340f72a7c208250caf8229eac9ab035232ae1da64be3e461422f",
+  "created_at": "2026-07-09T13:38:32.690238+00:00",
+  "chunks_sha256": "c3bd236fea0e42dd6cf2a1f546b391abceb4c21176ea8c2ad061f5aec27db1ba",
   "embeddings": [
     {
       "chunk_index": 0,
@@ -13938,7 +13938,7 @@
     },
     {
       "chunk_index": 18,
-      "chunk_id": "ae6b130b9be88cb4543cc93dac99e879d92a6b61084fd2ef48efc1e7227a440c",
+      "chunk_id": "ceb3cc72da896f18d487947793598bf654b1bde3e09ec959dcb4cb4d47292ed7",
       "vector": [
         0.3492743670940399,
         1.455723762512207,
@@ -14712,7 +14712,7 @@
     },
     {
       "chunk_index": 19,
-      "chunk_id": "6660b341d8d6d5c58da5685b85fcb85b825f3b48f9444dc83322af91478170f3",
+      "chunk_id": "8365b40d6deee616d6ea6bbd891c3a24231a3a180ab0c5a23c8684b82c4d112e",
       "vector": [
         0.64023756980896,
         1.6387642621994019,
@@ -15486,7 +15486,7 @@
     },
     {
       "chunk_index": 20,
-      "chunk_id": "e472f27c55932808b8a565b8057bdd87edda6f229c6868dd7a0a376bbd21dc07",
+      "chunk_id": "4a131b45a31574e575c57e4d8632e3dd28e134856caf4c73a82fa21e5478199f",
       "vector": [
         0.47886958718299866,
         1.3960106372833252,
@@ -16260,7 +16260,7 @@
     },
     {
       "chunk_index": 21,
-      "chunk_id": "c47367e04d07a8836f23b248a698a9c2d5af7017c1caf58761ce2222bec63f2b",
+      "chunk_id": "26a3601f9ca87ec2aa35ae79fdcd0f3d5054fe32e1e017abf2a52024d291ebfc",
       "vector": [
         0.591937243938446,
         0.18415889143943787,
@@ -17034,7 +17034,7 @@
     },
     {
       "chunk_index": 22,
-      "chunk_id": "bfba9c684831fd4b9a922e776a38d9e581ba78c3b8c2cac9ea8afd9a3faa81ac",
+      "chunk_id": "4c43c0a20d5538f1796fde8902332b1611ff071b8ecd06be7e8be28a8f3d2325",
       "vector": [
         -0.04517841711640358,
         1.7184406518936157,
@@ -17808,7 +17808,7 @@
     },
     {
       "chunk_index": 23,
-      "chunk_id": "1d99a0e3bc8db04f04df05d734cbaa5f067a6fe6213ca63b3bb634b0a6e01443",
+      "chunk_id": "91cf9e80d2e8c07d13c0b841ac10602a41298aeca5dc9605c913761e68c77d80",
       "vector": [
         0.6923564076423645,
         1.6583360433578491,
@@ -18582,7 +18582,7 @@
     },
     {
       "chunk_index": 24,
-      "chunk_id": "89a82aa57a7e1a2e3a045f4e91f6c47186c1d0220be9c65e261283f4ee883689",
+      "chunk_id": "9dadd7de502e197700f7d641445a5a4c4a3a676b2ff0e23851577b30ba744dad",
       "vector": [
         0.008116315118968487,
         0.6721470952033997,
@@ -19356,7 +19356,7 @@
     },
     {
       "chunk_index": 25,
-      "chunk_id": "f9f884ae20d12c30c97e78aa2a65dd6392c389eac7007487d9b9dc4446b01b65",
+      "chunk_id": "82931f331eadd6dcb86bff5760835db6c2ad917dc51806ec566319c41543b96b",
       "vector": [
         0.6011643409729004,
         1.4756985902786255,
@@ -20130,7 +20130,7 @@
     },
     {
       "chunk_index": 26,
-      "chunk_id": "6e85a78483504a24875b8bfd2ad703698677058f10c8b3fab1d6c9bfe6f0f23c",
+      "chunk_id": "dbd74741f9cbed13d4ae0d4dadad140120a294bd8dbbfa98680b99e47c3633cb",
       "vector": [
         0.28550052642822266,
         1.3598910570144653,
@@ -20904,7 +20904,7 @@
     },
     {
       "chunk_index": 27,
-      "chunk_id": "4c3ab85793982824f05a90bfcbd6c9bb2f605152cb0530e21e6b678b98a9c1b1",
+      "chunk_id": "32d6071b11d10bc2121b5f4c12c01de77f757bce78d7cc5b4a0411ee8555d5b0",
       "vector": [
         -0.011490516364574432,
         1.4019160270690918,
@@ -21678,7 +21678,7 @@
     },
     {
       "chunk_index": 28,
-      "chunk_id": "bbeed9092c95236731e6299d428116945d768030ba759e798fbd0085655c9f94",
+      "chunk_id": "3d3cc960526fba3cd7ea234ca9da4392865d97135348f25d9f5b64258a37eeda",
       "vector": [
         0.2752498984336853,
         1.4923121929168701,
@@ -22452,7 +22452,7 @@
     },
     {
       "chunk_index": 29,
-      "chunk_id": "b19cc311e2354e8de0ce3a3db25ebf053a2cfa1159fcc62da30cb2e30850a1dc",
+      "chunk_id": "df42efadbe814b4d60ac7528d0f89f320e12e44026d95bef5d556524517cc464",
       "vector": [
         0.7369341850280762,
         1.6674681901931763,
@@ -23226,7 +23226,7 @@
     },
     {
       "chunk_index": 30,
-      "chunk_id": "db13f3504eb8c223229d51f6af67f1304f53c7ee28fd15a29afd30478d191c5d",
+      "chunk_id": "9bdbb986faf048d17104234f58ec0e76b62b9000c0199914e79a0750ad07b214",
       "vector": [
         0.5722357630729675,
         0.876503050327301,
@@ -24000,7 +24000,7 @@
     },
     {
       "chunk_index": 31,
-      "chunk_id": "19b28da963f5b10f976ec556ff8ff95e658e2b98c6bb9619e0171e6c3b7def3d",
+      "chunk_id": "02011b4a220aeeb6c3dbd5978580efaf4120c2bc2b4d01f385f72d8649db833f",
       "vector": [
         0.30696114897727966,
         1.0685216188430786,
@@ -24774,7 +24774,7 @@
     },
     {
       "chunk_index": 32,
-      "chunk_id": "7aea306e4f984f1fa819e6ccda205248878a1650b44b5d90f7ed305da5f0fa6b",
+      "chunk_id": "87ba2768ed37e0634766aa0a775e9dc14494cdb733d2510c102a09a43d866a47",
       "vector": [
         0.5426579117774963,
         1.8797791004180908,
@@ -25548,7 +25548,7 @@
     },
     {
       "chunk_index": 33,
-      "chunk_id": "54d48abd4b70d6a7c1b4ffdb216de2401481add09f4601bc6dadfbd910ecd95c",
+      "chunk_id": "a5aab6c592eea7626a3cc5f5b874b735e019150481ae5e1a8cce6193ffe51522",
       "vector": [
         -0.01080041378736496,
         1.6266522407531738,
@@ -26322,7 +26322,7 @@
     },
     {
       "chunk_index": 34,
-      "chunk_id": "4be9af2fa6d7fe00a7db61d5b9f89c48b85a52bc75d5ad1ed95912060acdbc45",
+      "chunk_id": "77bfcccdf928e6ec2e94e9b86e6377f7725270e12468caf225bc6af829c0a25f",
       "vector": [
         0.23009371757507324,
         1.1345523595809937,
@@ -27096,7 +27096,7 @@
     },
     {
       "chunk_index": 35,
-      "chunk_id": "8a908ce1e9042a6e5939df84d419c732c33f05cdb19a491bde4427f50c87f67c",
+      "chunk_id": "0b10f83f8e13bbb6b6f41b437c1e5f9b32f823730f77df12c39c493baffa05ef",
       "vector": [
         0.565889298915863,
         1.5674463510513306,
@@ -27870,7 +27870,7 @@
     },
     {
       "chunk_index": 36,
-      "chunk_id": "3d02e88a4a0eed5c2972f3e452fe45766626b0a6c33d2ac3932bd2b503c63c44",
+      "chunk_id": "ce581bfeaf5af7c9d82dd234edec22334f46f5c29855c5f4bd8f782fb1ef7501",
       "vector": [
         -0.1450202912092209,
         1.2133930921554565,
@@ -28644,7 +28644,7 @@
     },
     {
       "chunk_index": 37,
-      "chunk_id": "fbf85c702dfc66737c1471c4694d8f21d7ea0ab2f9d89b484e0d9f34d81d7823",
+      "chunk_id": "99444b421687aef3d572c1c72c26abae38c4a058784fcc0f5a3925a0c0146100",
       "vector": [
         0.24142642319202423,
         0.4736703932285309,
@@ -29418,7 +29418,7 @@
     },
     {
       "chunk_index": 38,
-      "chunk_id": "91ca3bff2ece2dff9c0624b28bf1ee77b4dd65b6d9090a92c507a6f1a2147b0b",
+      "chunk_id": "eb036da045cbbe1aa028d7054e7bbf6ab00640933107c3ba613fc9d9e54c8dec",
       "vector": [
         0.08323278278112411,
         -0.28233057260513306,
@@ -30192,7 +30192,7 @@
     },
     {
       "chunk_index": 39,
-      "chunk_id": "5c6553687b78e5cedd19b209eb5750130037877bd4cdf776be534138bc8be966",
+      "chunk_id": "32663cc44b1ca70f2ad6b9a63c8cc97b8099d7db9febc1b20ea63a63afb04953",
       "vector": [
         0.39814987778663635,
         0.8032614588737488,
@@ -30966,7 +30966,7 @@
     },
     {
       "chunk_index": 40,
-      "chunk_id": "298824bccc0f25eb0d1514bd43f7370692fd8d0db71405010d9fb12a8add8641",
+      "chunk_id": "784124cb0efa17044d934a7e437a71f74e11d57a4f66dba4b89ae062e28c61fa",
       "vector": [
         0.2479904145002365,
         1.7830548286437988,
@@ -31740,7 +31740,7 @@
     },
     {
       "chunk_index": 41,
-      "chunk_id": "b30d6ffafb54598adec594c4cd3df5c456f79e2355a659a724fdfaee8c7a6ff9",
+      "chunk_id": "d3a84ed44561573e235390358126423eb4d6afc3b13261324b7d42c839fc8447",
       "vector": [
         -0.3340747058391571,
         1.1918201446533203,
@@ -32514,7 +32514,7 @@
     },
     {
       "chunk_index": 42,
-      "chunk_id": "55396b4e46a80516c5bfe108448d306994a9d251f1bd96edbc7ee6f680e81847",
+      "chunk_id": "00ad3aa99677f3f31ef4e859f8d8a42865705a60f98e96f049fafeb28faea31d",
       "vector": [
         0.2737525999546051,
         1.3668005466461182,
@@ -33288,7 +33288,7 @@
     },
     {
       "chunk_index": 43,
-      "chunk_id": "8d0e7de2ce7d4a778cc4d5476dcbd368501e2e06ff493355d62143680c828b24",
+      "chunk_id": "2384449b1ceac1526a05219c4b8ac0a4d559a0c917e6f6ac7dc2ad1583c722f4",
       "vector": [
         -0.3643946349620819,
         1.8575010299682617,
@@ -34062,7 +34062,7 @@
     },
     {
       "chunk_index": 44,
-      "chunk_id": "b45411c0eb2dbf89e184a71fda9b8072764ad75dfb6b360ba72573a1b757b2e5",
+      "chunk_id": "5651393f19e253258261c7aabdc279763fd28f28883dd5ff85c05ae93a6c9526",
       "vector": [
         0.6738101243972778,
         1.2104445695877075,
@@ -34836,7 +34836,7 @@
     },
     {
       "chunk_index": 45,
-      "chunk_id": "9d0452ff27b82c7094debb68ba0b2cfeac100cf3a8c36bc4847032a0a2634e09",
+      "chunk_id": "eb4cb52ab7fdf9e33227bb88f982f5b836e2c9040d85f29b4186d27e88256aa4",
       "vector": [
         0.6336727142333984,
         1.8827508687973022,
@@ -35610,7 +35610,7 @@
     },
     {
       "chunk_index": 46,
-      "chunk_id": "0d6793ab9f90ce67d933c5ea32c98b9d0b89f3f4d28e3abdd52da2e4b800d6e0",
+      "chunk_id": "35d3879c468b7311f8e5a0350e658212d2d4003b2738efdab015bc409d315d12",
       "vector": [
         -0.18004249036312103,
         0.9528824687004089,
@@ -36384,7 +36384,7 @@
     },
     {
       "chunk_index": 47,
-      "chunk_id": "0fc2321f1c95e54644590a81a37ece4925198a6827de87be4046cd0576f12ef9",
+      "chunk_id": "98fea908b66d66851012ee78d2309557004070d77e38c4ec7b943df7ef46497c",
       "vector": [
         0.2689124345779419,
         1.674931526184082,
@@ -37158,7 +37158,7 @@
     },
     {
       "chunk_index": 48,
-      "chunk_id": "2b86da2f34f1de4e6c740a979af9a7b5e1b78b4cbf21ee1917fbb580f2d3af43",
+      "chunk_id": "e040904d242a90b3f6db68239fb5b716600e4aea50dd12bc9bc008b3dcc63a1f",
       "vector": [
         0.6466683149337769,
         1.5032709836959839,
@@ -37932,7 +37932,7 @@
     },
     {
       "chunk_index": 49,
-      "chunk_id": "8d566412889869869b8f0b59d89a7c19c5cf903af90b4b3f6214714688427273",
+      "chunk_id": "1f1d65022da9e055b268ec2810db30bb38c827e072594df355c5b699cee9df3c",
       "vector": [
         -0.004671397153288126,
         1.0082499980926514,
@@ -38706,7 +38706,7 @@
     },
     {
       "chunk_index": 50,
-      "chunk_id": "437853109fa932167c46f9341ad4d0f88dc7d1761f0d67b3886025672930ef24",
+      "chunk_id": "e55b2e23fc559a5796d0353a135a93f889b17917e027ea72aafdae98f41cbf5a",
       "vector": [
         0.1951463222503662,
         1.5047367811203003,
@@ -39480,7 +39480,7 @@
     },
     {
       "chunk_index": 51,
-      "chunk_id": "296717285fed25fb9bc8865c8d43fdbcf2a922af383e9f3633dac7a3329b11d5",
+      "chunk_id": "f1d8fa290beb2e5baf5d32b2e8281feeb81216b33a87bca42577365f515aafbc",
       "vector": [
         0.23499083518981934,
         1.3860515356063843,
@@ -40254,7 +40254,7 @@
     },
     {
       "chunk_index": 52,
-      "chunk_id": "b8384035de6501d119a8e0b2b03b48e3819ac446567f888981c247758b61d63d",
+      "chunk_id": "fe6fe8b79b46d2ae0a68be1f4705c929a318903a98d6e5371fdcca3cdc426e7f",
       "vector": [
         0.8631118535995483,
         1.5430763959884644,
@@ -41028,7 +41028,7 @@
     },
     {
       "chunk_index": 53,
-      "chunk_id": "fba2335656fce2267cd7ac3452974b02f696944ee8130b14b07cb232c04cff62",
+      "chunk_id": "fd155c2b0a18d5363b99645ce188ad73ab4274b9c4e792fd115bc38b76f6c077",
       "vector": [
         0.03901861608028412,
         1.8836584091186523,
@@ -41802,7 +41802,7 @@
     },
     {
       "chunk_index": 54,
-      "chunk_id": "d90c57ea3cc34562ae146ca4225a6103ce5a1116c21a376a805c7fed2d16d935",
+      "chunk_id": "9ae1f4bdc13ab186b3d960e393b0b3ef0f657649b5cbaabe302bd12b927fb3bf",
       "vector": [
         0.9281994104385376,
         1.8620814085006714,
@@ -42576,7 +42576,7 @@
     },
     {
       "chunk_index": 55,
-      "chunk_id": "eddfda2bda81afee572931618e8a977795923844af59b437c5dfa12f94e220be",
+      "chunk_id": "fda088e77b2efeac83681ebdcbba226e3df6d7a43ced6602b73da105047d85e1",
       "vector": [
         0.6263482570648193,
         1.6042170524597168,
@@ -43350,7 +43350,7 @@
     },
     {
       "chunk_index": 56,
-      "chunk_id": "286076699240b47f7617bf69ea87a73ec23dbb0bb474ed37ac6151c5ac8e6e9a",
+      "chunk_id": "ef3d47f620efa926ac4bfec444970062cf030a98d4742801a732a85887722242",
       "vector": [
         -0.07253510504961014,
         -0.12483919411897659,
@@ -44124,7 +44124,7 @@
     },
     {
       "chunk_index": 57,
-      "chunk_id": "eaaf69170afc179d840481b8538949c3d1910ba72811ae9baf1d4a3964acd55b",
+      "chunk_id": "f01a937597e9ba18e56e5a1f2ff9286f2beb5c7cc0a4da2e9938e0c5e6207bea",
       "vector": [
         0.15937648713588715,
         0.4672021269798279,
@@ -44898,7 +44898,7 @@
     },
     {
       "chunk_index": 58,
-      "chunk_id": "f3b7d466cbeb25fd740aee81b14e153fc258497fa94e78038bfb931a6a07f6f4",
+      "chunk_id": "967a46c0b62f82c6034424ab2e5d6877033f44ec39bae3d1276695f34e6f23ed",
       "vector": [
         0.6453418135643005,
         1.6460627317428589,
@@ -45672,7 +45672,7 @@
     },
     {
       "chunk_index": 59,
-      "chunk_id": "6b84ba62b63fd821f480c2a67def704a941876255ca91c9e0dc9130ee7c3a593",
+      "chunk_id": "076f8af61d2c53bf95c14437872df4c6143ddc6e8a3b4aaa48b58d44b531b92c",
       "vector": [
         0.6537424921989441,
         1.423870325088501,
@@ -46446,7 +46446,7 @@
     },
     {
       "chunk_index": 60,
-      "chunk_id": "f078ffb769a89119b92d4e471297fb5914949e58968bdbe945828a1b26d60daa",
+      "chunk_id": "2c0b3c47ef0ab38759e8b6cad9c0f7f5f0b48b39fe6574a1e091c958ded45559",
       "vector": [
         0.41603970527648926,
         1.5807852745056152,
