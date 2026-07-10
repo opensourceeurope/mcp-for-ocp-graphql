@@ -1,0 +1,26 @@
+name: Commit Lint
+
+# Lint PR commits against Conventional Commits so release-please's version math stays
+# reliable (fix -> patch, feat -> minor, feat!/BREAKING CHANGE -> major). Also serves as
+# the required status check that lets the release PR hold-for-green and auto-merge.
+
+on:
+  pull_request: {}
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Lint PR commits against the conventional-commit spec
+        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
+        with:
+          configFile: .commitlintrc.json
+          failOnErrors: true

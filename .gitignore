@@ -10,7 +10,7 @@ node_modules/
 .DS_Store
 .idea/
 .vscode/
-.mcp.json
+/.mcp.json
 docs/superpowers
 
 reports/

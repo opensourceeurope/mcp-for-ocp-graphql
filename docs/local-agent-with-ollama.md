@@ -188,7 +188,7 @@ most approved expenses in the last 90 days. Use totalCount, do not
 fetch row contents. Roll Project/Event children into their parent.
 ```
 
-The patterns this exercises (using `totalCount` instead of fetching rows, rolling children into parents) are the ones documented in [.claude/skills/querying-opencollective-graphql/SKILL.md](../.claude/skills/querying-opencollective-graphql/SKILL.md) — feed that file's content to the model as a system prompt if you want it to follow them reliably.
+The patterns this exercises (using `totalCount` instead of fetching rows, rolling children into parents) are the ones documented in [plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md](../plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md) — feed that file's content to the model as a system prompt if you want it to follow them reliably.
 
 ---
 
@@ -222,7 +222,7 @@ The server does **not** require a token — with none it runs anonymously agains
 That's the one-time embedding-model download (~500 MB). Subsequent searches are fast. `graphql_query` and `schema_lookup` don't need the model.
 
 **The model invents fields and gets 400s from the API.**
-The OC schema has inline-fragment quirks (e.g. `host`, `parent`, `isApproved` aren't on the base `Account` type). Paste the contents of [`.claude/skills/querying-opencollective-graphql/SKILL.md`](../.claude/skills/querying-opencollective-graphql/SKILL.md) into the system prompt — it's the same playbook hosted Claude uses.
+The OC schema has inline-fragment quirks (e.g. `host`, `parent`, `isApproved` aren't on the base `Account` type). Paste the contents of [`plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md`](../plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md) into the system prompt — it's the same playbook hosted Claude uses.
 
 **Performance is unusable on CPU.**
 Apple Silicon with unified memory handles `gpt-oss:20b` and `qwen3:14b` well. On x86 without a discrete GPU, drop to a 7–8B model and accept the tool-calling weakness, or run a smaller model with shorter conversations.

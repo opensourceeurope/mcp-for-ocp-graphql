@@ -1,0 +1,115 @@
+name: Release
+
+# Conventional commits on main drive releases end-to-end. release-please maintains a
+# rolling "release PR" that bumps the version (pyproject.toml + the plugin's
+# plugin.json), regenerates CHANGELOG.md, and syncs the plugin's mcp pin. Merging that
+# PR makes release-please tag vX.Y.Z + cut a GitHub Release; in the SAME run its
+# `releases_created` output gates the PyPI publish job below. No separate
+# `release: published` handoff.
+#
+# RELEASE_TOKEN (repo secret — fine-grained PAT or GitHub App token with
+# "Contents: read/write" + "Pull requests: read/write" on this repo): used for the
+# release-please checkout so (a) the pin-sync step can push back onto the release-PR
+# branch and (b) the release PR gets CI runs + can auto-merge (commits by the default
+# GITHUB_TOKEN don't trigger other workflows). ONE-TIME MAINTAINER SETUP:
+#   1. create the RELEASE_TOKEN secret,
+#   2. enable "Allow auto-merge" on the repo,
+#   3. protect main with the `commitlint` check required (so auto-merge holds for green),
+#   4. on pypi.org, point the trusted publisher for "mcp-for-ocp-graphql" at THIS file
+#      (release.yml). If you rename this file, update the PyPI trusted publisher.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # Pin plugins/opencollective-graphql/.mcp.json to the bumped version on the release
+      # PR (release-please can't rewrite `mcp-for-ocp-graphql==X.Y.Z` itself). Idempotent.
+      - name: Sync the plugin mcp pin onto the release PR
+        if: ${{ steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          BRANCH="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["headBranchName"])')"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$BRANCH"
+          git checkout "$BRANCH"
+          ./scripts/sync-plugin-version.sh
+          if git diff --quiet; then
+            echo "No pin changes to commit."
+          else
+            git add plugins/opencollective-graphql/.mcp.json
+            git commit -m "chore: sync plugin mcp pin to the release version"
+            git push origin "HEAD:$BRANCH"
+          fi
+
+      # Auto-merge the release PR once CI is green (it's only bump + changelog + pin —
+      # nothing to review). Held-for-green by the required `commitlint` check via branch
+      # protection; squash so release-please detects the merge and cuts the tag.
+      - name: Enable auto-merge on the release PR
+        if: ${{ steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          PR_NUMBER="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["number"])')"
+          gh pr merge "$PR_NUMBER" --auto --squash --repo "$GITHUB_REPOSITORY"
+
+  # Fires only in the run where release-please actually cut a release (the run that
+  # merged the release PR). Builds the wheel — with the committed schema.json + milvus.db
+  # baked in via pyproject artifacts — and publishes to PyPI via trusted publishing (OIDC).
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.released == 'true' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        with:
+          version: "0.8.19"
+          # No cache in a publishing workflow — a poisoned cache could taint the
+          # released wheel (zizmor cache-poisoning).
+          enable-cache: false
+
+      - name: Build wheel + sdist
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
