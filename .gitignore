@@ -26,3 +26,4 @@ dist/
 # Linux CI, then committed to the repo — see .github/workflows/corpus-refresh.yml).
 # Only transient logs stay ignored.
 .opencrane/*.log
+.worktrees/
