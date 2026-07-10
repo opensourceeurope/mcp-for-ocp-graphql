@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.0...v0.2.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* use scw 2.55 sizing args so the deploy update succeeds ([#6](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/6)) ([b68f35c](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/b68f35c7384338f5dbeb42c5ef97fa87cb20f4ae))
+
 ## [0.2.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.1.0...v0.2.0) (2026-07-10)
 
 
