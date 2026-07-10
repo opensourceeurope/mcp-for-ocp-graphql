@@ -50,9 +50,9 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
 
     @mcp.tool()
     def search_docs(query: str, top_k: int = 5) -> str:
-        """Semantic search over Open Collective GraphQL docs + schema reference.
+        """Keyword search over Open Collective GraphQL docs + query-field reference.
         Use this FIRST to learn which fields/queries to use, then call graphql_query.
-        Returns the most relevant documentation chunks."""
+        Returns the most relevant documentation chunks (best matches on your search terms)."""
         return format_search(doc_search, query, top_k)
 
     return mcp

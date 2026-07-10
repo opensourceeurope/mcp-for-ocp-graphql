@@ -3,15 +3,15 @@
     uv run pytest -m e2e
 
 Builds the MCP server exactly as ``app_stdio.main`` does (the real baked
-``schema.json`` + the OpenCrane-built ``milvus.db``), then drives every tool
+``schema.json`` + the baked ``docs.json`` corpus), then drives every tool
 through the real ``mcp.call_tool`` dispatch and asserts each returns what's
 expected — including a LIVE, tokenless read-only query against the public Open
 Collective API. This proves the whole stack works together: tool registration,
-schema_lookup over the real schema, search_docs over the OpenCrane index (with
-source_url), and the graphql_query proxy against production.
+schema_lookup over the real schema, search_docs (BM25) over the baked corpus
+(with source_url), and the graphql_query proxy against production.
 
-Excluded from the default suite (see pyproject ``addopts``) because it downloads
-the embedding model and hits the network.
+Excluded from the default suite (see pyproject ``addopts``) because it hits the
+network.
 """
 import asyncio
 import json
@@ -46,10 +46,10 @@ def _online(host="api.opencollective.com", port=443, timeout=5) -> bool:
 
 @pytest.fixture(scope="module")
 def server():
-    """The real server, built like app_stdio: baked schema + baked milvus.db, anonymous."""
+    """The real server, built like app_stdio: baked schema + baked docs.json, anonymous."""
     doc_search = load_doc_search()
     if doc_search is None:
-        pytest.skip("baked milvus.db not present — build the index (corpus-refresh) first")
+        pytest.skip("baked docs.json not present — bake the corpus (corpus-refresh) first")
     index = SchemaIndex(load_schema())
     return build_server(index, endpoint=ENDPOINT, token=None, doc_search=doc_search)
 

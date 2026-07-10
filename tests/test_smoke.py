@@ -26,18 +26,18 @@ from pathlib import Path
 from importlib.resources import files
 
 
-def _has_index():
+def _has_corpus():
     try:
-        return Path(str(files("mcp_for_ocp_graphql.data").joinpath("milvus.db"))).exists()
+        return Path(str(files("mcp_for_ocp_graphql.data").joinpath("docs.json"))).exists()
     except Exception:
         return False
 
 
-@pytest.mark.skipif(not _has_index(), reason="baked milvus.db not present")
-def test_search_docs_real_index_returns_expense_hits():
+@pytest.mark.skipif(not _has_corpus(), reason="baked docs.json not present")
+def test_search_docs_real_corpus_returns_expense_hits():
     from mcp_for_ocp_graphql.search import DocSearch
     from importlib.resources import files
-    ds = DocSearch(str(files("mcp_for_ocp_graphql.data").joinpath("milvus.db")))
+    ds = DocSearch(str(files("mcp_for_ocp_graphql.data").joinpath("docs.json")))
     hits = ds.search("how do I list expenses", top_k=3)
     assert len(hits) >= 1
     assert any("xpense" in (h["text"] or "") for h in hits)

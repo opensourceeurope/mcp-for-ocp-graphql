@@ -18,7 +18,7 @@ Everything runs on your machine. There is no remote MCP instance and no OAuth ha
 
 - **macOS, Linux, or Windows** with at least **16 GB RAM** (24 GB+ recommended for the strongest models).
 - **[uv](https://docs.astral.sh/uv/getting-started/installation/)** (to run `uvx mcp-for-ocp-graphql`). uv manages its own Python, so you don't need Python installed separately.
-- A few GB of free disk and network for the **first run**: `uvx` installs the server's Python dependencies (including PyTorch), and the first `search_docs` call downloads the embedding model (~500 MB). `graphql_query`/`schema_lookup` work immediately without it.
+- Network for the **first run**: `uvx` downloads the server and its small pure-Python dependencies (no PyTorch, no model download — doc search is lightweight BM25). All three tools work immediately.
 - An **Open Collective personal token** — get one at [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens). Optional: with no token the server runs anonymously against public data.
 
 ---
@@ -157,7 +157,7 @@ extensions:
     timeout: 300
 ```
 
-> **First launch is slow.** The first time Goose starts the extension, `uvx` installs the server's Python dependencies (including PyTorch) — that can take a few minutes and may exceed the 300 s timeout on a slow connection. Pre-warm it once by running `uvx mcp-for-ocp-graphql` in a terminal (Ctrl-C after it prints its startup line), then start Goose.
+> **First launch downloads the server.** The first time Goose starts the extension, `uvx` downloads the package and its small pure-Python dependencies — usually quick, but on a slow connection it can approach the 300 s timeout. If so, pre-warm it once by running `uvx mcp-for-ocp-graphql` in a terminal (Ctrl-C after it prints its startup line), then start Goose.
 
 > **Where your token lives:** the MCP server never writes your token to disk or logs it — it only holds it in memory while running. The one persistent copy is this `config.yaml`, where Goose stores it in plaintext (Goose's `envs` takes literal values, so there's no env-variable indirection here). That's acceptable for a single-user local machine — treat the file like any other secret: don't commit it, don't sync it to a shared cloud drive.
 
@@ -213,13 +213,10 @@ You're using a small model with too many tools loaded. Switch to `gpt-oss:20b` o
 You skipped Step 4. Ollama's 2048-token default isn't enough — bump `num_ctx` to at least 16384.
 
 **The extension fails to start / "command not found".**
-Make sure `uv` is installed and `uvx` is on your `PATH` (`uvx --version`). The first run downloads the package and its Python dependencies (including PyTorch) — that needs network and can take a few minutes; pre-warm with `uvx mcp-for-ocp-graphql` in a terminal.
+Make sure `uv` is installed and `uvx` is on your `PATH` (`uvx --version`). The first run downloads the package and its small pure-Python dependencies — that needs network but is quick; pre-warm with `uvx mcp-for-ocp-graphql` in a terminal.
 
 **A query returns an auth error or empty private data.**
 The server does **not** require a token — with none it runs anonymously against public data. If you need private data, `OC_PERSONAL_TOKEN` in the extension's `envs` is missing or wrong; an invalid token is rejected by Open Collective on the first query. Re-check the value in `~/.config/goose/config.yaml`.
-
-**The first `search_docs` call hangs for a while.**
-That's the one-time embedding-model download (~500 MB). Subsequent searches are fast. `graphql_query` and `schema_lookup` don't need the model.
 
 **The model invents fields and gets 400s from the API.**
 The OC schema has inline-fragment quirks (e.g. `host`, `parent`, `isApproved` aren't on the base `Account` type). Paste the contents of [`plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md`](../plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md) into the system prompt — it's the same playbook hosted Claude uses.

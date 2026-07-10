@@ -1,14 +1,16 @@
-name: Refresh RAG corpus
+name: Refresh docs corpus
 
-# Regenerates the whole RAG corpus with OpenCrane and commits the artifacts back
-# to the repo (they are committed, not baked on the runner at image-build time).
+# Regenerates the docs corpus with OpenCrane and commits the artifacts back to the
+# repo (they are committed, not baked on the runner at image-build time).
 #
 #   - schedule / dispatch on `main`  -> opens/updates the `chore/corpus-refresh` PR
 #   - dispatch on any other branch   -> commits the artifacts back to that branch
-#     (used to seed the artifacts into an open PR, e.g. python-migration)
+#     (used to seed the artifacts into an open PR)
 #
-# Generation runs on Linux CI on purpose: torch + faiss (sentence-transformers +
-# milvus-lite) are fragile together on macOS. See mcp_for_ocp_graphql/__init__.py.
+# Pipeline: fetch (docs) + schema_fetch (schema) + schema_ref (query-field map)
+#   -> opencrane llms -> opencrane chunk -> docs_bake (project step -> data/docs.json).
+# There is NO embed/index step: doc search is pure-Python BM25 over docs.json, so
+# no embedding model or vector DB is built here.
 on:
   schedule:
     - cron: '0 4 * * 1'  # weekly Monday 04:00 UTC
@@ -21,12 +23,10 @@ permissions:
 env:
   UV_VERSION: 0.8.19
   OPENCRANE_VERSION: 0.23.0
-  OMP_NUM_THREADS: '1'
   # OpenCrane pipeline I/O (its defaults, made explicit).
   AI_DOCS_SOURCES_DIR: .opencrane/sources
   AI_DOCS_LLMSTXT_DIR: .opencrane/llmstxt
   AI_DOCS_CHUNKS_FILE: .opencrane/chunks.json
-  AI_DOCS_EMBEDDINGS_FILE: .opencrane/embeddings.json
 
 jobs:
   refresh:
@@ -40,7 +40,7 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
 
-      - name: Install the project (for schema_fetch / schema_ref / search smoke test)
+      - name: Install the project (for schema_fetch / schema_ref / docs_bake / smoke test)
         run: uv sync --no-dev --frozen
 
       - name: Fetch the live GraphQL schema
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build the curated query-field map (a `local` source in config.yaml)
         # Curated: only the top-level query fields (entry points), NOT the full
-        # per-type dump — that would bloat the index and duplicate schema_lookup.
+        # per-type dump — that would bloat the corpus and duplicate schema_lookup.
         # Writes ONE file per query into .opencrane/sources/local (registered as a
         # `local: true` source in .opencrane/config.yaml) so `opencrane llms` pages
         # and chunks each query separately instead of as one blob.
@@ -66,23 +66,19 @@ jobs:
 
       - name: Chunk
         # docling + tiktoken are required by chunk's strategies but not in opencrane's deps.
-        # --force is a no-op here (chunk always regenerates) — kept for consistency with llms/embed.
         run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with docling --with tiktoken opencrane chunk --force
 
-      - name: Embed
-        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane embed --force
+      - name: Bake the search corpus (chunks.json -> data/docs.json)
+        # Project step (NOT opencrane): projects chunks.json down to the slim docs.json
+        # the BM25 search backend loads. No embeddings, no vector DB.
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.docs_bake
 
-      - name: Index into Milvus (project build_index, pymilvus 3.x)
-        # NOT `opencrane index`: opencrane pins pymilvus <2.6 (single-file DB) while
-        # the server runs pymilvus 3.x (directory DB) — incompatible on-disk formats.
-        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.indexer
-
-      - name: Smoke-test search_docs against the fresh index
+      - name: Smoke-test search_docs against the fresh corpus
         run: |
           uv run --no-dev --frozen python - <<'PY'
           from mcp_for_ocp_graphql.search import DocSearch
-          hits = DocSearch("mcp_for_ocp_graphql/data/milvus.db").search("how do I list expenses", top_k=3)
-          assert hits, "search returned no results — the index is empty or unreadable"
+          hits = DocSearch("mcp_for_ocp_graphql/data/docs.json").search("how do I list expenses", top_k=3)
+          assert hits, "search returned no results — the corpus is empty or unreadable"
           assert all(h.get("text") for h in hits), f"malformed hits: {hits}"
           print(f"OK: {len(hits)} hits, top source={hits[0]['source']!r}")
           PY
@@ -115,17 +111,17 @@ jobs:
             # Scheduled / main: land changes via a review PR.
             branch="chore/corpus-refresh"
             git checkout -B "$branch"
-            git commit -m "chore: weekly RAG corpus refresh"
+            git commit -m "chore: weekly docs corpus refresh"
             git push --force "$origin" "HEAD:${branch}"
             if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
               echo "PR already open for $branch; updated in place."
             else
               gh pr create --base main --head "$branch" \
-                --title "chore: weekly RAG corpus refresh" \
-                --body "Automated corpus regeneration (schema + sources + chunks + embeddings + Milvus index). Review the drift before merging."
+                --title "chore: weekly docs corpus refresh" \
+                --body "Automated corpus regeneration (schema + sources + chunks + baked docs.json). Review the drift before merging."
             fi
           else
             # Dispatch on a feature branch: commit the artifacts straight back to it.
-            git commit -m "chore: regenerate RAG corpus artifacts"
+            git commit -m "chore: regenerate docs corpus artifacts"
             git push "$origin" "HEAD:${REF_NAME}"
           fi

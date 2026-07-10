@@ -44,7 +44,7 @@ Note the `id` field in the output.
 
 Replace `<namespace-id>` with the ID from step 4 and `<registry-endpoint>` from step 1.
 
-> **Sizing:** the first `search_docs` call loads PyTorch and the `nomic-embed-text-v1.5` embedding model into memory, so this server needs far more than a minimal container — a too-small instance OOM-crashes on the first docs search. Start at **2 GB / 1 vCPU** and raise `memory-limit` if you see OOM restarts. (`graphql_query`/`schema_lookup` alone are light; the memory is for the embedding model.)
+> **Sizing:** the server is light — doc search is pure-Python BM25 over ~40 KB of JSON (no PyTorch, no embedding model, no vector DB). **512 MB / 0.28 vCPU** is comfortable. Do **not** create it at Scaleway's 128 MB default — that's too little for Python + uvicorn and the container crash-loops at startup. (The [`build-and-push`](../.github/workflows/build-and-push.yml) deploy also floors these limits and fails the job if the container doesn't reach `ready`, so a redeploy self-corrects an undersized container.)
 
 ```bash
 scw container container create \
@@ -52,8 +52,8 @@ scw container container create \
   name=opencollective-mcp \
   registry-image=<registry-endpoint>/opencollective-mcp:latest \
   port=3000 \
-  memory-limit=2048 \
-  cpu-limit=1000 \
+  memory-limit=512 \
+  cpu-limit=280 \
   min-scale=0 \
   max-scale=1 \
   environment-variables.PORT=3000 \

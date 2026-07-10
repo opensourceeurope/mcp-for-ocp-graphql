@@ -83,7 +83,41 @@ jobs:
           CONTAINER_ID: ${{ vars.SCW_CONTAINER_ID }}
           IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           PUBLIC_URL: ${{ vars.SCW_PUBLIC_URL }}
+        # Sizing is enforced here, not left to the container's manual config: doc search
+        # is pure-Python BM25 over ~40 KB of JSON, so 512 MB / 0.28 vCPU is ample (the
+        # old vector stack needed 2 GB just to load PyTorch + the embedding model). A
+        # container created at Scaleway's 128 MB default crash-loops before this runs, so
+        # the update also floors the limits.
         run: |
           scw container container update "$CONTAINER_ID" \
             image="$IMAGE" \
+            memory-limit=512 \
+            cpu-limit=280 \
             environment-variables.PUBLIC_URL="$PUBLIC_URL"
+          scw container container deploy "$CONTAINER_ID"
+
+      - name: Wait for the container to become ready
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          SCW_DEFAULT_PROJECT_ID: ${{ secrets.SCW_PROJECT_ID }}
+          SCW_DEFAULT_ORGANIZATION_ID: ${{ secrets.SCW_ORGANIZATION_ID }}
+          SCW_DEFAULT_REGION: ${{ env.SCW_REGION }}
+          CONTAINER_ID: ${{ vars.SCW_CONTAINER_ID }}
+        # A green `container update` only means the API accepted the new image — it does
+        # NOT mean the container booted. Poll status so a crash-looping deploy (e.g. an
+        # OOM at startup) fails the job loudly instead of silently reporting success.
+        run: |
+          for i in $(seq 1 30); do
+            status="$(scw container container get "$CONTAINER_ID" -o json | python3 -c 'import json,sys; print(json.load(sys.stdin).get("status",""))')"
+            echo "attempt $i: status=$status"
+            case "$status" in
+              ready) echo "Container is ready."; exit 0 ;;
+              error) echo "::error::Container is in error state — deploy failed."
+                     scw container container get "$CONTAINER_ID" -o json | python3 -c 'import json,sys; print(json.load(sys.stdin).get("error_message",""))'
+                     exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Container did not become ready within the timeout."
+          exit 1

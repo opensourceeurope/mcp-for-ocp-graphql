@@ -143,9 +143,6 @@ You may have picked a model that's too small. Re-download a model one row higher
 **"command not found" or the MCP won't start.**
 uv isn't installed or wasn't picked up. Re-do Step 3, then fully restart LM Studio so it sees the new `uvx` command.
 
-**The first answer that searches the docs takes a while.**
-The first time the AI uses the docs-search tool, it downloads a small search model (~500 MB), once. After that it's fast. Plain data questions don't need it.
-
 **Everything is very slow.**
 The model is too big for your laptop. Pick the row above in Step 2 (smaller model). On Apple Silicon Macs, models in the table run smoothly; on older Intel laptops without a dedicated GPU, expect slower responses.
 
