@@ -15,7 +15,7 @@ jq -n '{
       "or Bash commands that change files / git state / installed deps), " +
       "you MUST invoke the `dev-workflow` skill via the Skill tool and follow it.\n\n" +
       "The flow: work in a per-topic worktree off main (never edit main directly), open a PR, " +
-      "let CI pass (commitlint.yml conventional-commit lint; security-audit.yml — zizmor workflow " +
+      "let CI pass (ci.yml test suite; commitlint.yml conventional-commit lint; security-audit.yml — zizmor workflow " +
       "lint + pip-audit), merge to main, then release-please (release.yml) handles versioning, " +
       "changelog, the plugin version/pin, the tag + GitHub Release, and the PyPI publish. " +
       "Branching is only the first step — invoking the skill is non-negotiable, even if you already know to branch.\n\n" +

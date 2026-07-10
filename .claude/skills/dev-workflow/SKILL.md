@@ -46,6 +46,7 @@ one branch to one directory, which git enforces.
 git push -u origin feat/<short-name>  # 2. push the branch
 # 3. open a PR
 # 4. CI must pass:
+#      - ci.yml: `uv run pytest` (the fast suite)
 #      - commitlint.yml: every commit is a conventional commit
 #      - security-audit.yml: zizmor (workflow supply-chain lint) + pip-audit
 #      (runs when .github/**, pyproject.toml, or uv.lock change)
