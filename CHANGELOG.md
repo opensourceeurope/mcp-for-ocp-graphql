@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.1.0...v0.2.0) (2026-07-10)
+
+
+### Features
+
+* replace vector doc search with pure-Python BM25 ([#4](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/4)) ([9a8f655](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/9a8f655a31d1ccf98c788dd0428d775403f49442))
+
 ## [0.1.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.0.1...v0.1.0) (2026-07-10)
 
 
