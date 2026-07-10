@@ -81,49 +81,49 @@
     "content": "# Open Collective Public GraphQL > Overview\nRetrieve detailed information about accounts",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
     "content": "# Open Collective Public GraphQL > Overview\nAccess financial data including transactions, contributions, and expenses",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
     "content": "# Open Collective Public GraphQL > Overview\nQuery financial contributors",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1",
     "content": "# Open Collective Public GraphQL > Overview\nCreate and manage expenses",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034",
     "content": "# Open Collective Public GraphQL > Overview\nAnd much more!",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "ba215069f7b1e74760cc89b9e2f4afe5c19e91080f6beef48988643e6ec3bc0a",
     "content": "# Open Collective Public GraphQL > Limitations\n**Payment Provider Integration**: Operations related to creating contributions with integrated payment providers (Stripe, PayPal) cannot be performed through the API from external applications. As an alternative, you can explore the [Embed contribution flow](https://docs.opencollective.com/help/collectives/embed-contribution-flow) feature.",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#limitations"
   },
   {
     "chunk_id": "ed807905b3bc884c72cb2316db6602e51fea01a36e9a5a0fb6921148a067f5cf",
     "content": "# Open Collective Public GraphQL > Limitations\n**Captcha-Protected Operations**: Any operations that require captcha verification for security purposes are not accessible via the API.",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#limitations"
   },
   {
     "chunk_id": "ceb3cc72da896f18d487947793598bf654b1bde3e09ec959dcb4cb4d47292ed7",
@@ -431,63 +431,63 @@
     "content": "# Open Collective Public GraphQL\n\nWelcome to [Open Collective](https://opencollective.com)'s public GraphQL API documentation.\n\nThis documentation will help you get started using our public GraphQL API (v2).\n\n## Overview\n\nOpen Collective's GraphQL API allows developers to interact with the Open Collective platform programmatically. With this API, you can:",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#overview"
   },
   {
     "chunk_id": "e0640109d33585241ab561974e4fbb9aff3e88379501e757475ea382120a92db",
     "content": "## Limitations\n\nThe following functionality is not supported yet from external applications:",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md#limitations"
   },
   {
     "chunk_id": "821594db7c0bd9796ad241cb693e786d300db06db8bdced8057d95e5b8412b41",
     "content": "## First Contact\n\nFor your first contact with our API, we recommend to use a GraphQL explorer, such as [Altair GraphQL Client](https://altairgraphql.dev/). It\u2019s available as a desktop application and we really like it like that.",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#first-contact"
   },
   {
     "chunk_id": "e49d78de77b299e3e53da09f3453783f01c5575ec1c4fddb7942d1212e5f511d",
     "content": "## Endpoint\n\nThe GraphQL API's endpoint is the following: https://api.opencollective.com/graphql/v2",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#endpoint"
   },
   {
     "chunk_id": "a2314a9dc23e2cac999889bd96ab39c4811c15cad47f15650ebb0ad29589cac8",
     "content": "## Authentication\n\nThe API is public and you can freely use it up to 10 requests / minute without authentication.\n\nBy authenticating, you get up to 100 requests / minute, access to sensitive data and can perform actions.",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#authentication"
   },
   {
     "chunk_id": "6e7f96a2a2ff68d62f2a227dea1c12a5e66f5462335295b0d4c8b2b4d917424d",
     "content": "## With a Personal Token\n\nThe Personal Token gives you access to the API and is automatically authenticating you as an individual. To create one, go to your personal settings and navigate to the `For developers` section.\n\n<!--\n<div>\n    [Image removed: image]\n    <p style=\"text-align:center;margin-bottom: 1em;\"><em>Applications section</em></p>\n    [Image removed: image]\n    <p style=\"text-align:center;margin-bottom: 1em;\"><em>Create Personal Token</em></p>\n</div>\n-->\n\nPass the Personal Token As an HTTP header: `Personal-Token: <PERSONAL_TOKEN>`.",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#with-a-personal-token"
   },
   {
     "chunk_id": "86328a06299d1a914a3e3dbacc81a8547d752771becf1560aca964c8b2e50aea",
     "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://docs.opencollective.com/help/developers/oauth",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#with-oauth"
   },
   {
     "chunk_id": "0c72bea37b14d7c08554a62736f330d57d84647a664859c19db53308d92075c6",
     "content": "## Logged in account\n\nYou can easily query the information of the currently logged in account by using the following query:",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md#logged-in-account"
   },
   {
     "chunk_id": "b9897e73cb33567229114db5ef9e0980d4c14267668ef3da62e26666486562f1",
     "content": "## Any account\n\nWant to query the information for any account?\n\n:::tabs\n---Query",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md#any-account"
   },
   {
     "chunk_id": "c509519b32eb7ec45b1d17249b0b622712faaedc89133829c2f1eb9e2072d9c9",

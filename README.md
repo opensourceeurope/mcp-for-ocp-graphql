@@ -113,7 +113,7 @@ Runs on any EU container platform: Scaleway Serverless Containers (free tier), O
 
 The intended flow is **learn, then execute**:
 
-1. **`search_docs(query, top_k=5)`** — keyword (BM25) search over a baked corpus of the Open Collective GraphQL guides plus a curated map of the top-level query fields (the entry points). Use this **first** to figure out which queries and fields you need. Each hit carries a `source_url` linking back to its source page.
+1. **`search_docs(query, top_k=5)`** — keyword (BM25) search over a baked corpus of the Open Collective GraphQL guides plus a curated map of the top-level query fields (the entry points). Use this **first** to figure out which queries and fields you need. Each hit carries a `source_url` linking back to its source — deep-linked to the exact section (`#anchor`) where the guide chunk has one.
 2. **`schema_lookup(name)`** — exact definition of a GraphQL type or query field: its description, fields, and arguments (name, type, required, default). Substring matches return candidate names.
 3. **`graphql_query(query, variables=None)`** — execute a read-only GraphQL query and return the JSON result. **Mutations and subscriptions are rejected**: every operation in the document is parsed and must be a `query`.
 

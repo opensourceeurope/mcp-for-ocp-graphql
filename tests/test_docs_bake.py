@@ -12,7 +12,9 @@ CHUNKS = [
         "chunk_id": "aaa111",
         "chunk_type": "text",
         "content": "How to list expenses in Open Collective",
-        "metadata": {"is_complete": True, "source_url": "https://example.com/expenses.md"},
+        # url + section anchor -> deep-linked citation
+        "metadata": {"is_complete": True, "source_url": "https://example.com/expenses.md",
+                     "section_anchor": "list-expenses"},
         "source_file": ".opencrane/llmstxt/llms-full.txt",
         "source_name": "oc-06-expenses",
         "token_count": 8,
@@ -21,10 +23,19 @@ CHUNKS = [
         "chunk_id": "bbb222",
         "chunk_type": "code_snippet",
         "content": "query { expenses { nodes { id description } } }",
-        "metadata": {"is_complete": True, "language": "graphql"},  # no source_url
+        "metadata": {"is_complete": True, "language": "graphql"},  # no source_url, no anchor
         "source_file": ".opencrane/llmstxt/llms-full.txt",
         "source_name": "oc-06-expenses",
         "token_count": 10,
+    },
+    {
+        "chunk_id": "ccc333",
+        "chunk_type": "prose",
+        "content": "The account query returns a single account",
+        "metadata": {"source_url": "https://example.com/account.md"},  # url but no anchor
+        "source_file": ".opencrane/sources/local/account.md",
+        "source_name": "local",
+        "token_count": 7,
     },
 ]
 
@@ -42,15 +53,23 @@ def out_file(tmp_path):
 
 
 def test_build_docs_returns_count(chunks_file, out_file):
-    assert build_docs(chunks_file, out_file) == 2
+    assert build_docs(chunks_file, out_file) == 3
 
 
 def test_build_docs_projects_expected_fields(chunks_file, out_file):
     build_docs(chunks_file, out_file)
     docs = json.loads(open(out_file).read())
     assert set(docs[0]) == {"chunk_id", "content", "source_name", "source_file", "source_url"}
-    assert docs[0]["source_url"] == "https://example.com/expenses.md"
-    # a chunk with no metadata.source_url gets an empty string, never a KeyError
+
+
+def test_source_url_deep_links_to_section_when_anchor_present(chunks_file, out_file):
+    build_docs(chunks_file, out_file)
+    docs = json.loads(open(out_file).read())
+    # url + section_anchor -> #fragment appended
+    assert docs[0]["source_url"] == "https://example.com/expenses.md#list-expenses"
+    # url but no anchor -> page URL unchanged, no stray '#'
+    assert docs[2]["source_url"] == "https://example.com/account.md"
+    # no metadata.source_url -> empty string, never a KeyError
     assert docs[1]["source_url"] == ""
 
 

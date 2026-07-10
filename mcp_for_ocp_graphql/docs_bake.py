@@ -11,7 +11,7 @@ chunks.json — top-level list, each element:
   {
     "chunk_id":    str,
     "content":     str,
-    "metadata":    { "source_url": str, ... },
+    "metadata":    { "source_url": str, "section_anchor": str | null, ... },
     "source_file": str,
     "source_name": str | null,
     ...
@@ -19,10 +19,24 @@ chunks.json — top-level list, each element:
 
 docs.json — top-level list, each element:
   { "chunk_id", "content", "source_name", "source_file", "source_url" }
+
+``source_url`` is a GitHub blob URL. When the chunk carries a ``section_anchor``
+(OpenCrane emits a GitHub-compatible heading slug, e.g. ``with-a-personal-token``),
+it is appended as a ``#fragment`` so the citation deep-links to the exact section
+rather than the top of the page. Chunks without an anchor keep the page URL.
 """
 from __future__ import annotations
 
 import json
+
+
+def _source_url(meta: dict) -> str:
+    """GitHub blob URL for the chunk, deep-linked to its section when known."""
+    url = meta.get("source_url") or ""
+    anchor = meta.get("section_anchor")
+    if url and anchor:
+        return f"{url}#{anchor}"
+    return url
 
 
 def build_docs(chunks_file: str, out_file: str) -> int:
@@ -39,7 +53,7 @@ def build_docs(chunks_file: str, out_file: str) -> int:
             "content": c.get("content") or "",
             "source_name": c.get("source_name") or "",
             "source_file": c.get("source_file") or "",
-            "source_url": ((c.get("metadata") or {}).get("source_url")) or "",
+            "source_url": _source_url(c.get("metadata") or {}),
         }
         for c in chunks
     ]
