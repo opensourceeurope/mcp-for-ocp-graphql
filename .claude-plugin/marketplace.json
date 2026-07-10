@@ -1,0 +1,14 @@
+{
+  "name": "ose-ai",
+  "owner": {
+    "name": "Open Source Europe",
+    "url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql"
+  },
+  "plugins": [
+    {
+      "name": "oc-platform-api",
+      "source": "./plugins/oc-platform-api",
+      "description": "Read-only Open Collective GraphQL: the mcp-for-ocp-graphql MCP server (usable by any MCP client) plus a querying skill and analyst agent, packaged as a Claude Code plugin."
+    }
+  ]
+}

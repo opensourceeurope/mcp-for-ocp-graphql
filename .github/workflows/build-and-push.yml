@@ -4,8 +4,6 @@ on:
   push:
     branches: [main]
     tags: ['v*']
-  schedule:
-    - cron: '0 4 * * 1'  # weekly Monday 04:00 UTC — refreshes schema.json
   workflow_dispatch:
 
 env:
@@ -16,7 +14,7 @@ env:
 
 jobs:
   build-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     outputs:
@@ -25,6 +23,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      # The RAG/schema data (mcp_for_ocp_graphql/data/, .opencrane/) is committed to
+      # the repo and refreshed by corpus-refresh.yml — no bake step here; the image
+      # just COPYs it (see Dockerfile).
 
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
@@ -53,15 +55,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            SCHEMA_CACHE_BUST=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy:
     needs: build-push
     if: github.ref == 'refs/heads/main' && vars.SCW_CONTAINER_ID != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:

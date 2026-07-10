@@ -1,0 +1,131 @@
+name: Refresh RAG corpus
+
+# Regenerates the whole RAG corpus with OpenCrane and commits the artifacts back
+# to the repo (they are committed, not baked on the runner at image-build time).
+#
+#   - schedule / dispatch on `main`  -> opens/updates the `chore/corpus-refresh` PR
+#   - dispatch on any other branch   -> commits the artifacts back to that branch
+#     (used to seed the artifacts into an open PR, e.g. python-migration)
+#
+# Generation runs on Linux CI on purpose: torch + faiss (sentence-transformers +
+# milvus-lite) are fragile together on macOS. See mcp_for_ocp_graphql/__init__.py.
+on:
+  schedule:
+    - cron: '0 4 * * 1'  # weekly Monday 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UV_VERSION: 0.8.19
+  OPENCRANE_VERSION: 0.23.0
+  OMP_NUM_THREADS: '1'
+  # OpenCrane pipeline I/O (its defaults, made explicit).
+  AI_DOCS_SOURCES_DIR: .opencrane/sources
+  AI_DOCS_LLMSTXT_DIR: .opencrane/llmstxt
+  AI_DOCS_CHUNKS_FILE: .opencrane/chunks.json
+  AI_DOCS_EMBEDDINGS_FILE: .opencrane/embeddings.json
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Install the project (for schema_fetch / schema_ref / search smoke test)
+        run: uv sync --no-dev --frozen
+
+      - name: Fetch the live GraphQL schema
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_fetch
+
+      - name: Build the curated query-field map (a `local` source in config.yaml)
+        # Curated: only the top-level query fields (entry points), NOT the full
+        # per-type dump — that would bloat the index and duplicate schema_lookup.
+        # Writes ONE file per query into .opencrane/sources/local (registered as a
+        # `local: true` source in .opencrane/config.yaml) so `opencrane llms` pages
+        # and chunks each query separately instead of as one blob.
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.schema_ref --queries-only .opencrane/sources/local
+
+      - name: Fetch documentation sources (opencollective/graphql-docs-v2)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+        # PyGithub (module `github`) is required by `fetch` but not in opencrane's deps.
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with PyGithub opencrane fetch
+
+      - name: Generate llms bundle (guides + the local query-field map)
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane llms --force
+
+      - name: Chunk
+        # docling + tiktoken are required by chunk's strategies but not in opencrane's deps.
+        # --force is a no-op here (chunk always regenerates) — kept for consistency with llms/embed.
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" --with docling --with tiktoken opencrane chunk --force
+
+      - name: Embed
+        run: uvx --from "opencrane==${OPENCRANE_VERSION}" opencrane embed --force
+
+      - name: Index into Milvus (project build_index, pymilvus 3.x)
+        # NOT `opencrane index`: opencrane pins pymilvus <2.6 (single-file DB) while
+        # the server runs pymilvus 3.x (directory DB) — incompatible on-disk formats.
+        run: uv run --no-dev --frozen python -m mcp_for_ocp_graphql.indexer
+
+      - name: Smoke-test search_docs against the fresh index
+        run: |
+          uv run --no-dev --frozen python - <<'PY'
+          from mcp_for_ocp_graphql.search import DocSearch
+          hits = DocSearch("mcp_for_ocp_graphql/data/milvus.db").search("how do I list expenses", top_k=3)
+          assert hits, "search returned no results — the index is empty or unreadable"
+          assert all(h.get("text") for h in hits), f"malformed hits: {hits}"
+          print(f"OK: {len(hits)} hits, top source={hits[0]['source']!r}")
+          PY
+
+      - name: Detect changes
+        id: diff
+        run: |
+          git add -A .opencrane mcp_for_ocp_graphql/data
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No corpus changes — nothing to commit."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and propose changes
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          # RELEASE_TOKEN (org PAT): the org disallows the built-in GITHUB_TOKEN from
+          # creating PRs, so use the PAT for both the push-back and gh pr create.
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          origin="https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+
+          if [ "$REF_NAME" = "main" ]; then
+            # Scheduled / main: land changes via a review PR.
+            branch="chore/corpus-refresh"
+            git checkout -B "$branch"
+            git commit -m "chore: weekly RAG corpus refresh"
+            git push --force "$origin" "HEAD:${branch}"
+            if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+              echo "PR already open for $branch; updated in place."
+            else
+              gh pr create --base main --head "$branch" \
+                --title "chore: weekly RAG corpus refresh" \
+                --body "Automated corpus regeneration (schema + sources + chunks + embeddings + Milvus index). Review the drift before merging."
+            fi
+          else
+            # Dispatch on a feature branch: commit the artifacts straight back to it.
+            git commit -m "chore: regenerate RAG corpus artifacts"
+            git push "$origin" "HEAD:${REF_NAME}"
+          fi

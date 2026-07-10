@@ -1,0 +1,1105 @@
+[
+  {
+    "chunk_id": "778898fdb9b4ec95f1ee4fa1126f7511046166d61b36e8c5b4f053f3257e2117",
+    "chunk_type": "code_snippet",
+    "content": "query loggedInAccount {\n  loggedInAccount {\n    id\n    name\n    slug\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 20
+  },
+  {
+    "chunk_id": "9993fee160cbae7e36a4752198837b51e54f7ab9f6b509ad9d78298efd395626",
+    "chunk_type": "code_snippet",
+    "content": "query account($slug: String) {\n  account(slug: $slug) {\n    id\n    name\n    slug\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 28
+  },
+  {
+    "chunk_id": "bb5517be78110a7733b037416e5999452f5dc21431773231a98cac99a5ec0ee3",
+    "chunk_type": "code_snippet",
+    "content": "{\n  \"slug\": \"znarf\"\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "json",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 10
+  },
+  {
+    "chunk_id": "95444864966dd07bacee09e4671d6c3ebf78c94f35aae387724aecba7daebfaa",
+    "chunk_type": "code_snippet",
+    "content": "query account($slug: String) {\n  account(slug: $slug) {\n    name\n    slug\n    memberOf(role: BACKER) {\n      totalCount\n      nodes {\n        account {\n          name\n          slug\n        }\n      }\n    }\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 55
+  },
+  {
+    "chunk_id": "9e88c0257f091146788d5e73e3c26fee6f7b2263579bf14041aace9c1682a317",
+    "chunk_type": "code_snippet",
+    "content": "{\n  \"slug\": \"znarf\"\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "json",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 10
+  },
+  {
+    "chunk_id": "e690f9e172d6649aa1277b6edb9f3c48b84b0546dc9d6ce8b68a9a49ddd88a04",
+    "chunk_type": "code_snippet",
+    "content": "query account($slug: String) {\n  account(slug: $slug) {\n    name\n    slug\n    members(role: BACKER, limit: 100) {\n      totalCount\n      nodes {\n        account {\n          name\n          slug\n        }\n      }\n    }\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 59
+  },
+  {
+    "chunk_id": "31652d5b838ac6a0b49c7eb7e2de1e2916b088447e0a2d7fd9f2c815b008a47c",
+    "chunk_type": "code_snippet",
+    "content": "{\n  \"slug\": \"babel\"\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "json",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 9
+  },
+  {
+    "chunk_id": "0e3cff26eaef5e24cc5323d8dc5ca08aa5b180a9027d5b6b5a6e7da809669ac0",
+    "chunk_type": "code_snippet",
+    "content": "query account($slug: String) {\n  account(slug: $slug) {\n    name\n    slug\n    transactions(limit: 10, type: CREDIT) {\n      totalCount\n      nodes {\n        type\n        fromAccount {\n          name\n          slug\n        }\n        amount {\n          value\n          currency\n        }\n        createdAt\n      }\n    }\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/03.Contributions.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 77
+  },
+  {
+    "chunk_id": "e4668b7549db00c5f5d4951f063896f7b25d5115b9da4a4a8671e54325edf1ec",
+    "chunk_type": "code_snippet",
+    "content": "{\n  \"slug\": \"babel\"\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "json",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/03.Contributions.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 9
+  },
+  {
+    "chunk_id": "504fd9eb8c8e05f0ebeb7b8bbdadbed17a7b5f38be33199b377e8258356e17b5",
+    "chunk_type": "code_snippet",
+    "content": "query account($slug: String) {\n  account(slug: $slug) {\n    name\n    slug\n    transactions(limit: 10, type: DEBIT) {\n      totalCount\n      nodes {\n        type\n        toAccount {\n          name\n          slug\n        }\n        amount {\n          value\n          currency\n        }\n        createdAt\n      }\n    }\n  }\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "graphql",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/04.Expenses.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 77
+  },
+  {
+    "chunk_id": "a821de19c9997a239fcf95adf71af8a5ebd57b9bfcdccd43543d53d29b982d1e",
+    "chunk_type": "code_snippet",
+    "content": "{\n  \"slug\": \"babel\"\n}",
+    "line_start": null,
+    "metadata": {
+      "is_complete": true,
+      "language": "json",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/04.Expenses.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 9
+  },
+  {
+    "chunk_id": "49d35fa07d7940d8be39555935e23e52309c42422e48e59a865ada120caa8c72",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Overview\nRetrieve detailed information about accounts",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "depth": 0,
+      "list_id": "3b65cc2757856244",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 1,
+      "section_anchor": "overview",
+      "sibling_ids": [
+        "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
+        "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
+        "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1",
+        "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034"
+      ],
+      "sibling_previews": [
+        "Access financial data includi…",
+        "Query financial contributors",
+        "Create and manage expenses",
+        "And much more!"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 5
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 13
+  },
+  {
+    "chunk_id": "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Overview\nAccess financial data including transactions, contributions, and expenses",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "depth": 0,
+      "list_id": "3b65cc2757856244",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 2,
+      "section_anchor": "overview",
+      "sibling_ids": [
+        "49d35fa07d7940d8be39555935e23e52309c42422e48e59a865ada120caa8c72",
+        "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
+        "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1",
+        "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034"
+      ],
+      "sibling_previews": [
+        "Retrieve detailed information…",
+        "Query financial contributors",
+        "Create and manage expenses",
+        "And much more!"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 5
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 18
+  },
+  {
+    "chunk_id": "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Overview\nQuery financial contributors",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "depth": 0,
+      "list_id": "3b65cc2757856244",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 3,
+      "section_anchor": "overview",
+      "sibling_ids": [
+        "49d35fa07d7940d8be39555935e23e52309c42422e48e59a865ada120caa8c72",
+        "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
+        "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1",
+        "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034"
+      ],
+      "sibling_previews": [
+        "Retrieve detailed information…",
+        "Access financial data includi…",
+        "Create and manage expenses",
+        "And much more!"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 5
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 11
+  },
+  {
+    "chunk_id": "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Overview\nCreate and manage expenses",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "depth": 0,
+      "list_id": "3b65cc2757856244",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 4,
+      "section_anchor": "overview",
+      "sibling_ids": [
+        "49d35fa07d7940d8be39555935e23e52309c42422e48e59a865ada120caa8c72",
+        "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
+        "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
+        "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034"
+      ],
+      "sibling_previews": [
+        "Retrieve detailed information…",
+        "Access financial data includi…",
+        "Query financial contributors",
+        "And much more!"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 5
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 12
+  },
+  {
+    "chunk_id": "bdc027c5e9ba97bddd617a294023478182aa256b32d20f8e23a5bf7620fca034",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Overview\nAnd much more!",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "depth": 0,
+      "list_id": "3b65cc2757856244",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 5,
+      "section_anchor": "overview",
+      "sibling_ids": [
+        "49d35fa07d7940d8be39555935e23e52309c42422e48e59a865ada120caa8c72",
+        "e198a1f75ef7448a0fbe5baba775c3a142f12d3c663cb806c5d4ffb3ddff678a",
+        "5e482a98e3205aea6742f349c146b4d635304da02bb51f5df05b97766b30c35f",
+        "8ae7ef464638670ccff72624976c1e3fac0ae7407de960d88f09369798cc84c1"
+      ],
+      "sibling_previews": [
+        "Retrieve detailed information…",
+        "Access financial data includi…",
+        "Query financial contributors",
+        "Create and manage expenses"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 5
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 12
+  },
+  {
+    "chunk_id": "ba215069f7b1e74760cc89b9e2f4afe5c19e91080f6beef48988643e6ec3bc0a",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Limitations\n**Payment Provider Integration**: Operations related to creating contributions with integrated payment providers (Stripe, PayPal) cannot be performed through the API from external applications. As an alternative, you can explore the [Embed contribution flow](https://docs.opencollective.com/help/collectives/embed-contribution-flow) feature.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Limitations",
+      "depth": 0,
+      "list_id": "740f01f8a92cc1b6",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 1,
+      "section_anchor": "limitations",
+      "sibling_ids": [
+        "ed807905b3bc884c72cb2316db6602e51fea01a36e9a5a0fb6921148a067f5cf"
+      ],
+      "sibling_previews": [
+        "**Captcha-Protected Operation…"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 2
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 70
+  },
+  {
+    "chunk_id": "ed807905b3bc884c72cb2316db6602e51fea01a36e9a5a0fb6921148a067f5cf",
+    "chunk_type": "list_item",
+    "content": "# Open Collective Public GraphQL > Limitations\n**Captcha-Protected Operations**: Any operations that require captcha verification for security purposes are not accessible via the API.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Limitations",
+      "depth": 0,
+      "list_id": "740f01f8a92cc1b6",
+      "list_style": "unordered",
+      "parent_item_id": null,
+      "position": 2,
+      "section_anchor": "limitations",
+      "sibling_ids": [
+        "ba215069f7b1e74760cc89b9e2f4afe5c19e91080f6beef48988643e6ec3bc0a"
+      ],
+      "sibling_previews": [
+        "**Payment Provider Integratio…"
+      ],
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md",
+      "total_siblings": 2
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 32
+  },
+  {
+    "chunk_id": "ceb3cc72da896f18d487947793598bf654b1bde3e09ec959dcb4cb4d47292ed7",
+    "chunk_type": "prose",
+    "content": "# `account` query\n\nReturns `Account`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`account` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/account.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "8365b40d6deee616d6ea6bbd891c3a24231a3a180ab0c5a23c8684b82c4d112e",
+    "chunk_type": "prose",
+    "content": "# `accounts` query\n\nReturns `AccountCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `host` ([AccountReferenceInput]), `parent` ([AccountReferenceInput]), `type` ([AccountType]), `isHost` (Boolean), `onlyOpenToApplications` (Boolean), `hasCustomContributionsEnabled` (Boolean), `orderBy` (OrderByInput), `includeVendorsForHost` (AccountReferenceInput), `consolidatedBalance` (AmountRangeInput), `plan` ([String]), `isPlatformSubscriber` (Boolean), `isVerified` (Boolean), `isFirstPartyHost` (Boolean), `lastTransactionFrom` (DateTime), `lastTransactionTo` (DateTime).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`accounts` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/accounts.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 211
+  },
+  {
+    "chunk_id": "4a131b45a31574e575c57e4d8632e3dd28e134856caf4c73a82fa21e5478199f",
+    "chunk_type": "prose",
+    "content": "# `activities` query\n\nReturns `ActivityCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `individual` (AccountReferenceInput), `account` ([AccountReferenceInput!]), `host` (AccountReferenceInput), `includeChildrenAccounts` (Boolean!), `excludeParentAccount` (Boolean!), `includeHostedAccounts` (Boolean!), `dateFrom` (DateTime), `dateTo` (DateTime), `type` ([ActivityAndClassesType!]), `timeline` (Boolean!), `orderBy` (ChronologicalOrderInput!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`activities` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/activities.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 115
+  },
+  {
+    "chunk_id": "26a3601f9ca87ec2aa35ae79fdcd0f3d5054fe32e1e017abf2a52024d291ebfc",
+    "chunk_type": "prose",
+    "content": "# `application` query\n\nReturns `Application`.\n\nArguments: `id` (String), `clientId` (String).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`application` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/application.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 24
+  },
+  {
+    "chunk_id": "4c43c0a20d5538f1796fde8902332b1611ff071b8ecd06be7e8be28a8f3d2325",
+    "chunk_type": "prose",
+    "content": "# `collective` query\n\nReturns `Collective`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`collective` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/collective.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 41
+  },
+  {
+    "chunk_id": "91cf9e80d2e8c07d13c0b841ac10602a41298aeca5dc9605c913761e68c77d80",
+    "chunk_type": "prose",
+    "content": "# `community` query\n\nReturns `AccountCollection!`.\n\nReturn accounts that have interacted with a given account or host\n\nArguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeInput), `totalExpended` (AmountRangeInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`community` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/community.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 107
+  },
+  {
+    "chunk_id": "9dadd7de502e197700f7d641445a5a4c4a3a676b2ff0e23851577b30ba744dad",
+    "chunk_type": "prose",
+    "content": "# `conversation` query\n\nReturns `Conversation`.\n\nArguments: `id` (String!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`conversation` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/conversation.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 20
+  },
+  {
+    "chunk_id": "82931f331eadd6dcb86bff5760835db6c2ad917dc51806ec566319c41543b96b",
+    "chunk_type": "prose",
+    "content": "# `currencyExchangeRate` query\n\nReturns `[CurrencyExchangeRate!]!`.\n\nGet exchange rates from Open Collective\n\nArguments: `requests` ([CurrencyExchangeRateRequest!]!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`currencyExchangeRate` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/currencyExchangeRate.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 37
+  },
+  {
+    "chunk_id": "dbd74741f9cbed13d4ae0d4dadad140120a294bd8dbbfa98680b99e47c3633cb",
+    "chunk_type": "prose",
+    "content": "# `event` query\n\nReturns `Event`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`event` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/event.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "32d6071b11d10bc2121b5f4c12c01de77f757bce78d7cc5b4a0411ee8555d5b0",
+    "chunk_type": "prose",
+    "content": "# `expense` query\n\nReturns `Expense`.\n\nArguments: `expense` (ExpenseReferenceInput), `draftKey` (String).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`expense` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/expense.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 27
+  },
+  {
+    "chunk_id": "3d3cc960526fba3cd7ea234ca9da4392865d97135348f25d9f5b64258a37eeda",
+    "chunk_type": "prose",
+    "content": "# `expenseTagStats` query\n\nReturns `TagStatsCollection!`.\n\nArguments: `tagSearchTerm` (String), `host` (AccountReferenceInput), `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`expenseTagStats` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/expenseTagStats.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 53
+  },
+  {
+    "chunk_id": "df42efadbe814b4d60ac7528d0f89f320e12e44026d95bef5d556524517cc464",
+    "chunk_type": "prose",
+    "content": "# `expenses` query\n\nReturns `ExpenseCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `fromAccount` (AccountReferenceInput), `fromAccounts` ([AccountReferenceInput]), `account` (AccountReferenceInput), `accounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `fromHost` (AccountReferenceInput), `hostContext` (HostContext), `createdByAccount` (AccountReferenceInput), `paidByAccount` (AccountReferenceInput), `approvedByAccount` (AccountReferenceInput), `rejectedByAccount` (AccountReferenceInput), `invitedByAccount` (AccountReferenceInput), `status` ([ExpenseStatusFilter]), `type` (ExpenseType), `types` ([ExpenseType]), `tag` ([String]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `payoutMethodType` (PayoutMethodType), `dateFrom` (DateTime), `dateTo` (DateTime), `searchTerm` (String), `includeChildrenExpenses` (Boolean!), `customData` (JSON), `chargeHasReceipts` (Boolean), `virtualCards` ([VirtualCardReferenceInput]), `lastCommentBy` ([LastCommentBy]), `accountingCategory` ([String]), `payoutMethod` (PayoutMethodReferenceInput), `activity` (ExpenseActivityFilter), `kycStatus` (ExpenseKYCStatusFilter).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`expenses` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/expenses.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 313
+  },
+  {
+    "chunk_id": "9bdbb986faf048d17104234f58ec0e76b62b9000c0199914e79a0750ad07b214",
+    "chunk_type": "prose",
+    "content": "# `exportRequest` query\n\nReturns `ExportRequest`.\n\nArguments: `exportRequest` (ExportRequestReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`exportRequest` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/exportRequest.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 34
+  },
+  {
+    "chunk_id": "02011b4a220aeeb6c3dbd5978580efaf4120c2bc2b4d01f385f72d8649db833f",
+    "chunk_type": "prose",
+    "content": "# `exportRequests` query\n\nReturns `ExportRequestCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `account` (AccountReferenceInput!, required), `type` (ExportRequestType), `status` (ExportRequestStatus).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`exportRequests` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/exportRequests.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 54
+  },
+  {
+    "chunk_id": "87ba2768ed37e0634766aa0a775e9dc14494cdb733d2510c102a09a43d866a47",
+    "chunk_type": "prose",
+    "content": "# `fund` query\n\nReturns `Fund`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`fund` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/fund.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "a5aab6c592eea7626a3cc5f5b874b735e019150481ae5e1a8cce6193ffe51522",
+    "chunk_type": "prose",
+    "content": "# `host` query\n\nReturns `Host`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`host` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/host.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "77bfcccdf928e6ec2e94e9b86e6377f7725270e12468caf225bc6af829c0a25f",
+    "chunk_type": "prose",
+    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`hostApplication` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/hostApplication.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 24
+  },
+  {
+    "chunk_id": "0b10f83f8e13bbb6b6f41b437c1e5f9b32f823730f77df12c39c493baffa05ef",
+    "chunk_type": "prose",
+    "content": "# `hosts` query\n\nReturns `HostCollection`.\n\nArguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `currency` (String).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`hosts` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/hosts.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 91
+  },
+  {
+    "chunk_id": "ce581bfeaf5af7c9d82dd234edec22334f46f5c29855c5f4bd8f782fb1ef7501",
+    "chunk_type": "prose",
+    "content": "# `individual` query\n\nReturns `Individual`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`individual` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/individual.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "99444b421687aef3d572c1c72c26abae38c4a058784fcc0f5a3925a0c0146100",
+    "chunk_type": "prose",
+    "content": "# `loggedInAccount` query\n\nReturns `Individual`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`loggedInAccount` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/loggedInAccount.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 16
+  },
+  {
+    "chunk_id": "eb036da045cbbe1aa028d7054e7bbf6ab00640933107c3ba613fc9d9e54c8dec",
+    "chunk_type": "prose",
+    "content": "# `me` query\n\nReturns `Individual`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`me` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/me.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 15
+  },
+  {
+    "chunk_id": "32663cc44b1ca70f2ad6b9a63c8cc97b8099d7db9febc1b20ea63a63afb04953",
+    "chunk_type": "prose",
+    "content": "# `memberInvitations` query\n\nReturns `[MemberInvitation]`.\n\nReturns the pending invitations, or null if not allowed.\n\nArguments: `memberAccount` (AccountReferenceInput), `account` (AccountReferenceInput), `role` ([MemberRole]).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`memberInvitations` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/memberInvitations.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 52
+  },
+  {
+    "chunk_id": "784124cb0efa17044d934a7e437a71f74e11d57a4f66dba4b89ae062e28c61fa",
+    "chunk_type": "prose",
+    "content": "# `offPlatformTransactionsInstitutions` query\n\nReturns `[OffPlatformTransactionsInstitution!]!`.\n\nGet financial institutions for off-platform transactions\n\nArguments: `country` (String!, required), `provider` (OffPlatformTransactionsProvider!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`offPlatformTransactionsInstitutions` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/offPlatformTransactionsInstitutions.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 49
+  },
+  {
+    "chunk_id": "d3a84ed44561573e235390358126423eb4d6afc3b13261324b7d42c839fc8447",
+    "chunk_type": "prose",
+    "content": "# `order` query\n\nReturns `Order`.\n\nArguments: `order` (OrderReferenceInput!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`order` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/order.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 22
+  },
+  {
+    "chunk_id": "00ad3aa99677f3f31ef4e859f8d8a42865705a60f98e96f049fafeb28faea31d",
+    "chunk_type": "prose",
+    "content": "# `orders` query\n\nReturns `OrderCollection!`.\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`orders` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/orders.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 311
+  },
+  {
+    "chunk_id": "2384449b1ceac1526a05219c4b8ac0a4d559a0c917e6f6ac7dc2ad1583c722f4",
+    "chunk_type": "prose",
+    "content": "# `organization` query\n\nReturns `Organization`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`organization` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/organization.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "5651393f19e253258261c7aabdc279763fd28f28883dd5ff85c05ae93a6c9526",
+    "chunk_type": "prose",
+    "content": "# `paymentIntents` query\n\nReturns `PaymentIntentCollection!`.\n\nReturns a list of payment intents\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`paymentIntents` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paymentIntents.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 111
+  },
+  {
+    "chunk_id": "eb4cb52ab7fdf9e33227bb88f982f5b836e2c9040d85f29b4186d27e88256aa4",
+    "chunk_type": "prose",
+    "content": "# `paypalPlan` query\n\nReturns `PaypalPlan!`.\n\nArguments: `account` (AccountReferenceInput!, required), `amount` (AmountInput!, required), `frequency` (ContributionFrequency!, required), `order` (OrderReferenceInput), `tier` (TierReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`paypalPlan` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paypalPlan.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 61
+  },
+  {
+    "chunk_id": "35d3879c468b7311f8e5a0350e658212d2d4003b2738efdab015bc409d315d12",
+    "chunk_type": "prose",
+    "content": "# `personalToken` query\n\nReturns `PersonalToken`.\n\nGet a personal token by reference\n\nArguments: `id` (String).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`personalToken` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/personalToken.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 27
+  },
+  {
+    "chunk_id": "98fea908b66d66851012ee78d2309557004070d77e38c4ec7b943df7ef46497c",
+    "chunk_type": "prose",
+    "content": "# `platformSubscriptionTiers` query\n\nReturns `[PlatformSubscriptionTier]`.\n\nTakes no arguments.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`platformSubscriptionTiers` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/platformSubscriptionTiers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 21
+  },
+  {
+    "chunk_id": "e040904d242a90b3f6db68239fb5b716600e4aea50dd12bc9bc008b3dcc63a1f",
+    "chunk_type": "prose",
+    "content": "# `project` query\n\nReturns `Project`.\n\nArguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`project` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/project.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 39
+  },
+  {
+    "chunk_id": "1f1d65022da9e055b268ec2810db30bb38c827e072594df355c5b699cee9df3c",
+    "chunk_type": "prose",
+    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`search` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/search.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 76
+  },
+  {
+    "chunk_id": "e55b2e23fc559a5796d0353a135a93f889b17917e027ea72aafdae98f41cbf5a",
+    "chunk_type": "prose",
+    "content": "# `tagStats` query\n\nReturns `TagStatsCollection!`.\n\nArguments: `searchTerm` (String), `tagSearchTerm` (String), `host` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`tagStats` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/tagStats.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 51
+  },
+  {
+    "chunk_id": "f1d8fa290beb2e5baf5d32b2e8281feeb81216b33a87bca42577365f515aafbc",
+    "chunk_type": "prose",
+    "content": "# `tier` query\n\nReturns `Tier`.\n\nArguments: `tier` (TierReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`tier` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/tier.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 30
+  },
+  {
+    "chunk_id": "fe6fe8b79b46d2ae0a68be1f4705c929a318903a98d6e5371fdcca3cdc426e7f",
+    "chunk_type": "prose",
+    "content": "# `transaction` query\n\nReturns `Transaction`.\n\nFetch a single transaction\n\nArguments: `transaction` (TransactionReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`transaction` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transaction.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 25
+  },
+  {
+    "chunk_id": "fd155c2b0a18d5363b99645ce188ad73ab4274b9c4e792fd115bc38b76f6c077",
+    "chunk_type": "prose",
+    "content": "# `transactionGroups` query\n\nReturns `TransactionGroupCollection!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `account` (AccountReferenceInput!, required), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `kind` (TransactionKind), `dateFrom` (DateTime), `dateTo` (DateTime).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`transactionGroups` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactionGroups.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 82
+  },
+  {
+    "chunk_id": "9ae1f4bdc13ab186b3d960e393b0b3ef0f657649b5cbaabe302bd12b927fb3bf",
+    "chunk_type": "prose",
+    "content": "# `transactions` query\n\nReturns `TransactionCollection!`.\n\nArguments: `account` ([AccountReferenceInput!]), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `paymentMethodType` ([PaymentMethodType]), `paymentMethodService` ([PaymentMethodService]), `excludeAccount` ([AccountReferenceInput]), `fromAccount` (AccountReferenceInput), `host` (AccountReferenceInput), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `dateFrom` (DateTime), `dateTo` (DateTime), `clearedFrom` (DateTime), `clearedTo` (DateTime), `searchTerm` (String), `hasDebt` (Boolean), `hasExpense` (Boolean), `expense` (ExpenseReferenceInput), `expenseType` ([ExpenseType]), `hasOrder` (Boolean), `order` (OrderReferenceInput), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeHost` (Boolean!), `includeRegularTransactions` (Boolean!), `includeIncognitoTransactions` (Boolean!), `includeChildrenTransactions` (Boolean!), `includeGiftCardTransactions` (Boolean!), `includeDebts` (Boolean!), `includeEditedReversedTransactions` (Boolean!), `kind` ([TransactionKind]), `group` ([String]), `virtualCard` ([VirtualCardReferenceInput]), `isRefund` (Boolean), `merchantId` ([String]), `accountingCategory` ([String]), `paymentMethod` ([PaymentMethodReferenceInput]), `payoutMethod` (PayoutMethodReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`transactions` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactions.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 329
+  },
+  {
+    "chunk_id": "fda088e77b2efeac83681ebdcbba226e3df6d7a43ced6602b73da105047d85e1",
+    "chunk_type": "prose",
+    "content": "# `transactionsImport` query\n\nReturns `TransactionsImport`.\n\nFetch a transactions import\n\nArguments: `id` (NonEmptyString!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`transactionsImport` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactionsImport.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 29
+  },
+  {
+    "chunk_id": "ef3d47f620efa926ac4bfec444970062cf030a98d4742801a732a85887722242",
+    "chunk_type": "prose",
+    "content": "# `update` query\n\nReturns `Update`.\n\nArguments: `id` (String), `slug` (String), `account` (AccountReferenceInput).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`update` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/update.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 32
+  },
+  {
+    "chunk_id": "f01a937597e9ba18e56e5a1f2ff9286f2beb5c7cc0a4da2e9938e0c5e6207bea",
+    "chunk_type": "prose",
+    "content": "# `updates` query\n\nReturns `UpdateCollection!`.\n\nThis query currently returns only published updates\n\nArguments: `limit` (Int!), `offset` (Int!), `accountTag` ([String]), `accountType` ([AccountType]), `host` ([AccountReferenceInput]), `onlyChangelogUpdates` (Boolean), `orderBy` (UpdateChronologicalOrderInput!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`updates` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/updates.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 76
+  },
+  {
+    "chunk_id": "967a46c0b62f82c6034424ab2e5d6877033f44ec39bae3d1276695f34e6f23ed",
+    "chunk_type": "prose",
+    "content": "# `virtualCard` query\n\nReturns `VirtualCard`.\n\nArguments: `virtualCard` (VirtualCardReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`virtualCard` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/virtualCard.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 34
+  },
+  {
+    "chunk_id": "076f8af61d2c53bf95c14437872df4c6143ddc6e8a3b4aaa48b58d44b531b92c",
+    "chunk_type": "prose",
+    "content": "# `virtualCardRequest` query\n\nReturns `VirtualCardRequest`.\n\nArguments: `virtualCardRequest` (VirtualCardRequestReferenceInput!, required), `throwIfMissing` (Boolean!).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`virtualCardRequest` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/virtualCardRequest.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 38
+  },
+  {
+    "chunk_id": "2c0b3c47ef0ab38759e8b6cad9c0f7f5f0b48b39fe6574a1e091c958ded45559",
+    "chunk_type": "prose",
+    "content": "# `virtualCardRequests` query\n\nReturns `VirtualCardRequestCollection!`.\n\nArguments: `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput!, required), `status` ([VirtualCardRequestStatus]), `collective` ([AccountReferenceInput]).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`virtualCardRequests` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/virtualCardRequests.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 58
+  },
+  {
+    "chunk_id": "5295c273ae181f4c263cbcea7cc403c2399488a28c3b98ee6a6ffbf8660582f5",
+    "chunk_type": "prose",
+    "content": "# Open Collective Public GraphQL\n\nWelcome to [Open Collective](https://opencollective.com)'s public GraphQL API documentation.\n\nThis documentation will help you get started using our public GraphQL API (v2).\n\n## Overview\n\nOpen Collective's GraphQL API allows developers to interact with the Open Collective platform programmatically. With this API, you can:",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Overview",
+      "section_anchor": "overview",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 69
+  },
+  {
+    "chunk_id": "e0640109d33585241ab561974e4fbb9aff3e88379501e757475ea382120a92db",
+    "chunk_type": "prose",
+    "content": "## Limitations\n\nThe following functionality is not supported yet from external applications:",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Open Collective Public GraphQL > Limitations",
+      "section_anchor": "limitations",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/01.Welcome.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 15
+  },
+  {
+    "chunk_id": "821594db7c0bd9796ad241cb693e786d300db06db8bdced8057d95e5b8412b41",
+    "chunk_type": "prose",
+    "content": "## First Contact\n\nFor your first contact with our API, we recommend to use a GraphQL explorer, such as [Altair GraphQL Client](https://altairgraphql.dev/). It’s available as a desktop application and we really like it like that.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "How to access the API > First Contact",
+      "section_anchor": "first-contact",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 51
+  },
+  {
+    "chunk_id": "e49d78de77b299e3e53da09f3453783f01c5575ec1c4fddb7942d1212e5f511d",
+    "chunk_type": "prose",
+    "content": "## Endpoint\n\nThe GraphQL API's endpoint is the following: https://api.opencollective.com/graphql/v2",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "How to access the API > Endpoint",
+      "section_anchor": "endpoint",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 23
+  },
+  {
+    "chunk_id": "a2314a9dc23e2cac999889bd96ab39c4811c15cad47f15650ebb0ad29589cac8",
+    "chunk_type": "prose",
+    "content": "## Authentication\n\nThe API is public and you can freely use it up to 10 requests / minute without authentication.\n\nBy authenticating, you get up to 100 requests / minute, access to sensitive data and can perform actions.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "How to access the API > Authentication",
+      "section_anchor": "authentication",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 46
+  },
+  {
+    "chunk_id": "6e7f96a2a2ff68d62f2a227dea1c12a5e66f5462335295b0d4c8b2b4d917424d",
+    "chunk_type": "prose",
+    "content": "## With a Personal Token\n\nThe Personal Token gives you access to the API and is automatically authenticating you as an individual. To create one, go to your personal settings and navigate to the `For developers` section.\n\n<!--\n<div>\n    [Image removed: image]\n    <p style=\"text-align:center;margin-bottom: 1em;\"><em>Applications section</em></p>\n    [Image removed: image]\n    <p style=\"text-align:center;margin-bottom: 1em;\"><em>Create Personal Token</em></p>\n</div>\n-->\n\nPass the Personal Token As an HTTP header: `Personal-Token: <PERSONAL_TOKEN>`.",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "How to access the API > With a Personal Token",
+      "section_anchor": "with-a-personal-token",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 132
+  },
+  {
+    "chunk_id": "86328a06299d1a914a3e3dbacc81a8547d752771becf1560aca964c8b2e50aea",
+    "chunk_type": "prose",
+    "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://docs.opencollective.com/help/developers/oauth",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "How to access the API > With OAuth",
+      "section_anchor": "with-oauth",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 44
+  },
+  {
+    "chunk_id": "0c72bea37b14d7c08554a62736f330d57d84647a664859c19db53308d92075c6",
+    "chunk_type": "prose",
+    "content": "## Logged in account\n\nYou can easily query the information of the currently logged in account by using the following query:",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Account Information > Logged in account",
+      "section_anchor": "logged-in-account",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 23
+  },
+  {
+    "chunk_id": "b9897e73cb33567229114db5ef9e0980d4c14267668ef3da62e26666486562f1",
+    "chunk_type": "prose",
+    "content": "## Any account\n\nWant to query the information for any account?\n\n:::tabs\n---Query",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Account Information > Any account",
+      "section_anchor": "any-account",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/01.Account Information.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 19
+  },
+  {
+    "chunk_id": "c509519b32eb7ec45b1d17249b0b622712faaedc89133829c2f1eb9e2072d9c9",
+    "chunk_type": "prose",
+    "content": "# Backers\nYou may want to see all the collectives that a user is supporting using the following:\n\n:::tabs\n---Query",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Backers",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 28
+  },
+  {
+    "chunk_id": "efc83067565b7265cc57990a9b3d46265881ba0d14a354e245e5823e44af57db",
+    "chunk_type": "prose",
+    "content": ":::\n\nOn the opposite, if you want to see all the members of a given Collective:\n\n:::tabs\n---Query",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Backers",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/02.Backers.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 25
+  },
+  {
+    "chunk_id": "64fdbade4c9c4d3b825bb53913d50ddc0d071b13f6e7d8704077b143e48a67b8",
+    "chunk_type": "prose",
+    "content": "# Contributions\nYou may browse the latest contributions received by a Collective.\n\n:::tabs\n---Query",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Contributions",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/03.Contributions.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 20
+  },
+  {
+    "chunk_id": "bf1b7b41ea58891790dd0a218a37a35d90a54d71e2f78bd9bf74c654f9427217",
+    "chunk_type": "prose",
+    "content": "# Expenses\nYou can query the latest expenses performed by a given collective with the following:\n\n:::tabs\n---Query",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "Expenses",
+      "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/03.First Queries/04.Expenses.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "opencollective/graphql-docs-v2",
+    "token_count": 24
+  }
+]

@@ -1,5 +1,17 @@
 node_modules
 .env
+.env.*
 .git
 docs
 test
+tests
+.venv
+dist
+*.egg-info
+__pycache__
+.pytest_cache
+# Keep the heavy raw RAG inputs out of the build context; the baked
+# mcp_for_ocp_graphql/data/ (produced by CI) is what the image actually needs.
+.opencrane/embeddings.json
+.opencrane/llmstxt
+corpus/sources

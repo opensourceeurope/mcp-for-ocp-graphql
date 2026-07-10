@@ -1,0 +1,11 @@
+sources:
+  opencollective/graphql-docs-v2:
+    url: https://github.com/opencollective/graphql-docs-v2
+    docs_path: pages
+    manual: true
+    branch: main
+  local:
+    local: true
+    manual: true
+    docs_path: .opencrane/sources/local
+    url: https://github.com/opensourceeurope/mcp-for-ocp-graphql

@@ -1,0 +1,673 @@
+# `account` query
+
+Returns `Account`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `accounts` query
+
+Returns `AccountCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `host` ([AccountReferenceInput]), `parent` ([AccountReferenceInput]), `type` ([AccountType]), `isHost` (Boolean), `onlyOpenToApplications` (Boolean), `hasCustomContributionsEnabled` (Boolean), `orderBy` (OrderByInput), `includeVendorsForHost` (AccountReferenceInput), `consolidatedBalance` (AmountRangeInput), `plan` ([String]), `isPlatformSubscriber` (Boolean), `isVerified` (Boolean), `isFirstPartyHost` (Boolean), `lastTransactionFrom` (DateTime), `lastTransactionTo` (DateTime).
+
+
+<!-- opencrane:page -->
+
+# `activities` query
+
+Returns `ActivityCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `individual` (AccountReferenceInput), `account` ([AccountReferenceInput!]), `host` (AccountReferenceInput), `includeChildrenAccounts` (Boolean!), `excludeParentAccount` (Boolean!), `includeHostedAccounts` (Boolean!), `dateFrom` (DateTime), `dateTo` (DateTime), `type` ([ActivityAndClassesType!]), `timeline` (Boolean!), `orderBy` (ChronologicalOrderInput!).
+
+
+<!-- opencrane:page -->
+
+# `application` query
+
+Returns `Application`.
+
+Arguments: `id` (String), `clientId` (String).
+
+
+<!-- opencrane:page -->
+
+# `collective` query
+
+Returns `Collective`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `community` query
+
+Returns `AccountCollection!`.
+
+Return accounts that have interacted with a given account or host
+
+Arguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeInput), `totalExpended` (AmountRangeInput), `limit` (Int!), `offset` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `conversation` query
+
+Returns `Conversation`.
+
+Arguments: `id` (String!, required).
+
+
+<!-- opencrane:page -->
+
+# `currencyExchangeRate` query
+
+Returns `[CurrencyExchangeRate!]!`.
+
+Get exchange rates from Open Collective
+
+Arguments: `requests` ([CurrencyExchangeRateRequest!]!, required).
+
+
+<!-- opencrane:page -->
+
+# `event` query
+
+Returns `Event`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `expense` query
+
+Returns `Expense`.
+
+Arguments: `expense` (ExpenseReferenceInput), `draftKey` (String).
+
+
+<!-- opencrane:page -->
+
+# `expenseTagStats` query
+
+Returns `TagStatsCollection!`.
+
+Arguments: `tagSearchTerm` (String), `host` (AccountReferenceInput), `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `expenses` query
+
+Returns `ExpenseCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `fromAccount` (AccountReferenceInput), `fromAccounts` ([AccountReferenceInput]), `account` (AccountReferenceInput), `accounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `fromHost` (AccountReferenceInput), `hostContext` (HostContext), `createdByAccount` (AccountReferenceInput), `paidByAccount` (AccountReferenceInput), `approvedByAccount` (AccountReferenceInput), `rejectedByAccount` (AccountReferenceInput), `invitedByAccount` (AccountReferenceInput), `status` ([ExpenseStatusFilter]), `type` (ExpenseType), `types` ([ExpenseType]), `tag` ([String]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `payoutMethodType` (PayoutMethodType), `dateFrom` (DateTime), `dateTo` (DateTime), `searchTerm` (String), `includeChildrenExpenses` (Boolean!), `customData` (JSON), `chargeHasReceipts` (Boolean), `virtualCards` ([VirtualCardReferenceInput]), `lastCommentBy` ([LastCommentBy]), `accountingCategory` ([String]), `payoutMethod` (PayoutMethodReferenceInput), `activity` (ExpenseActivityFilter), `kycStatus` (ExpenseKYCStatusFilter).
+
+
+<!-- opencrane:page -->
+
+# `exportRequest` query
+
+Returns `ExportRequest`.
+
+Arguments: `exportRequest` (ExportRequestReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `exportRequests` query
+
+Returns `ExportRequestCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `account` (AccountReferenceInput!, required), `type` (ExportRequestType), `status` (ExportRequestStatus).
+
+
+<!-- opencrane:page -->
+
+# `fund` query
+
+Returns `Fund`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `host` query
+
+Returns `Host`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `hostApplication` query
+
+Returns `HostApplication`.
+
+Arguments: `hostApplication` (HostApplicationReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `hosts` query
+
+Returns `HostCollection`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `searchTerm` (String), `tag` ([String]), `tagSearchOperator` (TagSearchOperator!), `includeArchived` (Boolean), `skipGuests` (Boolean), `isActive` (Boolean), `skipRecentAccounts` (Boolean), `country` ([CountryISO]), `currency` (String).
+
+
+<!-- opencrane:page -->
+
+# `individual` query
+
+Returns `Individual`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `loggedInAccount` query
+
+Returns `Individual`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `me` query
+
+Returns `Individual`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `memberInvitations` query
+
+Returns `[MemberInvitation]`.
+
+Returns the pending invitations, or null if not allowed.
+
+Arguments: `memberAccount` (AccountReferenceInput), `account` (AccountReferenceInput), `role` ([MemberRole]).
+
+
+<!-- opencrane:page -->
+
+# `offPlatformTransactionsInstitutions` query
+
+Returns `[OffPlatformTransactionsInstitution!]!`.
+
+Get financial institutions for off-platform transactions
+
+Arguments: `country` (String!, required), `provider` (OffPlatformTransactionsProvider!, required).
+
+
+<!-- opencrane:page -->
+
+# `order` query
+
+Returns `Order`.
+
+Arguments: `order` (OrderReferenceInput!, required).
+
+
+<!-- opencrane:page -->
+
+# `orders` query
+
+Returns `OrderCollection!`.
+
+Arguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).
+
+
+<!-- opencrane:page -->
+
+# `organization` query
+
+Returns `Organization`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `paymentIntents` query
+
+Returns `PaymentIntentCollection!`.
+
+Returns a list of payment intents
+
+Arguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `paypalPlan` query
+
+Returns `PaypalPlan!`.
+
+Arguments: `account` (AccountReferenceInput!, required), `amount` (AmountInput!, required), `frequency` (ContributionFrequency!, required), `order` (OrderReferenceInput), `tier` (TierReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `personalToken` query
+
+Returns `PersonalToken`.
+
+Get a personal token by reference
+
+Arguments: `id` (String).
+
+
+<!-- opencrane:page -->
+
+# `platformSubscriptionTiers` query
+
+Returns `[PlatformSubscriptionTier]`.
+
+Takes no arguments.
+
+
+<!-- opencrane:page -->
+
+# `project` query
+
+Returns `Project`.
+
+Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMissing` (Boolean).
+
+
+<!-- opencrane:page -->
+
+# `search` query
+
+Returns `SearchResponse!`.
+
+[!] Warning: this query is currently in beta and the API might change
+
+Arguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `tagStats` query
+
+Returns `TagStatsCollection!`.
+
+Arguments: `searchTerm` (String), `tagSearchTerm` (String), `host` (AccountReferenceInput), `limit` (Int!), `offset` (Int!).
+
+
+<!-- opencrane:page -->
+
+# `tier` query
+
+Returns `Tier`.
+
+Arguments: `tier` (TierReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `transaction` query
+
+Returns `Transaction`.
+
+Fetch a single transaction
+
+Arguments: `transaction` (TransactionReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `transactionGroups` query
+
+Returns `TransactionGroupCollection!`.
+
+[!] Warning: this query is currently in beta and the API might change
+
+Arguments: `account` (AccountReferenceInput!, required), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `kind` (TransactionKind), `dateFrom` (DateTime), `dateTo` (DateTime).
+
+
+<!-- opencrane:page -->
+
+# `transactions` query
+
+Returns `TransactionCollection!`.
+
+Arguments: `account` ([AccountReferenceInput!]), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `paymentMethodType` ([PaymentMethodType]), `paymentMethodService` ([PaymentMethodService]), `excludeAccount` ([AccountReferenceInput]), `fromAccount` (AccountReferenceInput), `host` (AccountReferenceInput), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `dateFrom` (DateTime), `dateTo` (DateTime), `clearedFrom` (DateTime), `clearedTo` (DateTime), `searchTerm` (String), `hasDebt` (Boolean), `hasExpense` (Boolean), `expense` (ExpenseReferenceInput), `expenseType` ([ExpenseType]), `hasOrder` (Boolean), `order` (OrderReferenceInput), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeHost` (Boolean!), `includeRegularTransactions` (Boolean!), `includeIncognitoTransactions` (Boolean!), `includeChildrenTransactions` (Boolean!), `includeGiftCardTransactions` (Boolean!), `includeDebts` (Boolean!), `includeEditedReversedTransactions` (Boolean!), `kind` ([TransactionKind]), `group` ([String]), `virtualCard` ([VirtualCardReferenceInput]), `isRefund` (Boolean), `merchantId` ([String]), `accountingCategory` ([String]), `paymentMethod` ([PaymentMethodReferenceInput]), `payoutMethod` (PayoutMethodReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `transactionsImport` query
+
+Returns `TransactionsImport`.
+
+Fetch a transactions import
+
+Arguments: `id` (NonEmptyString!, required).
+
+
+<!-- opencrane:page -->
+
+# `update` query
+
+Returns `Update`.
+
+Arguments: `id` (String), `slug` (String), `account` (AccountReferenceInput).
+
+
+<!-- opencrane:page -->
+
+# `updates` query
+
+Returns `UpdateCollection!`.
+
+This query currently returns only published updates
+
+Arguments: `limit` (Int!), `offset` (Int!), `accountTag` ([String]), `accountType` ([AccountType]), `host` ([AccountReferenceInput]), `onlyChangelogUpdates` (Boolean), `orderBy` (UpdateChronologicalOrderInput!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCard` query
+
+Returns `VirtualCard`.
+
+Arguments: `virtualCard` (VirtualCardReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCardRequest` query
+
+Returns `VirtualCardRequest`.
+
+Arguments: `virtualCardRequest` (VirtualCardRequestReferenceInput!, required), `throwIfMissing` (Boolean!).
+
+
+<!-- opencrane:page -->
+
+# `virtualCardRequests` query
+
+Returns `VirtualCardRequestCollection!`.
+
+Arguments: `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput!, required), `status` ([VirtualCardRequestStatus]), `collective` ([AccountReferenceInput]).
+
+
+======
+
+# Open Collective Public GraphQL
+
+Welcome to [Open Collective](https://opencollective.com)'s public GraphQL API documentation.
+
+This documentation will help you get started using our public GraphQL API (v2).
+
+## Overview
+
+Open Collective's GraphQL API allows developers to interact with the Open Collective platform programmatically. With this API, you can:
+
+- Retrieve detailed information about accounts
+- Access financial data including transactions, contributions, and expenses
+- Query financial contributors
+- Create and manage expenses
+- And much more!
+
+## Limitations
+
+The following functionality is not supported yet from external applications:
+
+- **Payment Provider Integration**: Operations related to creating contributions with integrated payment providers (Stripe, PayPal) cannot be performed through the API from external applications. As an alternative, you can explore the [Embed contribution flow](https://docs.opencollective.com/help/collectives/embed-contribution-flow) feature.
+- **Captcha-Protected Operations**: Any operations that require captcha verification for security purposes are not accessible via the API.
+
+
+<!-- opencrane:page -->
+
+# How to access the API
+
+## First Contact
+
+For your first contact with our API, we recommend to use a GraphQL explorer, such as [Altair GraphQL Client](https://altairgraphql.dev/). It’s available as a desktop application and we really like it like that.
+
+## Endpoint
+
+The GraphQL API's endpoint is the following: https://api.opencollective.com/graphql/v2
+
+## Authentication
+
+The API is public and you can freely use it up to 10 requests / minute without authentication.
+
+By authenticating, you get up to 100 requests / minute, access to sensitive data and can perform actions.
+
+## With a Personal Token
+
+The Personal Token gives you access to the API and is automatically authenticating you as an individual. To create one, go to your personal settings and navigate to the `For developers` section.
+
+<!--
+<div>
+    [Image removed: image]
+    <p style="text-align:center;margin-bottom: 1em;"><em>Applications section</em></p>
+    [Image removed: image]
+    <p style="text-align:center;margin-bottom: 1em;"><em>Create Personal Token</em></p>
+</div>
+-->
+
+Pass the Personal Token As an HTTP header: `Personal-Token: <PERSONAL_TOKEN>`.
+
+## With OAuth
+
+OAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.
+
+Documentation is here for now: https://docs.opencollective.com/help/developers/oauth
+
+
+<!-- opencrane:page -->
+
+# Account Information
+
+## Logged in account
+
+You can easily query the information of the currently logged in account by using the following query:
+
+```graphql
+query loggedInAccount {
+  loggedInAccount {
+    id
+    name
+    slug
+  }
+}
+```
+
+## Any account
+
+Want to query the information for any account?
+
+:::tabs
+---Query
+
+```graphql
+query account($slug: String) {
+  account(slug: $slug) {
+    id
+    name
+    slug
+  }
+}
+```
+
+---Variables
+
+```json
+{
+  "slug": "znarf"
+}
+```
+
+:::
+
+
+<!-- opencrane:page -->
+
+# Backers
+You may want to see all the collectives that a user is supporting using the following:
+
+:::tabs
+---Query
+
+```graphql
+query account($slug: String) {
+  account(slug: $slug) {
+    name
+    slug
+    memberOf(role: BACKER) {
+      totalCount
+      nodes {
+        account {
+          name
+          slug
+        }
+      }
+    }
+  }
+}
+```
+
+---Variables
+
+```json
+{
+  "slug": "znarf"
+}
+```
+
+:::
+
+On the opposite, if you want to see all the members of a given Collective:
+
+:::tabs
+---Query
+
+```graphql
+query account($slug: String) {
+  account(slug: $slug) {
+    name
+    slug
+    members(role: BACKER, limit: 100) {
+      totalCount
+      nodes {
+        account {
+          name
+          slug
+        }
+      }
+    }
+  }
+}
+```
+
+---Variables
+
+```json
+{
+  "slug": "babel"
+}
+```
+
+:::
+
+
+<!-- opencrane:page -->
+
+# Contributions
+You may browse the latest contributions received by a Collective.
+
+:::tabs
+---Query
+
+```graphql
+query account($slug: String) {
+  account(slug: $slug) {
+    name
+    slug
+    transactions(limit: 10, type: CREDIT) {
+      totalCount
+      nodes {
+        type
+        fromAccount {
+          name
+          slug
+        }
+        amount {
+          value
+          currency
+        }
+        createdAt
+      }
+    }
+  }
+}
+```
+
+---Variables
+
+```json
+{
+  "slug": "babel"
+}
+```
+
+:::
+
+
+<!-- opencrane:page -->
+
+# Expenses
+You can query the latest expenses performed by a given collective with the following:
+
+:::tabs
+---Query
+
+```graphql
+query account($slug: String) {
+  account(slug: $slug) {
+    name
+    slug
+    transactions(limit: 10, type: DEBIT) {
+      totalCount
+      nodes {
+        type
+        toAccount {
+          name
+          slug
+        }
+        amount {
+          value
+          currency
+        }
+        createdAt
+      }
+    }
+  }
+}
+```
+
+---Variables
+
+```json
+{
+  "slug": "babel"
+}
+```
+
+:::
