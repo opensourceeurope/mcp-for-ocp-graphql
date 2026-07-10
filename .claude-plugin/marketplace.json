@@ -8,7 +8,7 @@
     {
       "name": "oc-platform-api",
       "source": "./plugins/oc-platform-api",
-      "description": "Read-only Open Collective GraphQL access for Claude: MCP server + querying skill + analyst agent."
+      "description": "Read-only Open Collective GraphQL: the mcp-for-ocp-graphql MCP server (usable by any MCP client) plus a querying skill and analyst agent, packaged as a Claude Code plugin."
     }
   ]
 }
