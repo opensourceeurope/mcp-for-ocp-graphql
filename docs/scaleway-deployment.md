@@ -61,6 +61,8 @@ scw container container create \
   --wait
 ```
 
+> **scw version note:** these commands use `memory-limit` (MB) / `cpu-limit` (mvCPU), which is the arg naming through **scw ≤ 2.55.x**. scw **2.56+** renamed them to `memory-limit-bytes` (bytes) / `mvcpu-limit`. The CI deploy pins scw 2.55.0 for this reason; if you run a newer CLI by hand, translate accordingly (e.g. `memory-limit-bytes=268435456` for 256 MB).
+
 Note the `domain-name` and `id` fields in the output.
 
 ### 6. Set PUBLIC_URL
