@@ -1,0 +1,33 @@
+name: CI
+
+# Runs the Python test suite on every PR (and on main). The fast suite only —
+# the e2e tests (live OC API + embedding-model download) are excluded by the
+# `-m 'not e2e'` addopts in pyproject.toml; run those with `pytest -m e2e`.
+# Workflow supply-chain linting lives in security-audit.yml (zizmor).
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        with:
+          version: "0.8.19"
+
+      - name: Install runtime + dev deps from the lockfile
+        run: uv sync --frozen
+
+      - name: Run the fast test suite
+        run: uv run --frozen pytest -q
