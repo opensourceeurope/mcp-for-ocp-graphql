@@ -14,6 +14,9 @@ A Python MCP server for the [Open Collective GraphQL API v2](https://api.opencol
 
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `ci:`, `chore:`
 - This project is MIT-licensed — do not introduce incompatibly licensed material.
+- Conventional commits drive **release-please**: `feat:` → minor, `fix:` → patch, `feat!:`/`BREAKING CHANGE:` → major; `docs:`/`ci:`/`chore:`/`refactor:`/`test:` don't release. A mistyped type silently skips the bump.
+- **Never hand-bump a version or hand-cut a tag/Release.** release-please owns `pyproject.toml` version, `plugins/opencollective-graphql/.claude-plugin/plugin.json`, the `.mcp.json` pin, `.release-please-manifest.json`, `CHANGELOG.md`, and the `vX.Y.Z` tag/Release. Land a commit; the release PR bumps and (on merge) publishes to PyPI. See [`.github/workflows/release.yml`](.github/workflows/release.yml).
+- **Follow the `dev-workflow` skill**: one git worktree per topic off `main`, branch + PR + CI (`commitlint` + `security-audit`), then merge. The PreToolUse branch-guard hook makes the shared main checkout read-only for edits — do topic work in a `.worktrees/<topic>` directory.
 
 ## Running Tests
 
