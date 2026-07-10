@@ -50,9 +50,26 @@ claude mcp add mcp-for-ocp-graphql -e OC_PERSONAL_TOKEN=oc_xxx -- uvx mcp-for-oc
 
 (Omit `-e OC_PERSONAL_TOKEN=...` to run anonymously.)
 
-### Hosted — Streamable HTTP + OAuth (multi-user, via Docker)
+### Hosted — Streamable HTTP + OAuth
+
+**Prefer stdio (above) whenever your client supports it** — it's simpler and your data and token never leave your machine. Reach for the HTTP transport **only if your tool speaks MCP over HTTP and cannot launch a local stdio subprocess** — typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors. Desktop agents (Claude Code, Cursor, Windsurf, Zed, VS Code, LM Studio, Goose, Cherry Studio) all support stdio — use that.
 
 The hosted server speaks MCP over Streamable HTTP and implements an OAuth 2.1 / PKCE **passthrough**: each user opens a browser form at `/oc-login` and pastes their own Open Collective personal token. That token becomes the OAuth access token and is forwarded to the OC API as the `Personal-Token` header on each query. The server mints no tokens of its own and stores no shared credentials.
+
+#### Community instance
+
+A shared instance is hosted for the community in the EU (Scaleway, `pl-waw`). Point an HTTP-only MCP client at it:
+
+```bash
+claude mcp add --transport http mcp-for-ocp-graphql \
+  https://opensourceeuropeb9a9bb69-oc-graphql-mcp.functions.fnc.pl-waw.scw.cloud/mcp
+```
+
+On first use the client opens a browser for OAuth; paste your own Open Collective personal token. Each user authenticates independently — no shared token lives on the server.
+
+> ⚠️ **Please don't overuse the community instance.** It's a small, cost-shared community deployment that scales to zero when idle — provided so people whose tools *can't* do stdio can still connect, not for heavy or automated load. If you query a lot, need guaranteed availability, or want to control the region, **run stdio locally** (above) or **self-host** (below) instead.
+
+#### Self-host your own
 
 ```bash
 docker build -t mcp-for-ocp-graphql .
