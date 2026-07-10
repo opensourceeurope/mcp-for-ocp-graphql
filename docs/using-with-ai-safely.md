@@ -81,7 +81,7 @@ or message is a further disclosure either way.
   I'm using.
 ```
 
-The agent-facing version of this rule is in [`AGENTS.md`](../AGENTS.md) (used automatically by Claude Code) and codified for query work in the [`querying-opencollective-graphql` skill](../plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md).
+The agent-facing version of this rule is in [`AGENTS.md`](../AGENTS.md) (used automatically by Claude Code) and codified for query work in the [`querying-opencollective-graphql` skill](../plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md).
 
 ## When you genuinely need the PII
 

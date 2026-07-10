@@ -22,7 +22,7 @@ printf '%s' "$VERSION" | grep -qE '^[0-9A-Za-z.+_-]+$' || {
   exit 1
 }
 
-FILE="plugins/opencollective-graphql/.mcp.json"
+FILE="plugins/oc-platform-api/.mcp.json"
 # The only `mcp-for-ocp-graphql` occurrence in .mcp.json is the uvx arg pin; rewrite it
 # (with or without an existing ==spec) to ==$VERSION.
 VERSION="$VERSION" perl -i -pe 's/(mcp-for-ocp-graphql)(==[0-9A-Za-z.+_-]+)?/"$1==$ENV{VERSION}"/ge' "$FILE"

@@ -71,7 +71,7 @@ Candidate doc homes:
 - docs/using-with-ai-safely.md — PII posture + safe usage
 - docs/local-agent-with-ollama.md / docs/local-agent-with-ui.md — local stdio setup
 - docs/scaleway-deployment.md — hosted HTTP / Scaleway deploy
-- plugins/opencollective-graphql/skills/querying-opencollective-graphql/SKILL.md — querying playbook
+- plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md — querying playbook
 "
 fi
 

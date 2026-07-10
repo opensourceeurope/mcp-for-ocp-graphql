@@ -10,7 +10,7 @@ Open Collective data includes personally identifiable information (names, emails
 
 - Prefer running **locally** (the stdio transport below) so your data and token never leave your machine.
 - Prefer **anonymous mode** (no token) when you only need public data — you then only ever see what the public API exposes.
-- PII handling and safe field-selection guidance are prompt-level control points: the querying skill (`plugins/opencollective-graphql/skills/querying-opencollective-graphql/`, shipped in the Claude plugin below), [AGENTS.md](AGENTS.md), and [docs/using-with-ai-safely.md](docs/using-with-ai-safely.md).
+- PII handling and safe field-selection guidance are prompt-level control points: the querying skill (`plugins/oc-platform-api/skills/querying-opencollective-graphql/`, shipped in the Claude plugin below), [AGENTS.md](AGENTS.md), and [docs/using-with-ai-safely.md](docs/using-with-ai-safely.md).
 
 Tokens are never logged or persisted by this server.
 
@@ -20,7 +20,7 @@ For Claude Code, install the plugin instead of wiring things up by hand. It ship
 
 ```bash
 /plugin marketplace add opensourceeurope/mcp-for-ocp-graphql
-/plugin install opencollective-graphql@opencollective
+/plugin install oc-platform-api@ose-ai
 ```
 
 Set `OC_PERSONAL_TOKEN` in your environment for authenticated access (optional — omit for anonymous public data). Prefer this over the manual stdio setup below if you use Claude Code.

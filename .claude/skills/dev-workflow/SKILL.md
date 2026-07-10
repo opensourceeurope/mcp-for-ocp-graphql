@@ -87,9 +87,9 @@ commit feat:/fix:/feat!: to main
   → release.yml (release-please) maintains a rolling release PR that:
       - bumps the version in .release-please-manifest.json + pyproject.toml (release-type python)
       - regenerates CHANGELOG.md
-      - writes the version into plugins/opencollective-graphql/.claude-plugin/plugin.json ($.version)
+      - writes the version into plugins/oc-platform-api/.claude-plugin/plugin.json ($.version)
       - a follow-up step runs scripts/sync-plugin-version.sh to rewrite the
-        `mcp-for-ocp-graphql==X.Y.Z` pin in plugins/opencollective-graphql/.mcp.json,
+        `mcp-for-ocp-graphql==X.Y.Z` pin in plugins/oc-platform-api/.mcp.json,
         committed onto the PR branch
       - arms GitHub auto-merge (gh pr merge --auto --squash)
   → release PR auto-merges once CI is green → tag vX.Y.Z + GitHub Release, and IN THE SAME
@@ -110,8 +110,8 @@ required on `main`; and the PyPI trusted publisher's `workflow_ref` must point a
 
 - `CHANGELOG.md` — regenerated from commits.
 - `pyproject.toml` `[project].version` — release-please python updater.
-- `plugins/opencollective-graphql/.claude-plugin/plugin.json` `version` — json updater.
-- `plugins/opencollective-graphql/.mcp.json` `mcp-for-ocp-graphql==` pin — the sync step.
+- `plugins/oc-platform-api/.claude-plugin/plugin.json` `version` — json updater.
+- `plugins/oc-platform-api/.mcp.json` `mcp-for-ocp-graphql==` pin — the sync step.
 - `.release-please-manifest.json` — release-please's version STATE file (auto-managed).
 - git tags `vX.Y.Z` + GitHub Releases — created on release-PR merge.
 
