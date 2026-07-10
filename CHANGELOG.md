@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.1...v0.2.2) (2026-07-10)
+
+
+### Bug Fixes
+
+* use registry-image arg name for scw 2.55 container update ([#8](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/8)) ([801dd74](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/801dd741a75891b98d58e44ef98a79a13f91ebd5))
+
 ## [0.2.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.0...v0.2.1) (2026-07-10)
 
 
