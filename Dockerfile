@@ -1,11 +1,11 @@
 # Hosted Streamable-HTTP server image for mcp-for-ocp-graphql.
 #
-# Committed-data approach: the RAG/schema data
-# (mcp_for_ocp_graphql/data/{schema.json, milvus.db/}) is COMMITTED to the repo and
+# Committed-data approach: the docs/schema data
+# (mcp_for_ocp_graphql/data/{schema.json, docs.json}) is COMMITTED to the repo and
 # refreshed by .github/workflows/corpus-refresh.yml (which regenerates it with
 # OpenCrane on Linux CI and commits it back). This Dockerfile just COPYs the project
-# tree, so the image never re-downloads the nomic embedding model or hits the network
-# for the schema at build time.
+# tree, so the image never hits the network for docs or the schema at build time.
+# Doc search is pure-Python BM25 — no PyTorch/embedding model — so the image is slim.
 FROM python:3.11-slim
 
 # Pin uv via its official installer image (digest-pinned upstream) is overkill here;
@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir "uv==${UV_VERSION}"
 
 WORKDIR /app
 
-# Copy the whole project, including the CI-baked mcp_for_ocp_graphql/data/.
+# Copy the whole project, including the CI-baked mcp_for_ocp_graphql/data/{schema.json,docs.json}.
 COPY . .
 
 # Install the project and its runtime deps (no dev group). Uses the committed

@@ -87,7 +87,7 @@ jobs:
           gh pr merge "$PR_NUMBER" --auto --squash --repo "$GITHUB_REPOSITORY"
 
   # Fires only in the run where release-please actually cut a release (the run that
-  # merged the release PR). Builds the wheel — with the committed schema.json + milvus.db
+  # merged the release PR). Builds the wheel — with the committed schema.json + docs.json
   # baked in via pyproject artifacts — and publishes to PyPI via trusted publishing (OIDC).
   publish:
     needs: release-please

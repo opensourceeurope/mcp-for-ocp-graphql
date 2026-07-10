@@ -97,7 +97,7 @@ def schema_to_markdown(schema: dict, *, queries_only: bool = False) -> str:
 
     queries_only=True emits just the top-level query fields (the "what can I ask
     for" entry-point map) and skips the per-type field dump — a high-signal,
-    low-noise slice for the semantic search corpus. schema_lookup still serves the
+    low-noise slice for the docs search corpus. schema_lookup still serves the
     full per-type detail on demand from schema.json.
     """
     sections: list[str] = []

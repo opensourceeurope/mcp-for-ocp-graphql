@@ -1,7 +1,7 @@
 name: CI
 
 # Runs the Python test suite on every PR (and on main). The fast suite only —
-# the e2e tests (live OC API + embedding-model download) are excluded by the
+# the e2e tests (live OC API) are excluded by the
 # `-m 'not e2e'` addopts in pyproject.toml; run those with `pytest -m e2e`.
 # Workflow supply-chain linting lives in security-audit.yml (zizmor).
 

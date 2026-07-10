@@ -21,9 +21,9 @@ def load_schema() -> dict:
 
 
 def load_doc_search():
-    """Return a DocSearch backed by the baked milvus.db index, or None if the index is absent."""
+    """Return a DocSearch backed by the baked docs.json corpus, or None if it's absent."""
     try:
-        path = Path(str(files("mcp_for_ocp_graphql.data").joinpath("milvus.db")))
+        path = Path(str(files("mcp_for_ocp_graphql.data").joinpath("docs.json")))
     except Exception:
         return None
     if not path.exists():

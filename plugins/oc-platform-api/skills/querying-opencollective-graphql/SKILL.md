@@ -11,7 +11,7 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 
 - **`graphql_query(query, variables=None)`** — runs a **read-only** GraphQL query and returns JSON. Mutations and subscriptions are rejected. `variables` is an optional dict.
 - **`schema_lookup(name)`** — exact definition of a type or query field (fields, args with name/type/required/default). Substring matches return candidate names.
-- **`search_docs(query, top_k=5)`** — semantic search over the OC docs + a query-field map.
+- **`search_docs(query, top_k=5)`** — keyword search over the OC docs + a query-field map.
 
 **Workflow: `search_docs` (find the right query/approach) → `schema_lookup` (confirm exact fields, args, required-ness) → `graphql_query` (run it).** Don't guess field names — look them up.
 

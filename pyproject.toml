@@ -6,14 +6,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Lukasz Gornicki" }]
+# Doc search is pure-Python BM25 (mcp_for_ocp_graphql/search.py) over the baked
+# docs.json — no PyTorch/embedding model/vector DB, so the runtime stays slim.
 dependencies = [
   "mcp==1.27.2",
   "httpx>=0.27",
   "graphql-core==3.2.10",
-  "pymilvus>=2.4",
-  "milvus-lite>=2.4",
-  "sentence-transformers>=3",
-  "einops>=0.7",
   "uvicorn>=0.30",
 ]
 
@@ -32,13 +30,13 @@ build-backend = "hatchling.build"
 packages = ["mcp_for_ocp_graphql"]
 artifacts = [
   "mcp_for_ocp_graphql/data/schema.json",
-  "mcp_for_ocp_graphql/data/milvus.db/**/*",
+  "mcp_for_ocp_graphql/data/docs.json",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# e2e tests hit the live OC API and load the embedding model — opt in with `pytest -m e2e`.
+# e2e tests hit the live OC API — opt in with `pytest -m e2e`.
 addopts = "-m 'not e2e'"
 markers = [
-  "e2e: real end-to-end checks (live Open Collective API + baked OpenCrane index)",
+  "e2e: real end-to-end checks (live Open Collective API + baked docs corpus)",
 ]
