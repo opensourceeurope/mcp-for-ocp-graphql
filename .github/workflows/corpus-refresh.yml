@@ -101,7 +101,9 @@ jobs:
       - name: Commit and propose changes
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          # RELEASE_TOKEN (org PAT): the org disallows the built-in GITHUB_TOKEN from
+          # creating PRs, so use the PAT for both the push-back and gh pr create.
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           REPO: ${{ github.repository }}
           REF_NAME: ${{ github.ref_name }}
         run: |
