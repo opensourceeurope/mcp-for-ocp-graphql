@@ -3,7 +3,7 @@
     "oc-platform-api": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["mcp-for-ocp-graphql==0.0.1"]
+      "args": ["mcp-for-ocp-graphql==0.1.0"]
     }
   }
 }
