@@ -94,7 +94,7 @@ jobs:
         # `container update` auto-redeploys to apply the changes, so no separate deploy call.
         run: |
           scw container container update "$CONTAINER_ID" \
-            image="$IMAGE" \
+            registry-image="$IMAGE" \
             memory-limit=256 \
             cpu-limit=140 \
             environment-variables.PUBLIC_URL="$PUBLIC_URL"
