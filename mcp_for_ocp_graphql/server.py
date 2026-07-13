@@ -38,15 +38,12 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
         Mutations and subscriptions are rejected. Before querying, use search_docs to find the
         right queries/fields, then schema_lookup to confirm their exact fields, args, and types.
 
-        Personal data — STOP and ask before fetching. Some fields return PII (email/emails,
-        phoneNumber, address, legalName, and anything under payoutMethod/paymentMethod/location
-        on Individual accounts). NEVER put these in a query — not by default, not inside a wider
-        selection, and NOT even when the user's request seems to call for them — until you have:
-        (1) told the user plainly that the data will enter the model's context (a hosted model
-        transmits it to its provider) and that anything you then write it to is a further
-        disclosure, and (2) received their explicit confirmation for THAT request. If a request
-        would need PII, do not silently run it: surface the warning, then wait for an explicit
-        yes before including the field."""
+        Personal data — STOP and ask first. Some fields are PII (email/emails, phoneNumber,
+        address, legalName, and anything under payoutMethod/paymentMethod/location on Individual
+        accounts). Never include them — not by default, not in a wider selection, not even when
+        the request seems to call for them — until you've warned the user that the result enters
+        the model's context (a hosted model sends it to its provider) and they've explicitly
+        confirmed for that request."""
         call_token = resolve_call_token(token)
         with factory() as client:
             data = execute_query(query, variables, endpoint=endpoint, token=call_token, client=client)
