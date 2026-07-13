@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.3.0...v0.3.1) (2026-07-13)
+
+
+### Documentation
+
+* slim README into a lean landing page ([#17](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/17)) ([5256f51](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/5256f5162597380dc058f90029db547f2d7980c4))
+
 ## [0.3.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.3...v0.3.0) (2026-07-13)
 
 
