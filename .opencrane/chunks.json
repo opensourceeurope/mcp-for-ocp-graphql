@@ -704,9 +704,22 @@
     "token_count": 39
   },
   {
-    "chunk_id": "5651393f19e253258261c7aabdc279763fd28f28883dd5ff85c05ae93a6c9526",
+    "chunk_id": "bb6a69ff61804e63670e89266809967a931a81c31cea6323f7143984183c5407",
     "chunk_type": "prose",
-    "content": "# `paymentIntents` query\n\nReturns `PaymentIntentCollection!`.\n\nReturns a list of payment intents\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).",
+    "content": "# `paymentIntent` query\n\nReturns `PaymentIntent`.\n\nReturns a single payment intent identified by its public id\n\nArguments: `publicId` (String!, required).",
+    "line_start": null,
+    "metadata": {
+      "breadcrumb_path": "`paymentIntent` query",
+      "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paymentIntent.md"
+    },
+    "source_file": ".opencrane/llmstxt/llms-full.txt",
+    "source_name": "local",
+    "token_count": 34
+  },
+  {
+    "chunk_id": "f9dcdfc0fa57cad717b7323301389c559734e9b827f57e4eb9297ba9d0d5b6b0",
+    "chunk_type": "prose",
+    "content": "# `paymentIntents` query\n\nReturns `PaymentIntentCollection!`.\n\nReturns a list of payment intents\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `hostContext` (HostContext), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "`paymentIntents` query",
@@ -714,7 +727,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "local",
-    "token_count": 111
+    "token_count": 119
   },
   {
     "chunk_id": "eb4cb52ab7fdf9e33227bb88f982f5b836e2c9040d85f29b4186d27e88256aa4",

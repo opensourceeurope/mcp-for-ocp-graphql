@@ -27,6 +27,7 @@
 - [`order` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/order.md)
 - [`orders` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/orders.md)
 - [`organization` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/organization.md)
+- [`paymentIntent` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paymentIntent.md)
 - [`paymentIntents` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paymentIntents.md)
 - [`paypalPlan` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/paypalPlan.md)
 - [`personalToken` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/personalToken.md)
