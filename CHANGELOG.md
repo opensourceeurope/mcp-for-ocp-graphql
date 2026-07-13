@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.3...v0.3.0) (2026-07-13)
+
+
+### Features
+
+* warn about PII in the graphql_query tool description ([#14](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/14)) ([cea8f27](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/cea8f27d96e02ac4ff40b7b385862a7c4e96cccb))
+
 ## [0.2.3](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.2...v0.2.3) (2026-07-13)
 
 
