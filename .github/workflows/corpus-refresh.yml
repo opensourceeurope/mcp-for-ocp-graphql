@@ -118,8 +118,10 @@ jobs:
             else
               gh pr create --base main --head "$branch" \
                 --title "chore: weekly docs corpus refresh" \
-                --body "Automated corpus regeneration (schema + sources + chunks + baked docs.json). Review the drift before merging."
+                --body "Automated corpus regeneration (schema + sources + chunks + baked docs.json)."
             fi
+            # Hands-off: auto-merge once required checks (commitlint + CI) are green.
+            gh pr merge "$branch" --auto --squash --repo "$REPO"
           else
             # Dispatch on a feature branch: commit the artifacts straight back to it.
             git commit -m "chore: regenerate docs corpus artifacts"
