@@ -36,7 +36,14 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
     def graphql_query(query: str, variables: dict | None = None) -> str:
         """Execute a read-only Open Collective GraphQL v2 query and return the JSON result.
         Mutations and subscriptions are rejected. Before querying, use search_docs to find the
-        right queries/fields, then schema_lookup to confirm their exact fields, args, and types."""
+        right queries/fields, then schema_lookup to confirm their exact fields, args, and types.
+
+        Personal data — STOP and ask first. Some fields are PII (email/emails, phoneNumber,
+        address, legalName, and anything under payoutMethod/paymentMethod/location on Individual
+        accounts). Never include them — not by default, not in a wider selection, not even when
+        the request seems to call for them — until you've warned the user that the result enters
+        the model's context (a hosted model sends it to its provider) and they've explicitly
+        confirmed for that request."""
         call_token = resolve_call_token(token)
         with factory() as client:
             data = execute_query(query, variables, endpoint=endpoint, token=call_token, client=client)
