@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.2...v0.2.3) (2026-07-13)
+
+
+### Documentation
+
+* point PII-rule references at the plugin, not AGENTS.md ([#13](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/13)) ([b2819d3](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/b2819d33f01ca3891c212380da6e585664c791af))
+
 ## [0.2.2](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.2.1...v0.2.2) (2026-07-10)
 
 
