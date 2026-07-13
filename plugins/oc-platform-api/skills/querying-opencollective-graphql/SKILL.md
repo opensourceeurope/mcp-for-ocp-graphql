@@ -84,7 +84,6 @@ curl -s https://api.opencollective.com/graphql/v2 \
   -H "Personal-Token: $OC_TOKEN" \
   -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}'
 ```
-This is the repo rule too — see `AGENTS.md` › "Handling Personal Data (PII)".
 
 ## Common mistakes
 
