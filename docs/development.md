@@ -9,6 +9,20 @@ uv run mcp-for-ocp-graphql   # run the stdio server locally from the source tree
 
 The branch + PR + CI + release flow (per-topic worktrees, conventional commits, release-please) is documented for contributors and agents in **[AGENTS.md](../AGENTS.md)**.
 
+## Inspect the server with the MCP Inspector
+
+Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand — list the tools, call them, read raw responses — attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which spawns the server and opens a browser UI. Run from the repo root:
+
+```bash
+# anonymous (public data only — no token)
+npx @modelcontextprotocol/inspector -- uv run mcp-for-ocp-graphql
+
+# authenticated — get a token at https://opencollective.com/dashboard/personal-tokens
+npx @modelcontextprotocol/inspector -e OC_PERSONAL_TOKEN=oc_xxx -- uv run mcp-for-ocp-graphql
+```
+
+`-e OC_PERSONAL_TOKEN=...` sets the env var on the spawned server process — that is the only way the stdio server receives the token (there is no CLI flag for it). Swap `uv run` for `uvx` to inspect the published wheel instead of your working tree.
+
 ## The docs corpus data
 
 The wheel ships two artifacts under `mcp_for_ocp_graphql/data/`:
