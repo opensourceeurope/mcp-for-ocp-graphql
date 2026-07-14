@@ -160,25 +160,6 @@ See [using-with-ai-safely.md](using-with-ai-safely.md) for the full picture.
 
 ---
 
-## Troubleshooting
-
-**"opencollective" doesn't appear in the tool list.**
-Close LM Studio fully, open it again. If still missing, re-open the `mcp.json` you edited (the **Program** tab's terminal icon, or the file at `~/.lmstudio/mcp.json`) and check for typos (most often: missing comma, missing quotes, or the token not pasted between the quotes).
-
-**Every question comes back with an authorization error.**
-The token in `mcp.json` is missing, wrong, or pasted with extra spaces/line breaks. Re-copy it from [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens) and paste it again between the quotes after `OC_PERSONAL_TOKEN`.
-
-**The model gives weird answers or invents data.**
-You may have picked a model that's too small. Re-download a model one row higher in the table in Step 2.
-
-**"command not found" or the MCP won't start.**
-uv isn't installed or wasn't picked up. Re-do Step 3, then fully restart LM Studio so it sees the new `uvx` command.
-
-**Everything is very slow.**
-The model is too big for your laptop. Pick the row above in Step 2 (smaller model). On Apple Silicon Macs, models in the table run smoothly; on older Intel laptops without a dedicated GPU, expect slower responses.
-
----
-
 ## Alternative — Cherry Studio (open-source, uses Ollama)
 
 If you already use Ollama or want an open-source app:

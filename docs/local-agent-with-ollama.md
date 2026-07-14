@@ -224,28 +224,6 @@ See [docs/using-with-ai-safely.md](using-with-ai-safely.md) for the full handlin
 
 ---
 
-## Troubleshooting
-
-**The agent keeps switching from JSON tool calls to XML.**
-You're using a small model with too many tools loaded. Switch to `gpt-oss:20b` or `qwen3:14b` minimum. ([block/goose#6883](https://github.com/block/goose/issues/6883))
-
-**Goose system prompt seems truncated; tool calls misfire silently.**
-You skipped Step 4. Ollama's 2048-token default isn't enough — bump `num_ctx` to at least 16384.
-
-**The extension fails to start / "command not found".**
-Make sure `uv` is installed and `uvx` is on your `PATH` (`uvx --version`). The first run downloads the package and its small pure-Python dependencies — that needs network but is quick; pre-warm with `uvx mcp-for-ocp-graphql` in a terminal.
-
-**A query returns an auth error or empty private data.**
-The server does **not** require a token — with none it runs anonymously against public data. If you need private data, `OC_PERSONAL_TOKEN` in the extension's `envs` is missing or wrong; an invalid token is rejected by Open Collective on the first query. Re-check the value in `~/.config/goose/config.yaml`.
-
-**The model invents fields and gets 400s from the API.**
-The OC schema has inline-fragment quirks (e.g. `host`, `parent`, `isApproved` aren't on the base `Account` type). Paste the contents of [`plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md`](../plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md) into the system prompt — it's the same playbook hosted Claude uses.
-
-**Performance is unusable on CPU.**
-Apple Silicon with unified memory handles `gpt-oss:20b` and `qwen3:14b` well. On x86 without a discrete GPU, drop to a 7–8B model and accept the tool-calling weakness, or run a smaller model with shorter conversations.
-
----
-
 ## References
 
 - [Goose installation](https://goose-docs.ai/docs/getting-started/installation/) · [config file](https://block.github.io/goose/docs/guides/config-file/)
