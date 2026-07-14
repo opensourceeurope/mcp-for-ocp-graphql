@@ -109,6 +109,7 @@ Answer the prompts in order (use ↑/↓ to move, **Enter** to select):
 3. **Which model provider should we use?** → **Ollama**
 4. **Host** (`OLLAMA_HOST`) → `http://localhost:11434` — the default; press Enter to accept.
 5. **Model** → the name you pulled, e.g. `gpt-oss:20b`.
+6. **Would you like to configure advanced settings?** → **No**. These (temperature and similar) are optional and the defaults are fine. The context-window setting that *does* matter here is Ollama's `num_ctx`, set in Step 4 — not this prompt.
 
 ### Option B — skip the prompts (write the config file)
 
