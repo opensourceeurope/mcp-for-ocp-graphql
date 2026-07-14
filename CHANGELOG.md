@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.3.1...v0.4.0) (2026-07-14)
+
+
+### Features
+
+* ship a Cherry Studio skill bundle built from the plugin ([#21](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/21)) ([cb0bec3](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/cb0bec39d50cd77edb9ac8fd88d590275cb4d688))
+
 ## [0.3.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.3.0...v0.3.1) (2026-07-13)
 
 
