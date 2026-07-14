@@ -156,7 +156,8 @@ If you already use Ollama or want an open-source app:
 2. Install Cherry Studio from [github.com/CherryHQ/cherry-studio/releases](https://github.com/CherryHQ/cherry-studio/releases) (DMG for macOS, EXE for Windows, AppImage/.deb for Linux).
 3. Open Cherry Studio → **Settings → MCP Servers → Add Server**.
 4. Set **Type**: `stdio`, **Command**: `uvx`, **Arguments**: `mcp-for-ocp-graphql`, and add an **environment variable** `OC_PERSONAL_TOKEN` with your token.
-5. Pick your Ollama model in the chat tab. Start chatting.
+5. **(Recommended) Install the querying skill** so the model queries well: download [`opencollective-cherry-skill.zip`](https://github.com/opensourceeurope/mcp-for-ocp-graphql/releases/latest/download/opencollective-cherry-skill.zip) (attached to each release), then in Cherry Studio go to **Skills → install from zip file**. It bundles the analyst framing plus the full query playbook — the same guidance the Claude Code plugin ships as a skill + agent.
+6. Pick your Ollama model in the chat tab. Start chatting.
 
 No sign-in webpage here either — the token in the server settings is all it needs.
 
