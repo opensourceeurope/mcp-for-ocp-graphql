@@ -11,7 +11,7 @@ The branch + PR + CI + release flow (per-topic worktrees, conventional commits, 
 
 ## Inspect the server with the MCP Inspector
 
-Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand, attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector). Run everything below from the repo root.
+Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand, attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector). Run everything below from the repo root, and run `uv sync` **first** — the initial `uv run` on a freshly checked-out or branch-switched tree re-syncs the venv, and that cold rebuild is slow enough to break the Inspector's connection handshake (`MCP error -32000: Connection closed`). One warm `uv sync` avoids it.
 
 ### CLI mode (recommended)
 
