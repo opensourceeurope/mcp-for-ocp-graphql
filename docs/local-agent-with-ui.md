@@ -4,7 +4,7 @@ A fully local setup for using this MCP with an AI, designed for **non-technical 
 
 > Prefer the terminal? The CLI path (Ollama + Goose) lives in [local-agent-with-ollama.md](local-agent-with-ollama.md).
 
-We recommend **[LM Studio](https://lmstudio.ai/)** because it bundles the model runtime, model downloader, chat UI, *and* MCP support in a single app. There's no separate "AI engine" to install. (A second option, **Cherry Studio**, is at the end if you already use Ollama or want an open-source app.)
+We recommend **[LM Studio](https://lmstudio.ai/)** because it bundles the model runtime, model downloader, chat UI, *and* MCP support in a single app. There's no separate "AI engine" to install. (A second option, **[Cherry Studio](https://github.com/CherryHQ/cherry-studio)**, is at the end if you already use Ollama or want an open-source app.)
 
 The MCP runs locally: LM Studio starts it for you with your Open Collective token, and it talks to Open Collective directly. There is no server to set up and no sign-in webpage.
 
