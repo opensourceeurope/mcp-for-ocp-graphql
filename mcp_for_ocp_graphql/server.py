@@ -32,7 +32,7 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
     """
     factory = client_factory or (lambda: httpx.Client(timeout=30))
 
-    @mcp.tool()
+    @mcp.tool(structured_output=False)
     def graphql_query(query: str, variables: dict | None = None) -> str:
         """Execute a read-only Open Collective GraphQL v2 query and return the JSON result.
         Mutations and subscriptions are rejected. Before querying, use search_docs to find the
@@ -49,13 +49,13 @@ def register_tools(mcp: FastMCP, *, index: SchemaIndex, endpoint: str, token, do
             data = execute_query(query, variables, endpoint=endpoint, token=call_token, client=client)
         return json.dumps(data, indent=2)
 
-    @mcp.tool()
+    @mcp.tool(structured_output=False)
     def schema_lookup(name: str) -> str:
         """Look up the exact definition of a GraphQL type or query field by name:
         its description, fields, and arguments (name, type, required, default). Substring matches return candidates."""
         return format_lookup(index, name)
 
-    @mcp.tool()
+    @mcp.tool(structured_output=False)
     def search_docs(query: str, top_k: int = 5) -> str:
         """Keyword search over Open Collective GraphQL docs + query-field reference.
         Use this FIRST to learn which fields/queries to use, then call graphql_query.

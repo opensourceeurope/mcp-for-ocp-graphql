@@ -31,3 +31,9 @@ jobs:
 
       - name: Run the fast test suite
         run: uv run --frozen pytest -q
+
+      - name: Check the generated Cherry skill is up to date
+        run: |
+          uv run --frozen python scripts/build_cherry_skill.py
+          git diff --exit-code cherry-studio/ \
+            || { echo "::error::cherry-studio/ is stale — run 'uv run python scripts/build_cherry_skill.py' and commit the result."; exit 1; }

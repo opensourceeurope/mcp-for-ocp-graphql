@@ -30,9 +30,10 @@ def test_format_search_returns_json_from_doc_search():
 
 def _tool_text(result) -> str:
     """Extract plain text from an MCP call_tool result.
-    call_tool returns a tuple of (list[TextContent], dict); we want the first TextContent's text.
+    With structured output enabled call_tool returns a (list[TextContent], dict) tuple;
+    with it disabled it returns the bare list[TextContent]. Handle both, take the first text.
     """
-    content_list = result[0]  # first element of tuple is the list of content items
+    content_list = result[0] if isinstance(result, tuple) else result
     item = content_list[0]
     if hasattr(item, "text"):
         return item.text
@@ -119,3 +120,22 @@ def test_graphql_query_forwards_dynamic_token():
     parsed = json.loads(_tool_text(result))
     assert parsed == {"data": {"ok": True}}
     assert captured.sent_token == "dynamic"
+
+
+def test_tools_emit_no_structured_content():
+    """The tools return plain JSON strings; structured output is disabled so the same
+    payload is not duplicated into structuredContent. FastMCP signals this by returning
+    the bare content list rather than a (content, structuredContent) tuple."""
+    class FakeDocSearch:
+        def search(self, query, top_k):
+            return [{"text": "hi", "source": "x.md", "score": 0.1}]
+
+    mcp = build_server(SchemaIndex(FIXTURE), endpoint="https://oc/graphql", token=None, doc_search=FakeDocSearch())
+    for name, args in [
+        ("search_docs", {"query": "x"}),
+        ("schema_lookup", {"name": "Host"}),
+    ]:
+        result = asyncio.run(mcp.call_tool(name, args))
+        assert not isinstance(result, tuple), (
+            f"{name} should emit no structured content, got a tuple with: {result[1]!r}"
+        )
