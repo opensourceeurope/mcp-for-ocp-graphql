@@ -50,13 +50,7 @@ Generic MCP client config:
 }
 ```
 
-Claude Code:
-
-```bash
-claude mcp add mcp-for-ocp-graphql -e OC_PERSONAL_TOKEN=oc_xxx -- uvx mcp-for-ocp-graphql
-```
-
-(Omit `-e OC_PERSONAL_TOKEN=...` to run anonymously.)
+`OC_PERSONAL_TOKEN` is delivered to the server as a process environment variable — either via the config's `env` block above or exported in your shell before launch (there is no CLI flag for it). Omit it to run anonymously.
 
 ### Hosted — Streamable HTTP + OAuth
 
