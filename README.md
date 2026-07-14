@@ -93,7 +93,7 @@ The intended flow is **learn, then execute**:
 - [graphql-core](https://github.com/graphql-python/graphql-core) — read-only query parsing/validation
 - [httpx](https://www.python-httpx.org/) — GraphQL transport
 - Pure-Python BM25 (`search.py`) — docs search, no model or vector DB
-- OpenCrane CLI (`uvx opencrane`) — build-time docs corpus pipeline (`fetch` / `llms` / `chunk`; the slim `docs.json` is baked by this project's own `docs_bake.py`)
+- [OpenCrane CLI](https://github.com/derberg/OpenCrane) (`uvx opencrane`) — build-time docs corpus pipeline (`fetch` / `llms` / `chunk`; the slim `docs.json` is baked by this project's own `docs_bake.py`)
 - [Open Collective GraphQL API v2](https://developers.opencollective.com/access)
 
 MIT licensed.
