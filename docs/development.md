@@ -11,17 +11,34 @@ The branch + PR + CI + release flow (per-topic worktrees, conventional commits, 
 
 ## Inspect the server with the MCP Inspector
 
-Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand — list the tools, call them, read raw responses — attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which spawns the server and opens a browser UI. Run from the repo root:
+Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand, attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector). Run everything below from the repo root.
+
+### CLI mode (recommended)
+
+`--cli` runs non-interactively: it spawns the server, calls one method, prints the JSON, and exits. No browser — and, unlike the UI, it never reuses a previously-saved connection, so it always talks to exactly the command you give it.
 
 ```bash
-# anonymous (public data only — no token)
-npx @modelcontextprotocol/inspector -- uv run mcp-for-ocp-graphql
+# list the three tools (anonymous — public data only)
+npx @modelcontextprotocol/inspector --cli uv run mcp-for-ocp-graphql --method tools/list
 
-# authenticated — get a token at https://opencollective.com/dashboard/personal-tokens
-npx @modelcontextprotocol/inspector -e OC_PERSONAL_TOKEN=oc_xxx -- uv run mcp-for-ocp-graphql
+# call a tool
+npx @modelcontextprotocol/inspector --cli uv run mcp-for-ocp-graphql \
+  --method tools/call --tool-name search_docs --tool-arg query="how to list expenses"
 ```
 
-`-e OC_PERSONAL_TOKEN=...` sets the env var on the spawned server process — that is the only way the stdio server receives the token (there is no CLI flag for it). Swap `uv run` for `uvx` to inspect the published wheel instead of your working tree.
+CLI mode inherits your shell environment, so authenticate by setting the token as an env var (there is no CLI flag for it):
+
+```bash
+# get a token at https://opencollective.com/dashboard/personal-tokens
+OC_PERSONAL_TOKEN=oc_xxx npx @modelcontextprotocol/inspector --cli \
+  uv run mcp-for-ocp-graphql --method tools/list
+```
+
+Swap `uv run` for `uvx` to inspect the published wheel instead of your working tree.
+
+### UI mode
+
+`npx @modelcontextprotocol/inspector uv run mcp-for-ocp-graphql` opens the interactive browser UI. **Heads-up:** the UI persists the last server you connected to in browser storage, so it can reopen on a *stale* transport/host (e.g. a hosted-HTTP URL from an earlier session) and ignore the command you passed on the CLI. If the connection isn't your local stdio server, set it explicitly in the sidebar — **Transport: STDIO**, **Command: `uv`**, **Arguments: `run mcp-for-ocp-graphql`**, and (for auth) add `OC_PERSONAL_TOKEN` under **Environment Variables** — then **Connect**.
 
 ## The docs corpus data
 
