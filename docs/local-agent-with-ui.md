@@ -73,6 +73,8 @@ That's it. Close and reopen the terminal (and LM Studio, later) so it picks up t
 
 ## Step 4 — Tell LM Studio about the MCP
 
+> **One-click shortcut:** clicking [![Add to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](lmstudio://add_mcp?name=mcp-for-ocp-graphql&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3AtZm9yLW9jcC1ncmFwaHFsIl19) opens LM Studio and adds the server — but *without your token* (anonymous, public data only). To use your token, do the manual steps below instead; they include it. (Requires LM Studio 0.3.17+.)
+
 1. Open LM Studio.
 2. Click the **🧩 Program** icon in the right sidebar.
 3. Click **Install** → **Edit mcp.json**. A small text editor opens.
@@ -114,6 +116,33 @@ LM Studio starts the MCP in the background. **The very first time it may take a 
    > For the host `opensource-europe`, list the 10 collectives with the most approved expenses in the last 90 days. Don't fetch the expense contents — just counts.
 
 If it works, you're done. The conversation and tool results never leave your laptop.
+
+---
+
+## Step 6 — (optional but recommended) give the AI the querying playbook
+
+The Claude Code plugin ships a *skill* that teaches the assistant how to query Open Collective well — the search-first workflow, how to count without dumping rows, the field gotchas, and the personal-data rules. LM Studio has no "skills", but it has the next best thing: a **system prompt** you can save as a reusable **preset**.
+
+Paste the block below into LM Studio's **System Prompt** field (right sidebar in the chat view, under the model settings), then — so you don't repeat this every time — open the **preset** dropdown at the top of the chat and choose **Save as new preset**.
+
+```text
+You answer questions about Open Collective using three MCP tools. Never guess field names — look them up.
+
+Work in this order:
+1. search_docs("…") — find which query and fields to use.
+2. schema_lookup("Name") — confirm a type/field's exact fields and which arguments are truly required. Trust its `required` flag, not the `!` in the type (most `!` args have defaults and can be omitted).
+3. graphql_query("…") — run a READ-ONLY GraphQL query. Mutations and subscriptions are rejected.
+
+Rules:
+- To count, select `totalCount` with `limit: 1`. Never fetch rows just to count them.
+- Many fields (host, parent, isApproved) are NOT on the base Account type — select them inside an inline fragment, e.g. `... on AccountWithHost { host { slug } }`. If you get an error, it names the fragment type to use.
+- Keep results small: select only the fields asked for; page large collections with `limit`/`offset`.
+- Host-filtered results reflect membership at record time (migrated accounts still show up). To state an account's CURRENT host, query `account(slug: $s) { ... on AccountWithHost { host { slug } } }`.
+
+Personal data: email and contact fields on individual people are PII. Do NOT select them by default. Before retrieving any PII, tell the user it will enter this model's context and wait for their confirmation.
+```
+
+> **A note on the personal-data rule with local models.** These guardrails are *instructions*, not code — the server will happily return any field your token can read. Smaller local models follow such rules less reliably than a frontier model does, so treat the PII rule as a reminder for **you**, not a guarantee. When in doubt, don't ask for email/contact fields. See [using-with-ai-safely.md](using-with-ai-safely.md).
 
 ---
 

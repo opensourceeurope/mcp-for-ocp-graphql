@@ -52,6 +52,12 @@ Generic MCP client config:
 
 `OC_PERSONAL_TOKEN` is delivered to the server as a process environment variable — either via the config's `env` block above or exported in your shell before launch (there is no CLI flag for it). Omit it to run anonymously.
 
+**LM Studio** (0.3.17+) — one click adds the server (anonymously):
+
+[![Add to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](lmstudio://add_mcp?name=mcp-for-ocp-graphql&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3AtZm9yLW9jcC1ncmFwaHFsIl19)
+
+To authenticate, add `OC_PERSONAL_TOKEN` under the server's `env` afterwards. A full click-by-click walkthrough — where LM Studio's `mcp.json` editor lives, how to paste your token, and a ready-made querying system prompt — is in [docs/local-agent-with-ui.md](docs/local-agent-with-ui.md).
+
 ### Hosted — Streamable HTTP + OAuth
 
 **Prefer stdio (above) whenever your client supports it** — it's simpler and your data and token never leave your machine. Reach for the HTTP transport **only if your tool speaks MCP over HTTP and cannot launch a local stdio subprocess** — typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors. Desktop agents (Claude Code, Cursor, Windsurf, Zed, VS Code, LM Studio, Goose, Cherry Studio) all support stdio — use that.
