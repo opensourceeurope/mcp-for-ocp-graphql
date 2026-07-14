@@ -75,9 +75,11 @@ That's it. Close and reopen the terminal (and LM Studio, later) so it picks up t
 
 > **One-click shortcut:** clicking [![Add to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](lmstudio://add_mcp?name=opencollective&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3AtZm9yLW9jcC1ncmFwaHFsIl19) opens LM Studio and adds the server (as **opencollective**) — but *without your token* (anonymous, public data only). To use your token, do the manual steps below instead; they include it. (Requires LM Studio 0.3.17+.)
 
-1. Open LM Studio.
-2. Click the **🧩 Program** icon in the right sidebar.
-3. Click **Install** → **Edit mcp.json**. A small text editor opens.
+1. Open LM Studio and click the **💬 Chat** icon (left sidebar) — the right-hand sidebar with the developer tabs only shows in the Chat view.
+2. In the right-hand sidebar, click the **terminal icon** (`>_`) — LM Studio labels this tab **Program**. Don't see it? LM Studio hides developer tabs in the default view: use the mode selector at the **bottom of the window** to switch from **User** to **Power User**, then look again.
+3. Click **Install** → **Edit mcp.json**. A small in-app text editor opens.
+
+   > **Can't find the icon? Edit the file directly** — this always works, whatever the UI looks like. Open **`~/.lmstudio/mcp.json`** (macOS/Linux) or **`%USERPROFILE%\.lmstudio\mcp.json`** (Windows) in any text editor. LM Studio loads it automatically when you save.
 4. Paste exactly this, replacing `PASTE-YOUR-TOKEN-HERE` with the Open Collective personal token you copied in "Before you start":
 
    ```json
@@ -161,7 +163,7 @@ See [using-with-ai-safely.md](using-with-ai-safely.md) for the full picture.
 ## Troubleshooting
 
 **"opencollective" doesn't appear in the tool list.**
-Close LM Studio fully, open it again. If still missing, open the Program panel → check the `mcp.json` you edited for typos (most often: missing comma, missing quotes, or the token not pasted between the quotes).
+Close LM Studio fully, open it again. If still missing, re-open the `mcp.json` you edited (the **Program** tab's terminal icon, or the file at `~/.lmstudio/mcp.json`) and check for typos (most often: missing comma, missing quotes, or the token not pasted between the quotes).
 
 **Every question comes back with an authorization error.**
 The token in `mcp.json` is missing, wrong, or pasted with extra spaces/line breaks. Re-copy it from [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens) and paste it again between the quotes after `OC_PERSONAL_TOKEN`.
