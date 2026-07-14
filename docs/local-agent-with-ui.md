@@ -1,20 +1,20 @@
 # Local agent with a desktop UI — no terminal needed
 
-A fully local setup for using this MCP with an AI, designed for **non-technical users**: one downloadable app, point-and-click model picker, no Docker, no command line beyond a single copy-pasted line. All conversation and data stays on your machine.
+A fully local setup for using this MCP with an AI, designed for **non-technical users**: a desktop app, point-and-click model picker, no Docker, barely any terminal. All conversation and data stays on your machine.
 
 > Prefer the terminal? The CLI path (Ollama + Goose) lives in [local-agent-with-ollama.md](local-agent-with-ollama.md).
 
-We recommend **[LM Studio](https://lmstudio.ai/)** because it bundles the model runtime, model downloader, chat UI, *and* MCP support in a single app. There's no separate "AI engine" to install. (A second option, **[Cherry Studio](https://github.com/CherryHQ/cherry-studio)**, is at the end if you already use Ollama or want an open-source app.)
+We recommend **[Cherry Studio](https://github.com/CherryHQ/cherry-studio)** (open-source) because it can install the **exact querying skill this project ships** — one click, the same guidance the Claude Code plugin bundles — right alongside the MCP server. It runs your model through **[Ollama](https://ollama.com/)**, a small free local model runner. If you'd rather have everything in one app with no separate model runner, **[LM Studio](https://lmstudio.ai/)** is a great alternative — see the [LM Studio section](#alternative--lm-studio) at the end.
 
-The MCP runs locally: LM Studio starts it for you with your Open Collective token, and it talks to Open Collective directly. There is no server to set up and no sign-in webpage.
+Either way the MCP runs locally: the app starts it for you with your Open Collective token, and it talks to Open Collective directly. There is no server to set up and no sign-in webpage.
 
 ---
 
 ## What you'll end up with
 
-- LM Studio running on your laptop
-- A local AI model downloaded inside it (no cloud account)
-- This MCP connected, so the AI can pull data from Open Collective
+- Cherry Studio + Ollama running on your laptop
+- A local AI model (no cloud account)
+- This MCP connected **and** the querying skill installed, so the AI pulls Open Collective data *and* queries it well
 - A chat window that looks like ChatGPT — but nothing leaves your machine
 
 ---
@@ -23,55 +23,128 @@ The MCP runs locally: LM Studio starts it for you with your Open Collective toke
 
 - A laptop with **at least 16 GB RAM** (24 GB+ for a noticeably smarter model)
 - About **20 GB of free disk space** for the model
-- An **Open Collective personal token** — get one at [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens) and copy it; you'll paste it into a settings file in step 4
+- An **Open Collective personal token** — get one at [opencollective.com/dashboard/personal-tokens](https://opencollective.com/dashboard/personal-tokens) and copy it; you'll paste it into the MCP server settings in Step 5.
 
 ---
 
-## Step 1 — Install LM Studio
+## Step 1 — Install Ollama and pull a model
 
-1. Go to [**lmstudio.ai**](https://lmstudio.ai/) and click **Download**.
-2. The site auto-detects your operating system (macOS, Windows, Linux). Run the installer like any other app.
-3. Open LM Studio. The first launch may take a minute as it sets up.
+Cherry Studio doesn't bundle a model runtime, so install **Ollama** — a small free local model runner.
 
-LM Studio is free for personal and commercial use. It does not require an account.
+- **macOS:** `brew install ollama` (or the installer at [ollama.com/download](https://ollama.com/download))
+- **Linux:** `curl -fsSL https://ollama.com/install.sh | sh`
+- **Windows:** the installer at [ollama.com/download](https://ollama.com/download)
 
----
+On macOS the desktop app starts the daemon automatically; on Linux run `ollama serve &`.
 
-## Step 2 — Download a model
+Then pull a model sized to your RAM (bigger = smarter but slower):
 
-In LM Studio, click the **🔍 Discover** icon in the left sidebar. Search for one of these names and click **Download** on the result. LM Studio will pick the right file size for your laptop automatically.
-
-| If your laptop has… | Search for | Download size |
+| If your laptop has… | Pull | Size |
 |---|---|---|
-| **16 GB RAM** | `qwen3-14b` | ~9 GB |
-| **24 GB RAM** *(recommended)* | `gpt-oss-20b` | ~14 GB |
-| **32 GB RAM** | `qwen3-32b` | ~20 GB |
-| **48 GB+ RAM** | `llama-3.3-70b` | ~43 GB |
+| **16 GB RAM** | `ollama pull qwen3:14b` | ~9 GB |
+| **24 GB RAM** *(recommended)* | `ollama pull gpt-oss:20b` | ~14 GB |
+| **32 GB RAM** | `ollama pull qwen3:32b` | ~20 GB |
+| **48 GB+ RAM** | `ollama pull llama3.3:70b` | ~43 GB |
 
-> **Don't pick the smallest model.** Answering these questions means writing real GraphQL queries and chaining a few tool calls; smaller models (7–8 B) get that wrong. Stick with the table.
+> **Don't pick a tiny model.** Answering these questions means writing real GraphQL and chaining a few tool calls; models ≤ 8 B get that wrong. Stick with the table.
 
-Download takes a few minutes on a fast connection. While it runs, continue to step 3.
+---
+
+## Step 2 — Install Cherry Studio
+
+Download from [github.com/CherryHQ/cherry-studio/releases](https://github.com/CherryHQ/cherry-studio/releases) — DMG for macOS (**arm64** for Apple Silicon incl. M-series, **x64** for Intel), EXE for Windows, AppImage/.deb for Linux. Install like any other app; no account needed.
 
 ---
 
 ## Step 3 — Install uv (one-time, ~2 minutes)
 
-The MCP runs as a small program that LM Studio launches for you. It needs **uv** — a small free runtime that also brings its own Python, so there's nothing else to install. You will not write any code; it runs itself. This is the one time you'll touch a terminal — a single pasted line.
+The MCP runs as a small program Cherry launches for you. It needs **uv** — a small free runtime that brings its own Python, so there's nothing else to install. This is the one time you'll touch a terminal — a single pasted line.
 
-- **macOS / Linux** — open the **Terminal** app and paste:
+- **macOS / Linux:**
   ```bash
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
-- **Windows** — open **PowerShell** and paste:
+- **Windows** (PowerShell):
   ```powershell
   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
   ```
 
-That's it. Close and reopen the terminal (and LM Studio, later) so it picks up the new `uvx` command. You will never open uv directly.
+Close and reopen the terminal (and Cherry Studio) so the new `uvx` command is picked up. You'll never open uv directly.
 
 ---
 
-## Step 4 — Tell LM Studio about the MCP
+## Step 4 — Point Cherry Studio at your local model
+
+> **Use a normal chat — not the "Agents" tab.** Cherry's **Agents** tab runs *CLI coding agents* (Claude Code, Codex, …), which expect Claude/Codex-class cloud models. If you pick one of those agents and hand it an Ollama model, you'll get `There's an issue with the selected model … Run --model` — that's the **Claude Code CLI** rejecting a non-Claude model, **not** an Ollama permissions problem (local Ollama needs no auth, and Ollama is never even contacted). For local models, use a regular **chat / Assistant** with the **Ollama** provider, as below.
+
+1. Make sure Ollama is running (Step 1).
+2. Cherry Studio → **Settings → Model Providers → Ollama**.
+3. Set the API host to `http://localhost:11434`, then click **Manage/Refresh Models** — your pulled model appears. No API key, no sign-in.
+4. Open a new chat and select your Ollama model at the top.
+
+---
+
+## Step 5 — Add the MCP server
+
+1. Cherry Studio → **Settings → MCP Servers → Add Server**.
+2. Set **Type**: `stdio`, **Command**: `uvx`, **Arguments**: `mcp-for-ocp-graphql`, and add an **environment variable** `OC_PERSONAL_TOKEN` = the token you copied (leave it out to run anonymously against public data).
+3. Save. **The first launch downloads the program** (a minute or two on a slow connection); after that it starts instantly.
+
+> **Where your token lives:** the MCP never writes your token to disk or logs it — it only holds it in memory while running. The one saved copy is in Cherry's server settings on your machine, in plain text. That's normal for a personal machine — just don't share it or sync it to a public place.
+
+---
+
+## Step 6 — Install the querying skill
+
+So the model queries Open Collective *well* — search-first, counting via `totalCount`, the field gotchas, and the personal-data rules — install the skill this project ships:
+
+1. Download [`opencollective-cherry-skill.zip`](https://github.com/opensourceeurope/mcp-for-ocp-graphql/releases/latest/download/opencollective-cherry-skill.zip) (attached to each release).
+2. Cherry Studio → **Skills → install from zip file** (or unzip it and use **install from directory**).
+
+It bundles the analyst framing plus the full query playbook — the same guidance the Claude Code plugin ships as a skill + agent, merged into one Cherry skill.
+
+---
+
+## Step 7 — Start chatting
+
+Select your Ollama model, make sure the Open Collective tools and the skill are active, and try a tame aggregate question first:
+
+> How many active collectives are under the host with slug `europe`? Use the Open Collective tools. Just give me a number.
+
+The AI should call a tool, briefly show the call, and answer with a count. Then something meatier:
+
+> For the host `europe`, list the 10 collectives with the most approved expenses in the last 90 days. Don't fetch the expense contents — just counts.
+
+If it answers with real numbers, you're done. The conversation and tool results never leave your laptop.
+
+---
+
+## Working with personal data
+
+Because the model runs on your laptop, you *can* ask about personal data (emails, contact info) without anyone else seeing it. But files the AI saves on your machine are still personal data — handle them carefully:
+
+- Don't paste those files into a hosted AI later (ChatGPT, Claude.ai, etc.).
+- If your laptop syncs files to iCloud / OneDrive / Dropbox, those copies leave your machine.
+- Follow the same care you'd give any export of personal data.
+
+> **A note on the personal-data rule with local models.** The skill's PII guardrails are *instructions*, not code — the server will happily return any field your token can read. Smaller local models follow such rules less reliably than a frontier model does, so treat the PII rule as a reminder for **you**, not a guarantee. When in doubt, don't ask for email/contact fields.
+
+See [using-with-ai-safely.md](using-with-ai-safely.md) for the full picture.
+
+---
+
+## Alternative — LM Studio
+
+Prefer a **single app** that bundles the model runtime, model downloader, chat UI, *and* MCP support — no separate Ollama to install? Use **[LM Studio](https://lmstudio.ai/)**. The trade-off: LM Studio has **no skill import**, so the querying guidance goes in as a pasted **system prompt / preset** rather than the installable skill.
+
+### 1 — Install LM Studio and download a model
+
+1. Get it from [lmstudio.ai](https://lmstudio.ai/) → **Download** (auto-detects macOS/Windows/Linux). No account needed. (macOS needs Apple Silicon; see [system requirements](https://lmstudio.ai/docs/app/system-requirements).)
+2. Click the **🔍 Discover** icon and download a model sized to your RAM — `qwen3-14b` (16 GB), `gpt-oss-20b` (24 GB, recommended), `qwen3-32b` (32 GB), `llama-3.3-70b` (48 GB+). Don't pick a ≤ 8 B model.
+
+Install **uv** too (Step 3 above) — LM Studio launches the MCP with it.
+
+### 2 — Tell LM Studio about the MCP
 
 > **One-click shortcut:** clicking [![Add to LM Studio](https://files.lmstudio.ai/deeplink/mcp-install-light.svg)](lmstudio://add_mcp?name=opencollective&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3AtZm9yLW9jcC1ncmFwaHFsIl19) opens LM Studio and adds the server (as **opencollective**) — but *without your token* (anonymous, public data only). To use your token, do the manual steps below instead; they include it. (Requires LM Studio 0.3.17+.)
 
@@ -80,7 +153,7 @@ That's it. Close and reopen the terminal (and LM Studio, later) so it picks up t
 3. Click **Install** → **Edit mcp.json**. A small in-app text editor opens.
 
    > **Can't find the icon? Edit the file directly** — this always works, whatever the UI looks like. Open **`~/.lmstudio/mcp.json`** (macOS/Linux) or **`%USERPROFILE%\.lmstudio\mcp.json`** (Windows) in any text editor. LM Studio loads it automatically when you save.
-4. Paste exactly this, replacing `PASTE-YOUR-TOKEN-HERE` with the Open Collective personal token you copied in "Before you start":
+4. Paste this, replacing `PASTE-YOUR-TOKEN-HERE` with your token:
 
    ```json
    {
@@ -94,38 +167,11 @@ That's it. Close and reopen the terminal (and LM Studio, later) so it picks up t
    }
    ```
 
-5. Save (Cmd-S or Ctrl-S) and close the editor.
+5. Save (Cmd-S / Ctrl-S). The first launch downloads the program (a few minutes), then it's instant. Your token stays in this file on your laptop.
 
-LM Studio starts the MCP in the background. **The very first time it may take a few minutes** — it downloads the program and its components; after that it starts instantly. No browser tab, no sign-in page. Your token stays in this file on your laptop.
+### 3 — Give the AI the querying playbook (system prompt)
 
-> **Where your token lives:** the MCP program never saves your token or sends it anywhere except Open Collective — it only keeps it in memory while running. The one saved copy is this `mcp.json` file, in plain text. That's normal for a personal machine — just don't share the file or sync it to a public place.
-
----
-
-## Step 5 — Start chatting
-
-1. In LM Studio, click the **💬 Chat** icon in the left sidebar.
-2. At the top, pick the model you downloaded.
-3. Make sure **opencollective** appears in the tool list (look for a small puzzle-piece icon next to the input box).
-4. Try a simple question:
-
-   > How many active collectives are under the host with slug `europe`? Use the Open Collective tools. Just give me a number.
-
-   The AI should call a tool, briefly show the call, and answer with a count.
-
-5. Then try something more interesting:
-
-   > For the host `europe`, list the 10 collectives with the most approved expenses in the last 90 days. Don't fetch the expense contents — just counts.
-
-If it works, you're done. The conversation and tool results never leave your laptop.
-
----
-
-## Step 6 — (optional but recommended) give the AI the querying playbook
-
-The Claude Code plugin ships a *skill* that teaches the assistant how to query Open Collective well — the search-first workflow, how to count without dumping rows, the field gotchas, and the personal-data rules. LM Studio has no "skills", but it has the next best thing: a **system prompt** you can save as a reusable **preset**.
-
-Paste the block below into LM Studio's **System Prompt** field (right sidebar in the chat view, under the model settings), then — so you don't repeat this every time — open the **preset** dropdown at the top of the chat and choose **Save as new preset**.
+LM Studio has no skill import, so paste the block below into LM Studio's **System Prompt** field (right sidebar in the chat view, under the model settings), then open the **preset** dropdown at the top of the chat and choose **Save as new preset** so you don't repeat it.
 
 ```text
 You answer questions about Open Collective using three MCP tools. Never guess field names — look them up.
@@ -144,40 +190,13 @@ Rules:
 Personal data: email and contact fields on individual people are PII. Do NOT select them by default. Before retrieving any PII, tell the user it will enter this model's context and wait for their confirmation.
 ```
 
-> **A note on the personal-data rule with local models.** These guardrails are *instructions*, not code — the server will happily return any field your token can read. Smaller local models follow such rules less reliably than a frontier model does, so treat the PII rule as a reminder for **you**, not a guarantee. When in doubt, don't ask for email/contact fields. See [using-with-ai-safely.md](using-with-ai-safely.md).
-
----
-
-## Working with personal data
-
-Because the model runs on your laptop, you *can* ask about personal data (emails, contact info) without anyone else seeing it. But files the AI saves on your machine are still personal data — handle them carefully:
-
-- Don't paste those files into a hosted AI later (ChatGPT, Claude.ai, etc.).
-- If your laptop syncs files to iCloud / OneDrive / Dropbox, those copies leave your machine.
-- Follow the same care you'd give any export of personal data.
-
-See [using-with-ai-safely.md](using-with-ai-safely.md) for the full picture.
-
----
-
-## Alternative — Cherry Studio (open-source, uses Ollama)
-
-If you already use Ollama or want an open-source app:
-
-1. Install Ollama from [ollama.com](https://ollama.com/) and download a model with `ollama pull qwen3:14b`.
-2. Install Cherry Studio from [github.com/CherryHQ/cherry-studio/releases](https://github.com/CherryHQ/cherry-studio/releases) (DMG for macOS, EXE for Windows, AppImage/.deb for Linux).
-3. Open Cherry Studio → **Settings → MCP Servers → Add Server**.
-4. Set **Type**: `stdio`, **Command**: `uvx`, **Arguments**: `mcp-for-ocp-graphql`, and add an **environment variable** `OC_PERSONAL_TOKEN` with your token.
-5. **(Recommended) Install the querying skill** so the model queries well: download [`opencollective-cherry-skill.zip`](https://github.com/opensourceeurope/mcp-for-ocp-graphql/releases/latest/download/opencollective-cherry-skill.zip) (attached to each release), then in Cherry Studio go to **Skills → install from zip file**. It bundles the analyst framing plus the full query playbook — the same guidance the Claude Code plugin ships as a skill + agent.
-6. Pick your Ollama model in the chat tab. Start chatting.
-
-No sign-in webpage here either — the token in the server settings is all it needs.
+Then pick your model, confirm **opencollective** appears in the tool list, and use the same test questions as Step 7 above. The local-model PII caveat applies here too.
 
 ---
 
 ## References
 
+- [Cherry Studio releases](https://github.com/CherryHQ/cherry-studio/releases) · [Ollama](https://ollama.com/)
 - [LM Studio download](https://lmstudio.ai/) · [MCP docs](https://lmstudio.ai/docs/app/mcp)
-- [Cherry Studio releases](https://github.com/CherryHQ/cherry-studio/releases)
 - [uv installation](https://docs.astral.sh/uv/getting-started/installation/)
 - [`mcp-for-ocp-graphql` on PyPI](https://pypi.org/project/mcp-for-ocp-graphql/)
