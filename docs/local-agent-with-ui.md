@@ -109,13 +109,13 @@ LM Studio starts the MCP in the background. **The very first time it may take a 
 3. Make sure **opencollective** appears in the tool list (look for a small puzzle-piece icon next to the input box).
 4. Try a simple question:
 
-   > How many active collectives are under the host with slug `opensource-europe`? Use the Open Collective tools. Just give me a number.
+   > How many active collectives are under the host with slug `europe`? Use the Open Collective tools. Just give me a number.
 
    The AI should call a tool, briefly show the call, and answer with a count.
 
 5. Then try something more interesting:
 
-   > For the host `opensource-europe`, list the 10 collectives with the most approved expenses in the last 90 days. Don't fetch the expense contents — just counts.
+   > For the host `europe`, list the 10 collectives with the most approved expenses in the last 90 days. Don't fetch the expense contents — just counts.
 
 If it works, you're done. The conversation and tool results never leave your laptop.
 

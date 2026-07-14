@@ -194,16 +194,16 @@ goose session
 Try a tame, aggregate query first — no PII, exercises tool selection and counting:
 
 ```
-How many active collectives are under the host with slug "opensource-europe"?
+How many active collectives are under the host with slug "europe"?
 Use the OC MCP. Just give me the totalCount.
 ```
 
-The agent should use `search_docs`/`schema_lookup` to shape the query, then call `graphql_query` with something like `{ accounts(host: [{slug: "opensource-europe"}], limit: 1) { totalCount } }`, read `totalCount`, and return a number. If it does, the stack is working.
+The agent should use `search_docs`/`schema_lookup` to shape the query, then call `graphql_query` with something like `{ accounts(host: [{slug: "europe"}], limit: 1) { totalCount } }`, read `totalCount`, and return a number. If it does, the stack is working.
 
 Then a real analytics question:
 
 ```
-For the host "opensource-europe", list the 10 collectives with the
+For the host "europe", list the 10 collectives with the
 most approved expenses in the last 90 days. Use totalCount, do not
 fetch row contents. Roll Project/Event children into their parent.
 ```
