@@ -93,19 +93,36 @@ curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download
 
 **Windows**: see [Goose installation docs](https://goose-docs.ai/docs/getting-started/installation/).
 
-Configure:
+Now point Goose at Ollama — either **interactively** or by **writing the config file directly** (no prompts).
+
+### Option A — interactive (`goose configure`)
 
 ```bash
 goose configure
 ```
 
-When prompted:
+Answer the prompts in order (use ↑/↓ to move, **Enter** to select):
 
-- **Provider**: `Ollama`
-- **Host**: `http://localhost:11434` (the default — accept it)
-- **Model**: the name you pulled, e.g. `gpt-oss:20b`
+1. **What would you like to configure?** → **Configure Providers**
+2. **How would you like to set up your provider?** → **Manual Configuration**
+   Ollama runs locally, so it is *not* one of the hosted-login shortcuts (OpenRouter, Tetrate, …) — choose **Manual Configuration** to reach it. (Some Goose versions skip this prompt and jump straight to the provider list; if so, just continue.)
+3. **Which model provider should we use?** → **Ollama**
+4. **Host** (`OLLAMA_HOST`) → `http://localhost:11434` — the default; press Enter to accept.
+5. **Model** → the name you pulled, e.g. `gpt-oss:20b`.
 
-Goose writes its config to `~/.config/goose/config.yaml`. You'll edit it in the next step.
+### Option B — skip the prompts (write the config file)
+
+Goose reads its whole setup from `~/.config/goose/config.yaml`, so you can bypass `goose configure` entirely. Create that file with:
+
+```yaml
+GOOSE_PROVIDER: ollama
+GOOSE_MODEL: gpt-oss:20b
+OLLAMA_HOST: http://localhost:11434
+```
+
+This is the same file you'll edit next (Step 4 adds the context-window line, Step 5 the MCP extension) — so if you go this route, you can just write all three blocks at once.
+
+Either way, Goose stores its config at `~/.config/goose/config.yaml`.
 
 ---
 
@@ -129,6 +146,8 @@ The exact key may vary by Goose version — if `OLLAMA_NUM_CTX` doesn't take eff
 ## Step 5 — Add the OC MCP as a Goose extension
 
 The MCP runs locally over stdio; Goose launches it and passes your token via an env var. No browser, no OAuth, no token cache.
+
+Run `goose configure` again — or skip the prompts and add the `extensions:` block below straight to `~/.config/goose/config.yaml`.
 
 ```bash
 goose configure
