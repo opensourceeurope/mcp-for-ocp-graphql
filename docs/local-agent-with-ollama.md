@@ -2,7 +2,7 @@
 
 A lightweight, fully local setup for querying the Open Collective MCP with no data leaving your machine: **Ollama** for the model, **Goose** as the agent, and this MCP running locally in **stdio mode** — no hosted server, no OAuth, no bridge.
 
-> Prefer a graphical app to the terminal? See [local-agent-with-ui.md](local-agent-with-ui.md) — same stack philosophy, but LM Studio (or [Cherry Studio](https://github.com/CherryHQ/cherry-studio)) instead of the CLI.
+> Prefer a graphical app to the terminal? See [local-agent-with-ui.md](local-agent-with-ui.md) — same stack philosophy, but [Cherry Studio](https://github.com/CherryHQ/cherry-studio) (or LM Studio) instead of the CLI.
 
 Why this stack:
 
