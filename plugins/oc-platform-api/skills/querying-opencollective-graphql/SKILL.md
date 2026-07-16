@@ -85,6 +85,8 @@ curl -s https://api.opencollective.com/graphql/v2 \
   -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}'
 ```
 
+For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **`exporting-personal-data-locally`** skill: you generate a script the user runs themselves, so the data goes API → their disk and never through you.
+
 ## Common mistakes
 
 - Expecting a `fields` array or a per-operation tool — there's only `graphql_query` taking raw GraphQL. Use `schema_lookup` to build the selection.

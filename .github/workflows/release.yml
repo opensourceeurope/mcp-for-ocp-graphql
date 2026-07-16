@@ -113,28 +113,3 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
-
-  # Attach the Cherry Studio skill zip to the GitHub Release. Kept separate from the
-  # publish job so that keeps its minimal, OIDC-only (contents: read) permissions.
-  # The docs link the version-less asset via the stable /releases/latest/download/ URL.
-  cherry-bundle:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.released == 'true' }}
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Zip the Cherry Studio skill
-        run: |
-          cd cherry-studio
-          zip -r ../opencollective-cherry-skill.zip opencollective-analyst
-
-      - name: Upload the skill zip to the GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: gh release upload "$TAG" opencollective-cherry-skill.zip --repo "$GITHUB_REPOSITORY" --clobber
