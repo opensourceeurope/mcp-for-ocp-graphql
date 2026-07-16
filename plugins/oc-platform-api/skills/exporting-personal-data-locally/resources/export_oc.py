@@ -10,7 +10,7 @@ YOUR token, and the results land in a file the agent never reads.
 
 Usage (uv fetches the deps automatically from the header above):
 
-    export OC_PERSONAL_TOKEN='<your token from https://opencollective.com/dashboard/personal-tokens>'
+    export OC_PERSONAL_TOKEN='<your token — Dashboard → For developers: https://opencollective.com/dashboard/<your-slug>/for-developers>'
     uv run export_oc.py --slug my-collective --format csv --out admins.csv
     uv run export_oc.py --slug my-collective --format md  --out admins.md
     uv run export_oc.py --slug my-collective --format pdf --out admins.pdf
@@ -82,7 +82,12 @@ COLUMNS = [("name", "Name"), ("slug", "Slug"), ("email", "Email")]
 
 def graphql(query: str, variables: dict) -> dict:
     token = os.environ.get("OC_PERSONAL_TOKEN") or os.environ.get("OC_TOKEN")
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        # Cloudflare in front of the API rejects Python's default urllib
+        # user agent with HTTP 403 / error 1010 — always send a real one.
+        "User-Agent": "Mozilla/5.0 (compatible; oc-local-export/1.0)",
+    }
     if token:
         headers["Personal-Token"] = token
     body = json.dumps({"query": query, "variables": variables}).encode()

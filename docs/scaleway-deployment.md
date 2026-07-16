@@ -90,7 +90,7 @@ Should return a JSON document with `issuer`, `authorization_endpoint`, and `toke
 claude mcp add --transport http mcp-for-ocp-graphql https://<domain-name>/mcp
 ```
 
-Claude Code will open a browser for OAuth on first use. Enter your [Open Collective personal token](https://opencollective.com/dashboard/personal-tokens).
+Claude Code will open a browser for OAuth on first use. Enter your Open Collective personal token, created under Dashboard → **For developers** (`https://opencollective.com/dashboard/<your-slug>/for-developers`).
 
 ---
 

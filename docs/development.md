@@ -29,7 +29,8 @@ npx @modelcontextprotocol/inspector --cli uv run mcp-for-ocp-graphql \
 CLI mode inherits your shell environment, so authenticate by setting the token as an env var (there is no CLI flag for it):
 
 ```bash
-# get a token at https://opencollective.com/dashboard/personal-tokens
+# create a token under Dashboard → For developers
+# (https://opencollective.com/dashboard/<your-slug>/for-developers)
 OC_PERSONAL_TOKEN=oc_xxx npx @modelcontextprotocol/inspector --cli \
   uv run mcp-for-ocp-graphql --method tools/list
 ```
