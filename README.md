@@ -5,6 +5,7 @@ An MCP server for the [Open Collective GraphQL API v2](https://api.opencollectiv
 ## Contents
 
 - [Using with AI safely](#using-with-ai-safely)
+- [Prerequisite: install uv (one time)](#prerequisite-install-uv-one-time)
 - [Install — Claude Code plugin (easiest)](#install--claude-code-plugin-easiest)
   - [Authorize for one session](#authorize-for-one-session)
   - [Authorize permanently](#authorize-permanently)
@@ -23,6 +24,34 @@ Open Collective data includes personally identifiable information (names, emails
 - Prefer **anonymous mode** (no token) when you only need public data — you then only ever see what the public API exposes.
 
 Tokens are never logged or persisted by this server. For the full PII posture and safe field-selection guidance, see **[docs/using-with-ai-safely.md](docs/using-with-ai-safely.md)**.
+
+## Prerequisite: install uv (one time)
+
+Everything here runs through a tool called **uv** (its `uvx` command is what actually launches the server). You install it once. **You do not need to install Python yourself** — uv quietly downloads the right Python for you the first time it runs.
+
+Open a terminal, copy the line for your computer, and paste it in:
+
+**macOS or Linux**
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows** (paste into PowerShell)
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+> On a Mac that already has [Homebrew](https://brew.sh), `brew install uv` works too.
+
+Then **close the terminal and open a new one** (so it can find the new command) and confirm it's there:
+
+```bash
+uv --version
+```
+
+If that prints a version number, you're set. Full instructions: [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ## Install — Claude Code plugin (easiest)
 
