@@ -1,5 +1,5 @@
 {
   "name": "oc-platform-api",
-  "description": "Read-only Open Collective GraphQL for AI agents — bundles the mcp-for-ocp-graphql MCP server (graphql_query / schema_lookup / search_docs; works with any MCP client), a querying skill, and an analyst agent. Packaged as a Claude Code plugin.",
+  "description": "Read-only Open Collective GraphQL for AI agents — bundles the mcp-for-ocp-graphql MCP server (graphql_query / schema_lookup / search_docs; works with any MCP client), querying + local-export skills, and an analyst agent. Packaged as a Claude Code plugin.",
   "version": "0.4.0"
 }

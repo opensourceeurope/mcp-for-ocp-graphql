@@ -1,53 +1,78 @@
 # Using this MCP with AI safely
 
-This MCP exposes the full Open Collective GraphQL API. Some fields contain personal data (emails, phone numbers, addresses, payout details, billing info). This guide explains how to use the MCP with an AI assistant with a clear-eyed view of where that data ends up, so you can decide what you're comfortable with.
+This MCP exposes the full Open Collective GraphQL API. Some fields contain personal data (emails, phone numbers, addresses, payout details, billing info). This guide explains where that data ends up when you use the MCP with an AI assistant, so you can decide what you're comfortable with.
+
+The recommended setup is **Claude Code with a regular Claude model**, connected via the [plugin](../README.md#install--claude-code-plugin-easiest). Any MCP client works, but the rules below are written for that hosted case — it's the one where getting PII wrong actually leaks something.
 
 ## The one rule that matters
 
-**Whoever runs the model sees everything the model sees.** For a hosted model (Claude, ChatGPT, Gemini) that's the provider — Anthropic, OpenAI, Google. For a local model (Ollama, LM Studio, llama.cpp) that's just you, on your machine. Either way, anything the model "reads" — tool results, file contents, pasted text — has crossed into that environment. The MCP server itself just relays GraphQL responses; it does not, and cannot, redact what you ask the model to look at after the fact.
+**Whoever runs the model sees everything the model sees.** With a hosted assistant (Claude Code, ChatGPT, Gemini) that's the provider — Anthropic, OpenAI, Google. Anything the model *reads* — tool results, file contents, pasted text — has crossed onto the provider's servers. The MCP server itself just relays GraphQL responses; it does not, and cannot, redact what you ask the model to look at after the fact.
 
-That means safety is decided **before** the call: which kind of model you're running, and what you ask it to retrieve.
+So safety is decided **before** the call, by what you ask the AI to retrieve.
 
-## Two safe modes
+## Default: keep personal data out of the model
 
-### Mode A — Hosted AI (Claude, ChatGPT, Gemini, etc.)
+**Don't ask the AI to select PII fields.** Once a personal email lands in a tool result, it has already been sent to the provider — you can't take it back.
 
-**Default: do not ask the AI to retrieve PII fields.** Once a personal email appears in a tool result, it has already been sent to the AI provider's servers — the default cannot be honored after retrieval.
-
-**You can override the default for a specific request.** If you genuinely need the AI to work with PII, ask for it explicitly knowing that (a) the data will reach the model provider and (b) anywhere the AI then writes it — files, commits, messages it sends on your behalf — is a further disclosure. With that awareness, it's your data and your call.
-
-Safe to ask the AI for (no awareness step needed):
+Safe to ask the AI for (no special care needed):
 
 - Public collective metadata (names, slugs, descriptions, tags, logos, URLs)
 - Aggregates: expense counts, transaction totals, balances, member counts
 - Time-series analysis: expenses per month, trends, top contributors *by count*
-- Host-level rollups, fund flow analysis, category breakdowns
+- Host-level rollups, fund-flow analysis, category breakdowns
 
-Counts as personal data — think before asking:
+Counts as personal data — don't put it in the model:
 
 - `email` or `emails` on any account
 - `phoneNumber`, `address`, `legalName` on individual accounts
 - Payout method details, billing details, payment provider identifiers
 - Anything inside `payoutMethod`, `paymentMethod`, or `location` on an Individual
 
-### Mode B — Local AI (Ollama, LM Studio, llama.cpp)
+## When you genuinely need the PII — delegate to a script
 
-Run the model on your own hardware. Data stays on your machine — no provider sees the tool results or the conversation. PII handling is much less restrictive here: ask the model whatever you need. The remaining things to watch for are downstream:
+Don't have the AI fetch it. Have the AI **write a script that you run yourself**:
 
-- Don't paste transcripts containing PII into anything cloud-hosted later (a hosted AI, a pastebin, a shared doc).
-- Files the local model writes (CSVs, reports, commits) are still PII on disk — handle them under the same care you'd give any export of personal data (encrypted disk, no public repos, GDPR retention rules).
-- If you sync your home directory to a cloud backup, those files leave your machine.
+1. The agent authors the query/script from the schema — **no PII in that step**.
+2. **You** run it in your own terminal, passing your own token.
+3. The results are written to a local file — Markdown, CSV, or PDF — that the **AI never reads**.
 
-For a copy-paste setup, pick the one that matches you:
+The personal data flows API → your disk, entirely outside the model. In Claude Code with the [plugin](../README.md#install--claude-code-plugin-easiest) this is automated — the `exporting-personal-data-locally` skill generates a ready-to-run `uv` script (CSV, Markdown, or PDF) and never fetches the data itself. With any other client, ask for exactly that, for example:
 
-- **Desktop app, no terminal** — [local-agent-with-ui.md](local-agent-with-ui.md) (LM Studio).
-- **Command-line / developer** — [local-agent-with-ollama.md](local-agent-with-ollama.md) (Ollama + Goose).
+> Write me a standalone script that fetches the ADMIN names and emails for collective `X` and writes them to `admins.csv`. I'll run it myself with my own token — don't run it, and don't fetch the data yourself.
 
-Both keep everything on your machine and take ~15 minutes end-to-end including the model download.
+Then run it and open the file. A minimal hand-written version, if you'd rather not have the agent generate one:
+
+```bash
+# Run this in your OWN terminal (needs curl + jq).
+# Do NOT use Claude Code's `!` prefix — that routes the output back through the model.
+export OC_TOKEN='<your personal token from https://opencollective.com/dashboard/personal-tokens>'
+
+# ADMIN members of the AsyncAPI Initiative, printed as a name / slug / emails table.
+# `emails` lives on Individual, so it needs an inline fragment (... on Individual).
+curl -s https://api.opencollective.com/graphql/v2 \
+  -H 'Content-Type: application/json' \
+  -H "Personal-Token: $OC_TOKEN" \
+  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug ... on Individual{emails}}}}}}","variables":{"s":"asyncapi"}}' \
+| jq -r '["NAME","SLUG","EMAILS"], (.data.account.members.nodes[].account | [.name, .slug, (.emails // [] | join(", "))]) | @tsv' \
+| column -t -s $'\t'
+```
+
+Output is a clean table, e.g.:
+
+```
+NAME                   SLUG               EMAILS
+Lukasz Gornicki        lukasz-gornicki3   lukasz@example.org
+V. Thulisile Sibanda   thulieblack        thuli@example.org
+Hugo Guerrero          hugo-guerrero      hugo@example.org
+```
+
+Swap `asyncapi` for your own collective's slug. The table prints in your terminal — the emails never enter any AI context. (Prefer the raw JSON on disk? Drop the `| jq … | column …` pipes and append `> admins.json` instead.) If the agent generated this for you, skim it before running: it should only *query and print/write*, and read your token from your own environment (never hard-code it).
+
+If you need to share the result: use a channel you already trust for PII (encrypted email, a password-manager share) — not by pasting it into a chat with an AI.
 
 ## Pinning the rule so the AI applies it consistently
 
-Telling the model "be careful with PII" inside a chat works *sometimes*. Pinning it as a **project instruction** works reliably — the AI will warn you before fetching personal data and then defer to your call. The exact mechanism depends on your client:
+Telling the model "be careful with PII" mid-chat works *sometimes*. Pinning it as a **project instruction** works reliably — the AI will refuse to pull personal data into its context and offer you a script instead. Where the instruction goes depends on your client:
 
 | Client | Where to put the instruction |
 |---|---|
@@ -56,51 +81,30 @@ Telling the model "be careful with PII" inside a chat works *sometimes*. Pinning
 | ChatGPT (Custom GPT or Project) | Instructions field |
 | Cursor / Windsurf | `.cursorrules` / project rules |
 
-Copy-paste this instruction (works for both hosted and local models):
+Copy-paste this instruction:
 
 ```markdown
 ## Handling Personal Data
 
 The Open Collective MCP can return personal data (emails, phone numbers,
 addresses, payout/billing details on Individual accounts). Pulling any
-PII field into a tool result puts it in the model's processing context —
-for a hosted model that means transmission to the provider's servers,
-for a local model it stays on my machine. Writing it to a file, commit,
-or message is a further disclosure either way.
+PII field into a tool result puts it in the model's context — for a
+hosted model that means transmission to the provider's servers. Writing
+it to a file, commit, or message is a further disclosure.
 
 - By default, do not select PII fields in any MCP/GraphQL query:
   `email`, `emails`, `phoneNumber`, `address`, `legalName`, anything
   inside `payoutMethod`, `paymentMethod`, or `location` on an Individual.
-- If I ask for PII (or you'd recommend fetching it): tell me plainly
-  what will happen — including whether you're running under a hosted
-  model (data reaches the provider) or a local one (stays on my
-  machine). If you don't know, say so. Once I confirm with that
-  knowledge, do what I asked.
-- Preferred alternative when possible: give me the command to run in
-  my own terminal, so the PII stays local regardless of which model
-  I'm using.
+- If I ask for PII: don't fetch it yourself. Write me a standalone
+  script (Python or curl) that I run in my own terminal with my own
+  token, writing the results to a local file (Markdown, CSV, or PDF).
+  The data then never enters your context. Don't run it yourself.
+- Only if I explicitly insist you fetch it directly: tell me plainly
+  that the data will reach the model provider, and proceed only after
+  I confirm with that knowledge.
 ```
 
-The agent-facing version of this rule ships in the **plugin** — the [`querying-opencollective-graphql` skill](../plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md) and the [`opencollective-analyst` agent](../plugins/oc-platform-api/agents/opencollective-analyst.md) — which Claude Code (or any client that installs the plugin) applies automatically. It lives with the plugin, not in `AGENTS.md`, because it governs *querying the MCP*, not *developing this repo*.
-
-## When you genuinely need the PII
-
-Don't ask the AI. Run it yourself in your terminal — the response stays on your machine:
-
-```bash
-# Run this in your OWN terminal.
-# Do NOT use Claude Code's `!` prefix — that routes the output back through the model.
-export OC_TOKEN='<your personal token from https://opencollective.com/dashboard/personal-tokens>'
-
-curl -s https://api.opencollective.com/graphql/v2 \
-  -H 'Content-Type: application/json' \
-  -H "Personal-Token: $OC_TOKEN" \
-  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}'
-```
-
-Replace `COLLECTIVE_SLUG`. The emails land in your terminal. They never enter any AI context.
-
-If you need to share the result with a collaborator: do it through a channel you already trust for PII (e.g. encrypted email, password manager share) — not by pasting into a chat with an AI.
+The agent-facing version of this rule ships in the **plugin** — the [`querying-opencollective-graphql` skill](../plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md) and the [`opencollective-analyst` agent](../plugins/oc-platform-api/agents/opencollective-analyst.md) — which Claude Code applies automatically. It lives with the plugin, not in `AGENTS.md`, because it governs *querying the MCP*, not *developing this repo*.
 
 ## What about the MCP server itself?
 
@@ -119,10 +123,9 @@ For maximum control, **run the server yourself** rather than using one operated 
 
 ## Quick checklist before any AI session
 
-1. Hosted or local model? → Hosted = anything PII reaches the provider. Local = stays on your machine, but disk artifacts (files, commits, backups) still count as exports.
-2. Is the project instruction with the PII rule pinned in the client?
-3. Do you need a field that contains personal data? → Prefer the curl recipe (Mode-agnostic, stays local). If you do ask the AI, do it deliberately and knowing where the data ends up.
-4. About to paste a transcript or tool result somewhere? → Skim it for emails/phone/address first, especially if the next destination is cloud-hosted.
+1. Is the project instruction with the PII rule pinned in your client?
+2. Does the task need a field that contains personal data? → Don't ask the AI to fetch it. Have the agent generate a script you run yourself (results go to a local file; the AI never sees them).
+3. About to paste a transcript or tool result somewhere? → Skim it for emails/phone/address first, especially if the next destination is cloud-hosted.
 
 ## Further reading
 
