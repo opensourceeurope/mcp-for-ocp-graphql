@@ -18,7 +18,10 @@ For Claude Code, install the plugin instead of wiring things up by hand. It ship
 ```bash
 /plugin marketplace add opensourceeurope/mcp-for-ocp-graphql
 /plugin install oc-platform-api@ose-ai
+/reload-plugins
 ```
+
+`/reload-plugins` activates it right away (loading the skills, agent, and MCP server) — no need to quit; if in doubt you can also just restart Claude Code.
 
 **By default it runs anonymously** — public Open Collective data only, no token. That's the safest mode and enough for most public queries.
 
@@ -38,7 +41,7 @@ claude mcp add -s user -e OC_PERSONAL_TOKEN=oc_xxx \
   -t stdio oc-platform-api -- uvx mcp-for-ocp-graphql
 ```
 
-This standalone server exposes the same three tools, authenticated — it runs *alongside* the plugin's anonymous one, so you'll see the tools twice (redundant, not broken). If that bothers you, skip the `mcp add` and instead put `export OC_PERSONAL_TOKEN=oc_xxx` in your shell profile (`~/.zshrc`, `~/.bashrc`): the plugin's own server then starts authenticated every session, with no second server.
+Restart Claude Code afterwards to load it (this is a standalone server, so `/reload-plugins` won't pick it up). This standalone server exposes the same three tools, authenticated — it runs *alongside* the plugin's anonymous one, so you'll see the tools twice (redundant, not broken). If that bothers you, skip the `mcp add` and instead put `export OC_PERSONAL_TOKEN=oc_xxx` in your shell profile (`~/.zshrc`, `~/.bashrc`): the plugin's own server then starts authenticated every session, with no second server.
 
 ## Two ways to run
 
