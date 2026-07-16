@@ -50,17 +50,11 @@ Generic MCP client config:
 }
 ```
 
-Claude Code:
-
-```bash
-claude mcp add mcp-for-ocp-graphql -e OC_PERSONAL_TOKEN=oc_xxx -- uvx mcp-for-ocp-graphql
-```
-
-(Omit `-e OC_PERSONAL_TOKEN=...` to run anonymously.)
+`OC_PERSONAL_TOKEN` is delivered to the server as a process environment variable — either via the config's `env` block above or exported in your shell before launch (there is no CLI flag for it). Omit it to run anonymously.
 
 ### Hosted — Streamable HTTP + OAuth
 
-**Prefer stdio (above) whenever your client supports it** — it's simpler and your data and token never leave your machine. Reach for the HTTP transport **only if your tool speaks MCP over HTTP and cannot launch a local stdio subprocess** — typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors. Desktop agents (Claude Code, Cursor, Windsurf, Zed, VS Code, LM Studio, Goose, Cherry Studio) all support stdio — use that.
+**Prefer stdio (above) whenever your client supports it** — it's simpler and your data and token never leave your machine. Reach for the HTTP transport **only if your tool speaks MCP over HTTP and cannot launch a local stdio subprocess** — typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors. Desktop agents (Claude Code, Cursor, Windsurf, Zed, VS Code) all support stdio — use that.
 
 Each user authenticates with their own Open Collective personal token via an OAuth 2.1 / PKCE passthrough (a browser form at `/oc-login`); the server mints no tokens of its own and stores no shared credentials.
 
@@ -91,7 +85,6 @@ The intended flow is **learn, then execute**:
 - **[Self-hosting](docs/self-hosting.md)** — run your own hosted HTTP server via Docker, plus the full configuration reference.
 - **[Scaleway deployment](docs/scaleway-deployment.md)** — step-by-step walkthrough for the hosted HTTP server on Scaleway.
 - **[Development](docs/development.md)** — local dev setup, the docs-corpus pipeline, and the release process.
-- Local stdio setups end to end: **[with Ollama](docs/local-agent-with-ollama.md)** · **[with a UI](docs/local-agent-with-ui.md)**.
 
 ## Stack & credits
 
@@ -99,7 +92,7 @@ The intended flow is **learn, then execute**:
 - [graphql-core](https://github.com/graphql-python/graphql-core) — read-only query parsing/validation
 - [httpx](https://www.python-httpx.org/) — GraphQL transport
 - Pure-Python BM25 (`search.py`) — docs search, no model or vector DB
-- OpenCrane CLI (`uvx opencrane`) — build-time docs corpus pipeline (`fetch` / `llms` / `chunk`; the slim `docs.json` is baked by this project's own `docs_bake.py`)
+- [OpenCrane CLI](https://github.com/derberg/OpenCrane) (`uvx opencrane`) — build-time docs corpus pipeline (`fetch` / `llms` / `chunk`; the slim `docs.json` is baked by this project's own `docs_bake.py`)
 - [Open Collective GraphQL API v2](https://developers.opencollective.com/access)
 
 MIT licensed.

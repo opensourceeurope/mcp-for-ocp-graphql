@@ -9,6 +9,37 @@ uv run mcp-for-ocp-graphql   # run the stdio server locally from the source tree
 
 The branch + PR + CI + release flow (per-topic worktrees, conventional commits, release-please) is documented for contributors and agents in **[AGENTS.md](../AGENTS.md)**.
 
+## Inspect the server with the MCP Inspector
+
+Running `uv run mcp-for-ocp-graphql` on its own looks like "nothing happens" — that's correct. It's an MCP **stdio** server: it opens the JSON-RPC transport on stdin/stdout and waits silently for a client, with no banner or prompt. To drive it by hand, attach the [MCP Inspector](https://github.com/modelcontextprotocol/inspector). Run everything below from the repo root, and run `uv sync` **first** — the initial `uv run` on a freshly checked-out or branch-switched tree re-syncs the venv, and that cold rebuild is slow enough to break the Inspector's connection handshake (`MCP error -32000: Connection closed`). One warm `uv sync` avoids it.
+
+### CLI mode (recommended)
+
+`--cli` runs non-interactively: it spawns the server, calls one method, prints the JSON, and exits. No browser — and, unlike the UI, it never reuses a previously-saved connection, so it always talks to exactly the command you give it.
+
+```bash
+# list the three tools (anonymous — public data only)
+npx @modelcontextprotocol/inspector --cli uv run mcp-for-ocp-graphql --method tools/list
+
+# call a tool
+npx @modelcontextprotocol/inspector --cli uv run mcp-for-ocp-graphql \
+  --method tools/call --tool-name search_docs --tool-arg query="how to list expenses"
+```
+
+CLI mode inherits your shell environment, so authenticate by setting the token as an env var (there is no CLI flag for it):
+
+```bash
+# get a token at https://opencollective.com/dashboard/personal-tokens
+OC_PERSONAL_TOKEN=oc_xxx npx @modelcontextprotocol/inspector --cli \
+  uv run mcp-for-ocp-graphql --method tools/list
+```
+
+Swap `uv run` for `uvx` to inspect the published wheel instead of your working tree.
+
+### UI mode
+
+`npx @modelcontextprotocol/inspector uv run mcp-for-ocp-graphql` opens the interactive browser UI. **Heads-up:** the UI persists the last server you connected to in browser storage, so it can reopen on a *stale* transport/host (e.g. a hosted-HTTP URL from an earlier session) and ignore the command you passed on the CLI. If the connection isn't your local stdio server, set it explicitly in the sidebar — **Transport: STDIO**, **Command: `uv`**, **Arguments: `run mcp-for-ocp-graphql`**, and (for auth) add `OC_PERSONAL_TOKEN` under **Environment Variables** — then **Connect**.
+
 ## The docs corpus data
 
 The wheel ships two artifacts under `mcp_for_ocp_graphql/data/`:
@@ -28,4 +59,4 @@ The corpus is the six Open Collective GraphQL guides from [opencollective/graphq
 
 ## Releases
 
-Releases are automated with [release-please](https://github.com/googleapis/release-please) — no manual tagging or GitHub Release. Conventional-commit messages on `main` (`feat:` → minor, `fix:` → patch, `feat!`/`BREAKING CHANGE` → major) drive a rolling "release PR" that bumps `pyproject.toml` + the plugin's `plugin.json`, regenerates `CHANGELOG.md`, and syncs the plugin's `.mcp.json` pin. Merging that PR cuts the `vX.Y.Z` tag + GitHub Release and, in the same run, **publishes to PyPI** via trusted publishing and attaches the Cherry Studio skill zip (`opencollective-cherry-skill.zip`, generated from the plugin — see [`scripts/build_cherry_skill.py`](../scripts/build_cherry_skill.py)) to the Release. See [`.github/workflows/release.yml`](../.github/workflows/release.yml) (its header lists the one-time maintainer setup: `RELEASE_TOKEN`, branch protection, and the PyPI trusted publisher).
+Releases are automated with [release-please](https://github.com/googleapis/release-please) — no manual tagging or GitHub Release. Conventional-commit messages on `main` (`feat:` → minor, `fix:` → patch, `feat!`/`BREAKING CHANGE` → major) drive a rolling "release PR" that bumps `pyproject.toml` + the plugin's `plugin.json`, regenerates `CHANGELOG.md`, and syncs the plugin's `.mcp.json` pin. Merging that PR cuts the `vX.Y.Z` tag + GitHub Release and, in the same run, **publishes to PyPI** via trusted publishing. See [`.github/workflows/release.yml`](../.github/workflows/release.yml) (its header lists the one-time maintainer setup: `RELEASE_TOKEN`, branch protection, and the PyPI trusted publisher).
