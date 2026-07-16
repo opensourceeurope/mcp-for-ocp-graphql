@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.0...v0.6.1) (2026-07-16)
+
+
+### Documentation
+
+* explain plugin auth (anonymous default, per-session and permanent token) ([#25](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/25)) ([a973d4e](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/a973d4ed36dc3078b213d45526009c577615b15b))
+
 ## [0.6.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.5.0...v0.6.0) (2026-07-16)
 
 
