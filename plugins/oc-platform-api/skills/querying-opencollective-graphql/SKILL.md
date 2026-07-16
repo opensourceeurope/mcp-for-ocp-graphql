@@ -76,13 +76,15 @@ Some fields return **personal data** (`email`/`emails` and contact fields on Ind
 1. Tell them plainly what will happen — the data enters the model's context (provider's servers for a hosted model, their machine for a local one), and anywhere you then write it is a further disclosure. If you don't know which kind of model you're running under, say so.
 2. Once they confirm with that awareness, do what they asked — it's their data and their call.
 
-If they'd rather keep it off the model entirely, hand them this to run in their **own terminal** (output stays local):
+If they'd rather keep it off the model entirely, hand them this to run in their **own terminal** (output stays local; `emails` is on `Individual`, so it needs an inline fragment):
 ```bash
 export OC_TOKEN='<your personal token>'
 curl -s https://api.opencollective.com/graphql/v2 \
   -H 'Content-Type: application/json' \
   -H "Personal-Token: $OC_TOKEN" \
-  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}'
+  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug ... on Individual{emails}}}}}}","variables":{"s":"asyncapi"}}' \
+| jq -r '["NAME","SLUG","EMAILS"], (.data.account.members.nodes[].account | [.name, .slug, (.emails // [] | join(", "))]) | @tsv' \
+| column -t -s $'\t'
 ```
 
 For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **`exporting-personal-data-locally`** skill: you generate a script the user runs themselves, so the data goes API → their disk and never through you.

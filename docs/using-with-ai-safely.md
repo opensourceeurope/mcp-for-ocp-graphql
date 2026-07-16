@@ -43,18 +43,30 @@ The personal data flows API → your disk, entirely outside the model. In Claude
 Then run it and open the file. A minimal hand-written version, if you'd rather not have the agent generate one:
 
 ```bash
-# Run this in your OWN terminal.
+# Run this in your OWN terminal (needs curl + jq).
 # Do NOT use Claude Code's `!` prefix — that routes the output back through the model.
 export OC_TOKEN='<your personal token from https://opencollective.com/dashboard/personal-tokens>'
 
+# ADMIN members of the AsyncAPI Initiative, printed as a name / slug / emails table.
+# `emails` lives on Individual, so it needs an inline fragment (... on Individual).
 curl -s https://api.opencollective.com/graphql/v2 \
   -H 'Content-Type: application/json' \
   -H "Personal-Token: $OC_TOKEN" \
-  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug emails}}}}}","variables":{"s":"COLLECTIVE_SLUG"}}' \
-  > admins.json
+  -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug ... on Individual{emails}}}}}}","variables":{"s":"asyncapi"}}' \
+| jq -r '["NAME","SLUG","EMAILS"], (.data.account.members.nodes[].account | [.name, .slug, (.emails // [] | join(", "))]) | @tsv' \
+| column -t -s $'\t'
 ```
 
-Replace `COLLECTIVE_SLUG`. The emails land in `admins.json` on your disk — they never enter any AI context. If the agent generated the script for you, skim it before running: it should only *query and write a file*, and read your token from your own environment (never hard-code it).
+Output is a clean table, e.g.:
+
+```
+NAME                   SLUG               EMAILS
+Lukasz Gornicki        lukasz-gornicki3   lukasz@example.org
+V. Thulisile Sibanda   thulieblack        thuli@example.org
+Hugo Guerrero          hugo-guerrero      hugo@example.org
+```
+
+Swap `asyncapi` for your own collective's slug. The table prints in your terminal — the emails never enter any AI context. (Prefer the raw JSON on disk? Drop the `| jq … | column …` pipes and append `> admins.json` instead.) If the agent generated this for you, skim it before running: it should only *query and print/write*, and read your token from your own environment (never hard-code it).
 
 If you need to share the result: use a channel you already trust for PII (encrypted email, a password-manager share) — not by pasting it into a chat with an AI.
 
