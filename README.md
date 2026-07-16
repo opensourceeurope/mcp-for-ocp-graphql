@@ -2,6 +2,19 @@
 
 An MCP server for the [Open Collective GraphQL API v2](https://api.opencollective.com/graphql/v2). It gives an AI assistant three tools to **learn the schema, search the docs, and run read-only queries** against Open Collective — without exposing any write operations.
 
+## Contents
+
+- [Using with AI safely](#using-with-ai-safely)
+- [Install — Claude Code plugin (easiest)](#install--claude-code-plugin-easiest)
+  - [Authorize for one session](#authorize-for-one-session)
+  - [Authorize permanently](#authorize-permanently)
+- [Two ways to run](#two-ways-to-run)
+  - [Local — stdio (recommended)](#local--stdio-recommended)
+  - [Hosted — Streamable HTTP + OAuth](#hosted--streamable-http--oauth)
+- [The three tools](#the-three-tools)
+- [Further reading](#further-reading)
+- [Stack & credits](#stack--credits)
+
 ## Using with AI safely
 
 Open Collective data includes personally identifiable information (names, emails, payout details, addresses). This server is a **generic read-only GraphQL proxy** — the `graphql_query` tool can select any field the underlying token is allowed to read, so the guardrail against leaking PII is *prompt-level*, not enforced in code.
@@ -27,13 +40,17 @@ For Claude Code, install the plugin instead of wiring things up by hand. It ship
 
 To read non-public data you supply your own [personal token](https://opencollective.com/dashboard/personal-tokens). The plugin's bundled config has no slot to store one, so the token reaches the server through the environment. Two options:
 
-**Authorize for one session** — export the token, then launch Claude Code from that same shell (the `uvx` subprocess inherits it):
+### Authorize for one session
+
+Export the token, then launch Claude Code from that same shell (the `uvx` subprocess inherits it):
 
 ```bash
 export OC_PERSONAL_TOKEN=oc_xxx && claude
 ```
 
-**Authorize permanently** — register your own user-scoped server with the token baked in. It's stored in your personal `~/.claude.json` (never committed to any repo). The `remove` makes re-running safe:
+### Authorize permanently
+
+Register your own user-scoped server with the token baked in. It's stored in your personal `~/.claude.json` (never committed to any repo). The `remove` makes re-running safe:
 
 ```bash
 claude mcp remove -s user oc-platform-api 2>/dev/null
