@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.4.0...v0.5.0) (2026-07-16)
+
+
+### Features
+
+* local PII-export skill; drop UI/Ollama guides and Cherry bundle ([#19](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/19)) ([3d9dfe3](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/3d9dfe337f5c28f7cef33786b477f6dcee5da53c))
+
 ## [0.4.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.3.1...v0.4.0) (2026-07-14)
 
 
