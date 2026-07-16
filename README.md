@@ -38,7 +38,7 @@ For Claude Code, install the plugin instead of wiring things up by hand. It ship
 
 **By default it runs anonymously** — public Open Collective data only, no token. That's the safest mode and enough for most public queries.
 
-To read non-public data you supply your own [personal token](https://opencollective.com/dashboard/personal-tokens). The plugin's bundled config has no slot to store one, so the token reaches the server through the environment. Two options:
+To read non-public data you supply your own personal token, created in your Dashboard under **For developers** (`https://opencollective.com/dashboard/<your-slug>/for-developers`). The plugin's bundled config has no slot to store one, so the token reaches the server through the environment. Two options:
 
 ### Authorize for one session
 
@@ -70,7 +70,8 @@ Runs entirely on your machine over the MCP stdio transport. A token is **optiona
 # anonymous (public data only)
 uvx mcp-for-ocp-graphql
 
-# authenticated — get a token at https://opencollective.com/dashboard/personal-tokens
+# authenticated — create a token under Dashboard → For developers
+# (https://opencollective.com/dashboard/<your-slug>/for-developers)
 OC_PERSONAL_TOKEN=oc_xxx uvx mcp-for-ocp-graphql
 ```
 

@@ -38,7 +38,8 @@ The template uses only the Python standard library for CSV/Markdown; PDF uses `f
 Give them the file and these commands (they need [uv](https://docs.astral.sh/uv/); the MCP setup already relies on it):
 
 ```bash
-# your token — get one at https://opencollective.com/dashboard/personal-tokens
+# your token — create one under Dashboard → For developers
+# (https://opencollective.com/dashboard/<your-slug>/for-developers)
 export OC_PERSONAL_TOKEN='oc_xxx'      # omit for public data only
 
 uv run export_oc.py --slug my-collective --format csv --out admins.csv

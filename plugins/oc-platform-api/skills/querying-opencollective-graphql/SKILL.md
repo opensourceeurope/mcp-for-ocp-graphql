@@ -79,7 +79,9 @@ Some fields return **personal data** (`email`/`emails` and contact fields on Ind
 If they'd rather keep it off the model entirely, hand them this to run in their **own terminal** (output stays local; `emails` is on `Individual`, so it needs an inline fragment):
 ```bash
 export OC_TOKEN='<your personal token>'
+# -A: Cloudflare in front of the API 403s default curl/python user agents (error 1010)
 curl -s https://api.opencollective.com/graphql/v2 \
+  -A 'Mozilla/5.0 (compatible; oc-local-export/1.0)' \
   -H 'Content-Type: application/json' \
   -H "Personal-Token: $OC_TOKEN" \
   -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug ... on Individual{emails}}}}}}","variables":{"s":"asyncapi"}}' \

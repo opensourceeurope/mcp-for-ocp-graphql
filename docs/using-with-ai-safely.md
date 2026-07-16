@@ -45,11 +45,13 @@ Then run it and open the file. A minimal hand-written version, if you'd rather n
 ```bash
 # Run this in your OWN terminal (needs curl + jq).
 # Do NOT use Claude Code's `!` prefix — that routes the output back through the model.
-export OC_TOKEN='<your personal token from https://opencollective.com/dashboard/personal-tokens>'
+export OC_TOKEN='<your token — Dashboard → For developers: https://opencollective.com/dashboard/<your-slug>/for-developers>'
 
 # ADMIN members of the AsyncAPI Initiative, printed as a name / slug / emails table.
 # `emails` lives on Individual, so it needs an inline fragment (... on Individual).
+# -A: Cloudflare in front of the API 403s default curl/python user agents (error 1010).
 curl -s https://api.opencollective.com/graphql/v2 \
+  -A 'Mozilla/5.0 (compatible; oc-local-export/1.0)' \
   -H 'Content-Type: application/json' \
   -H "Personal-Token: $OC_TOKEN" \
   -d '{"query":"query($s:String){account(slug:$s){members(role:ADMIN){nodes{account{name slug ... on Individual{emails}}}}}}","variables":{"s":"asyncapi"}}' \
@@ -129,6 +131,6 @@ For maximum control, **run the server yourself** rather than using one operated 
 
 ## Further reading
 
-- [Open Collective personal tokens](https://opencollective.com/dashboard/personal-tokens)
+- Open Collective personal tokens — Dashboard → For developers (`https://opencollective.com/dashboard/<your-slug>/for-developers`)
 - [Open Collective GraphQL v2 docs](https://developers.opencollective.com/access)
 - [GDPR Art. 4(1) — definition of personal data](https://gdpr-info.eu/art-4-gdpr/)
