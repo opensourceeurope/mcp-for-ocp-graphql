@@ -5,10 +5,12 @@
 """Rank the least active collectives of a host (default: "europe" / Open Source
 Europe) — run by YOU, never by the AI.
 
-"Least active" means the oldest last financial operation of any kind (donation,
-expense, fees, ...); collectives that never had one rank first. The table shows
-each collective's creation date and its last activity. Archived collectives are
-marked. The host's own collective is excluded.
+"Least active" means the oldest last activity, where activity is any financial
+operation (donation, expense, fees, ...) or a published update — both including
+the collective's events and projects, so e.g. an active event under a quiet
+collective counts. Collectives with no activity at all rank first. The table
+shows each collective's creation date and its last activity. Archived
+collectives are marked. The host's own collective is excluded.
 
 Usage, from inside the reporting/ directory (uv fetches the deps automatically
 from the header above):
@@ -43,8 +45,18 @@ query ($host: [AccountReferenceInput], $limit: Int!, $offset: Int!) {
       slug
       isArchived
       createdAt
-      lastFinOp: transactions(limit: 1) {
+      lastFinOp: transactions(limit: 1, includeChildrenTransactions: true) {
         nodes { createdAt kind type }
+      }
+      lastUpdate: updates(limit: 1, onlyPublishedUpdates: true, orderBy: {field: PUBLISHED_AT, direction: DESC}) {
+        nodes { publishedAt }
+      }
+      childrenAccounts(limit: 100) {
+        nodes {
+          lastUpdate: updates(limit: 1, onlyPublishedUpdates: true, orderBy: {field: PUBLISHED_AT, direction: DESC}) {
+            nodes { publishedAt }
+          }
+        }
       }
     }
   }
@@ -103,6 +115,16 @@ def fetch_collectives(slug: str) -> list[dict]:
             fin_op = fin_ops[0] if fin_ops else {}
             last_date = (fin_op.get("createdAt") or "")[:10]
             detail = " ".join(x for x in (fin_op.get("kind"), fin_op.get("type")) if x)
+            # A published update (by the collective or one of its events/projects)
+            # counts as activity too, if more recent than the last financial op.
+            update_dates = [
+                ((u.get("nodes") or [{}])[0].get("publishedAt") or "")[:10]
+                for u in [node.get("lastUpdate") or {}]
+                + [c.get("lastUpdate") or {} for c in (node.get("childrenAccounts") or {}).get("nodes") or []]
+            ]
+            last_update = max((d for d in update_dates if d), default="")
+            if last_update > last_date:
+                last_date, detail = last_update, "UPDATE"
             name = node.get("name") or node.get("slug") or ""
             if node.get("isArchived"):
                 name += " (archived)"
