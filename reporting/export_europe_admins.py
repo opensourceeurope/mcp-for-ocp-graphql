@@ -9,15 +9,16 @@ The data flows Open Collective API -> your disk. It never passes through the AI
 that generated this script: the agent wrote the query, YOU run the script with
 YOUR token, and the results land in a file the agent never reads.
 
-Usage (uv fetches the deps automatically from the header above):
+Usage, from inside the reporting/ directory (uv fetches the deps automatically
+from the header above):
 
     export OC_PERSONAL_TOKEN='<your token — Dashboard → For developers>'
-    uv run reporting/export_europe_admins.py                 # -> reporting/output/europe-admins.md
-    uv run reporting/export_europe_admins.py --format csv    # -> reporting/output/europe-admins.csv
-    uv run reporting/export_europe_admins.py --format pdf --out /tmp/report.pdf
+    uv run export_europe_admins.py                 # -> output/europe-admins.md
+    uv run export_europe_admins.py --format csv    # -> output/europe-admins.csv
+    uv run export_europe_admins.py --format pdf --out /tmp/report.pdf
 
 The token needs the "account" and "transactions" scopes. Output defaults to the
-repo's gitignored reporting/output/ folder.
+gitignored output/ folder next to this script.
 
 Personal fields (email, address) are only populated for accounts your token is
 allowed to see — as a host admin you should see them for hosted-collective
@@ -281,7 +282,7 @@ def run() -> None:
     ap.add_argument("--slug", default="europe", help="Host slug to query (default: europe).")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
-                    help="Output file path (default: reporting/output/<host-slug>-admins.<format>).")
+                    help="Output file path (default: output/<host-slug>-admins.<format> next to this script).")
     args = ap.parse_args()
 
     if not args.out:
