@@ -8,16 +8,17 @@ Open Collective collectives — run by YOU, never by the AI.
 Python rewrite of the old oc-admins.mjs. The data flows Open Collective API
 -> your disk; it never passes through an AI context.
 
-Usage (uv fetches the deps automatically from the header above):
+Usage, from inside the reporting/ directory (uv fetches the deps automatically
+from the header above):
 
     export OC_PERSONAL_TOKEN='<your token — Dashboard → For developers>'
-    uv run reporting/export_collectives_admins.py                    # baked-in slug list
-    uv run reporting/export_collectives_admins.py manjaro keycloak   # explicit slugs
-    uv run reporting/export_collectives_admins.py --format csv
+    uv run export_collectives_admins.py                    # baked-in slug list
+    uv run export_collectives_admins.py manjaro keycloak   # explicit slugs
+    uv run export_collectives_admins.py --format csv
 
 Emails and country are private: the API only returns them to the account owner
 or an authorized host admin; for everyone else they come back empty. Output
-defaults to the repo's gitignored reporting/output/ folder.
+defaults to the gitignored output/ folder next to this script.
 """
 
 import argparse
@@ -211,7 +212,7 @@ def run() -> None:
                     help=f"Collective slugs to query (default: baked-in list of {len(DEFAULT_SLUGS)}).")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
-                    help="Output file path (default: reporting/output/collectives-admins.<format>).")
+                    help="Output file path (default: output/collectives-admins.<format> next to this script).")
     args = ap.parse_args()
 
     if not args.out:
