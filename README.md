@@ -5,7 +5,9 @@ An MCP server for the [Open Collective GraphQL API v2](https://api.opencollectiv
 ## Contents
 
 - [Using with AI safely](#using-with-ai-safely)
-- [Prerequisite: install uv (one time)](#prerequisite-install-uv-one-time)
+- [Prerequisites (one time)](#prerequisites-one-time)
+  - [Claude Code and VS Code](#claude-code-and-vs-code)
+  - [uv](#uv)
 - [Install — Claude Code plugin (easiest)](#install--claude-code-plugin-easiest)
   - [Authorize for one session](#authorize-for-one-session)
   - [Authorize permanently](#authorize-permanently)
@@ -25,7 +27,37 @@ Open Collective data includes personally identifiable information (names, emails
 
 Tokens are never logged or persisted by this server. For the full PII posture and safe field-selection guidance, see **[docs/using-with-ai-safely.md](docs/using-with-ai-safely.md)**.
 
-## Prerequisite: install uv (one time)
+## Prerequisites (one time)
+
+Before installing the plugin you need Claude Code itself, plus a small tool called uv. Both are one-time installs.
+
+### Claude Code and VS Code
+
+The plugin runs inside **Claude Code**, which needs a paid Claude plan (Pro, Max, Team, or Enterprise — the free plan doesn't include it).
+
+The friendliest setup is Claude Code inside **[VS Code](https://code.visualstudio.com/)**, a free code editor:
+
+1. Install VS Code (version 1.98 or newer).
+2. In VS Code, open the Extensions panel (`Cmd/Ctrl+Shift+X`), search for **Claude Code** (published by Anthropic), and click **Install**.
+3. Click the Claude (✱) icon and sign in with your Claude account.
+
+Prefer the terminal — or want the `claude` command for the steps further down? Install the standalone CLI as well:
+
+**macOS or Linux**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows** (paste into PowerShell)
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+The VS Code extension bundles its own copy for the chat panel, but the `claude mcp add` and `export … && claude` commands below run in a terminal and need this standalone install. Full guide: [code.claude.com/docs/en/setup](https://code.claude.com/docs/en/setup).
+
+### uv
 
 Everything here runs through a tool called **uv** (its `uvx` command is what actually launches the server). You install it once. **You do not need to install Python yourself** — uv quietly downloads the right Python for you the first time it runs.
 
