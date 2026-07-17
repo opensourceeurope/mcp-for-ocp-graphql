@@ -12,9 +12,11 @@ Usage, from inside the reporting/ directory (uv fetches the deps automatically
 from the header above):
 
     export OC_PERSONAL_TOKEN='<your token — Dashboard → For developers>'
-    uv run export_collectives_admins.py                    # baked-in slug list
-    uv run export_collectives_admins.py manjaro keycloak   # explicit slugs
-    uv run export_collectives_admins.py --format csv
+    uv run export_collectives_admins.py manjaro keycloak
+    uv run export_collectives_admins.py manjaro keycloak --format csv
+
+To pick which collectives to query, generate a ranking first with
+export_top_collectives.py and pass the slugs you care about.
 
 Emails and country are private: the API only returns them to the account owner
 or an authorized host admin; for everyone else they come back empty. Output
@@ -32,19 +34,6 @@ import urllib.request
 
 API_URL = "https://api.opencollective.com/graphql/v2"
 _WARNED: set[str] = set()
-
-# Default list: the top collectives from the "europe" host, as in oc-admins.mjs.
-# Override by passing slugs on the command line.
-DEFAULT_SLUGS = [
-    "techworkersber", "monnaie-libre", "postmarketos", "edgetx",
-    "omstallningsvanner", "interbeing", "gpxstudio", "microcosm",
-    "rotorflight", "fedimon", "alversjo", "f-droid-euro", "bazzite-eu",
-    "endeavouros", "techworkersco", "courtbouillon", "manjaro", "keycloak",
-    "gotosocial", "lambda-island", "xfce-eu", "nix-community",
-    "yellowbrick-cycling", "devstaff", "the-rockstor-project",
-    "projectliminality", "kamailio", "enspiral-europe", "flightgear",
-    "kollektiv-email", "reactive-resume", "mastodonworld",
-]
 
 QUERY = """
 query ($slug: String!) {
@@ -208,8 +197,8 @@ def write_pdf(rows: list[dict], out: str, title: str) -> None:
 
 def run() -> None:
     ap = argparse.ArgumentParser(description="Export admins of selected collectives (with personal data) to a local file.")
-    ap.add_argument("slugs", nargs="*", default=None,
-                    help=f"Collective slugs to query (default: baked-in list of {len(DEFAULT_SLUGS)}).")
+    ap.add_argument("slugs", nargs="+",
+                    help="Collective slugs to query (get a shortlist from export_top_collectives.py).")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
                     help="Output file path (default: output/collectives-admins.<format> next to this script).")
@@ -223,7 +212,7 @@ def run() -> None:
     if not (os.environ.get("OC_PERSONAL_TOKEN") or os.environ.get("OC_TOKEN")):
         print("warning: OC_PERSONAL_TOKEN not set — personal fields will be empty", file=sys.stderr)
 
-    rows = fetch_all(args.slugs or DEFAULT_SLUGS)
+    rows = fetch_all(args.slugs)
 
     title = "Admins — selected collectives"
     if args.format == "csv":
