@@ -23,7 +23,8 @@ Events and projects are rolled up into their parent collective, so an event's
 donations count for the collective running it. Only collectives CURRENTLY
 hosted by the host are ranked — ones that migrated to another host mid-period
 are skipped (and listed on stderr), even though the API still returns their
-transactions from when they were hosted.
+transactions from when they were hosted. The host's own collective is excluded
+from the rankings too.
 
 All amounts are in the host currency. The data is public, so a token is not
 required (set OC_PERSONAL_TOKEN to raise rate limits). Output defaults to the
@@ -141,7 +142,8 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
             # e.g. an event's donations count for the collective running it.
             account = account.get("parent") or account
             acc_slug = account.get("slug")
-            if not acc_slug:
+            if not acc_slug or acc_slug == slug:
+                # The host's own collective is not ranked against its hostees.
                 continue
             # The API matches the host at transaction time, so collectives that
             # migrated away mid-period still show up — rank only current ones.
