@@ -19,6 +19,9 @@ from the header above):
     uv run export_top_collectives.py --date-from 2025-01-01 --date-to 2025-12-31
     uv run export_top_collectives.py --slug oce --top 20 --format csv
 
+Events and projects are rolled up into their parent collective, so an event's
+donations count for the collective running it.
+
 All amounts are in the host currency. The data is public, so a token is not
 required (set OC_PERSONAL_TOKEN to raise rate limits). Output defaults to the
 gitignored output/ folder next to this script.
@@ -53,7 +56,11 @@ query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $of
       kind
       isRefund
       isRefunded
-      account { slug name }
+      account {
+        slug
+        name
+        ... on AccountWithParent { parent { slug name } }
+      }
       oppositeAccount { slug }
       amountInHostCurrency { valueInCents currency }
     }
@@ -119,6 +126,9 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
             if node.get("isRefund") or node.get("isRefunded"):
                 continue
             account = node.get("account") or {}
+            # Events and projects roll up into their parent collective, so
+            # e.g. an event's donations count for the collective running it.
+            account = account.get("parent") or account
             acc_slug = account.get("slug")
             if not acc_slug:
                 continue
