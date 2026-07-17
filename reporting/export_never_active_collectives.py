@@ -2,22 +2,20 @@
 # requires-python = ">=3.10"
 # dependencies = ["fpdf2>=2.7"]
 # ///
-"""Rank the least active collectives of a host (default: "europe" / Open Source
-Europe) — run by YOU, never by the AI.
+"""List every collective of a host (default: "europe" / Open Source Europe)
+that never had any activity — run by YOU, never by the AI.
 
-"Least active" means the oldest last activity, where activity is any financial
-operation (donation, expense, fees, ...) or a published update — both including
-the collective's events and projects, so e.g. an active event under a quiet
-collective counts. Collectives with no activity at all rank first. The table
-shows each collective's creation date and its last activity. Archived
-collectives are marked. The host's own collective is excluded.
+"Never had any activity" means not a single financial operation (donation,
+expense, fees, ...) and not a single published update — including in the
+collective's events and projects, so a collective whose event was active does
+NOT qualify. The table shows each collective's creation date, oldest first.
+Archived collectives are marked. The host's own collective is excluded.
 
 Usage, from inside the reporting/ directory (uv fetches the deps automatically
 from the header above):
 
-    uv run export_least_active_collectives.py              # 10 least active
-    uv run export_least_active_collectives.py --top 20
-    uv run export_least_active_collectives.py --slug oce --format csv
+    uv run export_never_active_collectives.py
+    uv run export_never_active_collectives.py --slug oce --format csv
 
 The data is public, so a token is not required (set OC_PERSONAL_TOKEN to raise
 rate limits). Output defaults to the gitignored output/ folder next to this
@@ -34,7 +32,9 @@ import urllib.error
 import urllib.request
 
 API_URL = "https://api.opencollective.com/graphql/v2"
-PAGE_SIZE = 50
+# Each collective node carries nested transactions/updates/children lookups,
+# so keep pages small or the API response gets slow enough to time out.
+PAGE_SIZE = 25
 
 QUERY = """
 query ($host: [AccountReferenceInput], $limit: Int!, $offset: Int!) {
@@ -93,8 +93,13 @@ def graphql(query: str, variables: dict) -> dict:
                 time.sleep(wait)
                 continue
             sys.exit(f"HTTP {e.code} from Open Collective: {e.read().decode(errors='replace')}")
-        except urllib.error.URLError as e:
-            sys.exit(f"Network error talking to Open Collective: {e.reason}")
+        except (urllib.error.URLError, TimeoutError) as e:
+            if attempt < 5:
+                reason = getattr(e, "reason", e)
+                print(f"network error ({reason}) — retrying in 10s", file=sys.stderr)
+                time.sleep(10)
+                continue
+            sys.exit(f"Network error talking to Open Collective: {getattr(e, 'reason', e)}")
     if payload.get("errors"):
         sys.exit("GraphQL errors:\n" + json.dumps(payload["errors"], indent=2))
     return payload.get("data") or {}
@@ -111,20 +116,16 @@ def fetch_collectives(slug: str) -> list[dict]:
         for node in nodes:
             if node.get("slug") == slug:  # the host's own collective is not ranked
                 continue
-            fin_ops = (node.get("lastFinOp") or {}).get("nodes") or []
-            fin_op = fin_ops[0] if fin_ops else {}
-            last_date = (fin_op.get("createdAt") or "")[:10]
-            detail = " ".join(x for x in (fin_op.get("kind"), fin_op.get("type")) if x)
+            had_fin_op = bool((node.get("lastFinOp") or {}).get("nodes"))
             # A published update (by the collective or one of its events/projects)
-            # counts as activity too, if more recent than the last financial op.
+            # counts as activity too.
             update_dates = [
                 ((u.get("nodes") or [{}])[0].get("publishedAt") or "")[:10]
                 for u in [node.get("lastUpdate") or {}]
                 + [c.get("lastUpdate") or {} for c in (node.get("childrenAccounts") or {}).get("nodes") or []]
             ]
-            last_update = max((d for d in update_dates if d), default="")
-            if last_update > last_date:
-                last_date, detail = last_update, "UPDATE"
+            if had_fin_op or any(update_dates):
+                continue  # had some activity — not listed
             name = node.get("name") or node.get("slug") or ""
             if node.get("isArchived"):
                 name += " (archived)"
@@ -132,28 +133,23 @@ def fetch_collectives(slug: str) -> list[dict]:
                 "slug": node.get("slug") or "",
                 "name": name,
                 "created": (node.get("createdAt") or "")[:10],
-                "last_date": last_date,
-                "last_activity": f"{last_date} ({detail})" if last_date and detail
-                                 else (last_date or "never"),
             })
         offset += len(nodes)
         print(f"fetched {min(offset, total)}/{total} collective(s)", file=sys.stderr)
         if not nodes or offset >= total:
             break
         time.sleep(0.3)  # be polite to the API
-    # Least active first: never-active collectives, then oldest last activity;
-    # ties broken by creation date (oldest first).
-    collectives.sort(key=lambda c: (c["last_date"] or "0000-00-00", c["created"]))
+    collectives.sort(key=lambda c: c["created"])  # oldest first
     return collectives
 
 
-HEADER = ["#", "Collective", "Created", "Last activity"]
+HEADER = ["#", "Collective", "Created"]
 
 
-def to_rows(collectives: list[dict], top: int) -> list[tuple[list[str], str]]:
+def to_rows(collectives: list[dict]) -> list[tuple[list[str], str]]:
     return [
-        ([str(i), c["name"], c["created"], c["last_activity"]], c["slug"])
-        for i, c in enumerate(collectives[:top], 1)
+        ([str(i), c["name"], c["created"]], c["slug"])
+        for i, c in enumerate(collectives, 1)
     ]
 
 
@@ -187,7 +183,7 @@ def write_pdf(rows: list, out: str, title: str) -> None:
     pdf.set_font("Helvetica", "B", 14)
     pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
-    widths = [10, 80, 30, 70]
+    widths = [10, 120, 30]
     pdf.set_font("Helvetica", "B", 8)
     for w, label in zip(widths, HEADER):
         pdf.cell(w, 7, label, border=1)
@@ -202,23 +198,22 @@ def write_pdf(rows: list, out: str, title: str) -> None:
 
 
 def run() -> None:
-    ap = argparse.ArgumentParser(description="Rank a host's least active collectives (oldest last financial operation first).")
+    ap = argparse.ArgumentParser(description="List a host's collectives that never had any activity (no transactions, no updates).")
     ap.add_argument("--slug", default="europe", help="Host slug (default: europe).")
-    ap.add_argument("--top", type=int, default=10, help="Number of rows (default: 10).")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
-                    help="Output file path (default: output/<host-slug>-least-active.<format> next to this script).")
+                    help="Output file path (default: output/<host-slug>-never-active.<format> next to this script).")
     args = ap.parse_args()
 
     if not args.out:
         out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
         os.makedirs(out_dir, exist_ok=True)
-        args.out = os.path.join(out_dir, f"{args.slug}-least-active.{args.format}")
+        args.out = os.path.join(out_dir, f"{args.slug}-never-active.{args.format}")
 
     collectives = fetch_collectives(args.slug)
-    rows = to_rows(collectives, args.top)
+    rows = to_rows(collectives)
 
-    title = f"Least active collectives — {args.slug} host"
+    title = f"Collectives that never had any activity — {args.slug} host"
     if args.format == "csv":
         write_csv(rows, args.out)
     elif args.format == "md":
