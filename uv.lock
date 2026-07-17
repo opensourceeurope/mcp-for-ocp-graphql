@@ -330,7 +330,7 @@ wheels = [
 
 [[package]]
 name = "mcp-for-ocp-graphql"
-version = "0.1.0"
+version = "0.6.2"
 source = { editable = "." }
 dependencies = [
     { name = "graphql-core" },

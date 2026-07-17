@@ -24,6 +24,7 @@ Open Collective data includes personally identifiable information (names, emails
 
 - Prefer running **locally** (the stdio transport below) so your data and token never leave your machine.
 - Prefer **anonymous mode** (no token) when you only need public data — you then only ever see what the public API exposes.
+- For exports that should stay **off the model entirely** (PII pulls, CSV/Markdown/PDF reports), use the ready-made local scripts indexed in [reporting/README.md](reporting/README.md) — you run them yourself and the results land in the gitignored `reporting/output/` folder, never in an AI context.
 
 Tokens are never logged or persisted by this server. For the full PII posture and safe field-selection guidance, see **[docs/using-with-ai-safely.md](docs/using-with-ai-safely.md)**.
 

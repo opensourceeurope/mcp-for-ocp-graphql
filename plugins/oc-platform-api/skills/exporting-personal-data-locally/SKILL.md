@@ -33,6 +33,8 @@ A working, adaptable template ships at [`resources/export_oc.py`](resources/expo
 
 The template uses only the Python standard library for CSV/Markdown; PDF uses `fpdf2`, declared in the script's [PEP 723](https://packaging.python.org/en/latest/specifications/inline-script-metadata/) header so `uv run` installs it automatically — nothing for the user to pip-install.
 
+**Where to put it:** if the user's workspace keeps a maintained export-scripts index — a `reporting/` folder whose README holds a table of scripts, outputs, and run commands — save the script there, default its output into the gitignored `reporting/output/`, and add a row to that table. Otherwise put the script where the user asked and let them pick the output path.
+
 ## Hand-off — what to tell the user
 
 Give them the file and these commands (they need [uv](https://docs.astral.sh/uv/); the MCP setup already relies on it):
