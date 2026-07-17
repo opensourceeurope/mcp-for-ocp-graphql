@@ -13,7 +13,8 @@ node_modules/
 /.mcp.json
 docs/superpowers
 
-reports/
+# PII exports written by reporting/ scripts — never committed
+reporting/output/
 
 __pycache__/
 *.pyc
