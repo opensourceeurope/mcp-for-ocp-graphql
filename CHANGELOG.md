@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.1...v0.6.2) (2026-07-17)
+
+
+### Documentation
+
+* add Claude Code + VS Code to prerequisites for non-technical users ([#27](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/27)) ([e00545d](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/e00545d80bfc9e08e443be02d820e80c7017aa0e))
+
 ## [0.6.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.0...v0.6.1) (2026-07-16)
 
 
