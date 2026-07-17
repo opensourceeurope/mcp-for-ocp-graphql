@@ -20,7 +20,10 @@ from the header above):
     uv run export_top_collectives.py --slug oce --top 20 --format csv
 
 Events and projects are rolled up into their parent collective, so an event's
-donations count for the collective running it.
+donations count for the collective running it. Only collectives CURRENTLY
+hosted by the host are ranked — ones that migrated to another host mid-period
+are skipped (and listed on stderr), even though the API still returns their
+transactions from when they were hosted.
 
 All amounts are in the host currency. The data is public, so a token is not
 required (set OC_PERSONAL_TOKEN to raise rate limits). Output defaults to the
@@ -59,7 +62,14 @@ query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $of
       account {
         slug
         name
-        ... on AccountWithParent { parent { slug name } }
+        ... on AccountWithHost { host { slug } }
+        ... on AccountWithParent {
+          parent {
+            slug
+            name
+            ... on AccountWithHost { host { slug } }
+          }
+        }
       }
       oppositeAccount { slug }
       amountInHostCurrency { valueInCents currency }
@@ -112,6 +122,7 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
     """
     stats: dict[str, dict] = {}
     currency = ""
+    skipped: set[str] = set()
     offset = 0
     while True:
         data = graphql(QUERY, {
@@ -131,6 +142,11 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
             account = account.get("parent") or account
             acc_slug = account.get("slug")
             if not acc_slug:
+                continue
+            # The API matches the host at transaction time, so collectives that
+            # migrated away mid-period still show up — rank only current ones.
+            if ((account.get("host") or {}).get("slug") or slug) != slug:
+                skipped.add(acc_slug)
                 continue
             amount = node.get("amountInHostCurrency") or {}
             cents = amount.get("valueInCents") or 0
@@ -154,6 +170,9 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
         if not nodes or offset >= total:
             break
         time.sleep(0.3)  # be polite to the API
+    if skipped:
+        print(f"skipped {len(skipped)} account(s) no longer hosted by '{slug}': "
+              + ", ".join(sorted(skipped)), file=sys.stderr)
     return stats, currency
 
 
