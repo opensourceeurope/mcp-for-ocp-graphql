@@ -12,7 +12,8 @@ Source Europe) over one calendar year (default 2025):
   - number of countries contributors sent money from
   - number of countries payees were paid in
   - unique contributors (with the anonymous guest/incognito share), unique payees
-  - hosted collectives: currently hosted + active during the year
+  - hosted collectives: hosted during the year, active during the year
+    (>=1 transaction), and hosted at run time
 
 plus a combined all-hosts section (money summed per currency — no FX guessing;
 people deduped across hosts) and, for each of the four headline metrics, the top 3
@@ -109,6 +110,15 @@ query ($slug: String!) {
 }
 """
 
+HOSTED_QUERY = """
+query ($host: [AccountReferenceInput], $limit: Int!, $offset: Int!) {
+  accounts(host: $host, type: [COLLECTIVE, FUND], limit: $limit, offset: $offset) {
+    totalCount
+    nodes { slug ... on AccountWithHost { approvedAt } }
+  }
+}
+"""
+
 FX_QUERY = """
 query ($requests: [CurrencyExchangeRateRequest!]!) {
   currencyExchangeRate(requests: $requests) { value fromCurrency }
@@ -163,6 +173,25 @@ def new_collective(slug: str, name: str, host_slug: str, currency: str) -> dict:
         "slug": slug, "name": name, "host": host_slug, "currency": currency,
         "collected_cents": 0, "paid_cents": 0, "donors": {}, "payees": {},
     }
+
+
+def fetch_hosted_slugs(slug: str, date_to: str) -> set[str]:
+    """Slugs of the host's current collectives approved on/before date_to."""
+    slugs: set[str] = set()
+    offset = 0
+    while True:
+        data = graphql(HOSTED_QUERY, {
+            "host": [{"slug": slug}], "limit": PAGE_SIZE, "offset": offset})
+        coll = data.get("accounts") or {}
+        nodes = coll.get("nodes") or []
+        for node in nodes:
+            approved = node.get("approvedAt") or ""
+            # Both are ISO-8601 UTC; day precision is enough here.
+            if approved and approved[:10] <= date_to[:10]:
+                slugs.add(node["slug"])
+        offset += len(nodes)
+        if not nodes or offset >= (coll.get("totalCount") or 0):
+            return slugs
 
 
 def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
@@ -247,6 +276,11 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
     if skipped:
         print(f"[{slug}] skipped {len(skipped)} account(s) no longer hosted here: "
               + ", ".join(sorted(skipped)), file=sys.stderr)
+    # Hosted during the period = current hostees approved on/before the period's
+    # end, plus everyone observed transacting under the host in the period (the
+    # sweep proves they were hosted then, even if they left since).
+    host["hosted_during"] = len(
+        fetch_hosted_slugs(slug, date_to) | skipped | set(host["collectives"]))
     return host
 
 
@@ -289,7 +323,13 @@ PAYEE_NOTE = " — from expense payee-location snapshots (host admins see all)"
 ANON_NOTE = " — accounts, not humans: one email can appear as profile + guest + incognito"
 
 
-def host_rows(host: dict) -> list[tuple[str, str, str]]:
+def hosted_note(year: int) -> str:
+    return (f"current hostees approved by {year}-12-31 + collectives seen "
+            f"transacting under the host in {year}; may miss ones that left "
+            f"without any {year} transactions")
+
+
+def host_rows(host: dict, year: int) -> list[tuple[str, str, str]]:
     """(metric, value, accuracy) rows for one host."""
     cur = host["currency"]
     return [
@@ -304,12 +344,15 @@ def host_rows(host: dict) -> list[tuple[str, str, str]]:
         ("— of which anonymous (guest or incognito)", str(len(host["anon_donors"])),
          COMPLETE + ANON_NOTE),
         ("Unique payees (people/orgs paid)", str(len(host["payees"])), COMPLETE),
-        ("Hosted collectives (current)", str(host["hosted_current"]), COMPLETE),
-        ("Hosted collectives active this year", str(len(host["collectives"])), COMPLETE),
+        (f"Hosted collectives during {year}", str(host["hosted_during"]),
+         hosted_note(year)),
+        (f"— of which active in {year} (≥1 transaction)",
+         str(len(host["collectives"])), COMPLETE),
+        ("Hosted collectives at run time", str(host["hosted_current"]), COMPLETE),
     ]
 
 
-def combined_rows(hosts: list[dict]) -> list[tuple[str, str, str]]:
+def combined_rows(hosts: list[dict], year: int) -> list[tuple[str, str, str]]:
     per_currency: dict[str, dict[str, int]] = {}
     donors: dict[str, str | None] = {}
     payees: dict[str, str | None] = {}
@@ -336,10 +379,12 @@ def combined_rows(hosts: list[dict]) -> list[tuple[str, str, str]]:
         ("— of which anonymous (guest or incognito)", str(len(anon)),
          COMPLETE + ANON_NOTE),
         ("Unique payees (deduped)", str(len(payees)), COMPLETE),
-        ("Hosted collectives (current)",
-         str(sum(h["hosted_current"] for h in hosts)), COMPLETE),
-        ("Hosted collectives active this year",
+        (f"Hosted collectives during {year}",
+         str(sum(h["hosted_during"] for h in hosts)), hosted_note(year)),
+        (f"— of which active in {year} (≥1 transaction)",
          str(sum(len(h["collectives"]) for h in hosts)), COMPLETE),
+        ("Hosted collectives at run time",
+         str(sum(h["hosted_current"] for h in hosts)), COMPLETE),
     ]
     return rows
 
@@ -380,10 +425,10 @@ def build_top_tables(hosts: list[dict], rates: dict[str, float], top: int = 3) -
     return tables
 
 
-def build_sections(hosts: list[dict]) -> list[tuple[str, list[tuple[str, str, str]]]]:
+def build_sections(hosts: list[dict], year: int) -> list[tuple[str, list[tuple[str, str, str]]]]:
     """[(section title, (metric, value, accuracy) rows)] — one per host + combined."""
-    return ([(f"{h['name']} ({h['slug']})", host_rows(h)) for h in hosts]
-            + [("All hosts combined", combined_rows(hosts))])
+    return ([(f"{h['name']} ({h['slug']})", host_rows(h, year)) for h in hosts]
+            + [("All hosts combined", combined_rows(hosts, year))])
 
 
 def write_md(sections, tops, out, title, notes):
@@ -480,7 +525,7 @@ def run() -> None:
     date_to = f"{args.year}-12-31T23:59:59Z"
     hosts = [fetch_host_stats(slug, date_from, date_to) for slug in args.hosts]
     rates = fetch_eur_rates({h["currency"] for h in hosts})
-    sections = build_sections(hosts)
+    sections = build_sections(hosts, args.year)
     tops = build_top_tables(hosts, rates)
 
     title = f"Hosts yearly stats — {args.year}"
