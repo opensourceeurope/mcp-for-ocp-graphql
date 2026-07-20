@@ -24,11 +24,13 @@ host's currency.
 Every number in the report carries an accuracy note, because the country metrics
 are only as good as the underlying visibility:
 
-  - PAYEE countries come from the expense's payee-location snapshot (visible to
-    host admins; near-complete for invoices) with the payee's public profile as
-    fallback. Run with a host-admin OC_PERSONAL_TOKEN that has the "expenses"
-    scope enabled — without that scope the API nulls the snapshots even for
-    host admins.
+  - PAYEE countries come from the expense's payee-location snapshot (mandatory
+    on invoices), then the payout method's bank details (Wise address / IBAN
+    prefix — covers reimbursement-only payees), then the payee's public
+    profile. PayPal payout methods store only an email, so PayPal-paid payees
+    without an invoice stay countryless. Run with a host-admin
+    OC_PERSONAL_TOKEN that has the "expenses" scope enabled — without it the
+    API nulls both the snapshots and the payout details even for host admins.
   - CONTRIBUTOR countries are a LOWER BOUND no matter the token: the API only
     exposes a donor's country when their profile makes it public. Payment-card
     countries are never exposed to hosts (verified in the API resolvers — the
@@ -96,7 +98,7 @@ query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $of
         }
       }
       oppositeAccount { slug isIncognito location { country } ... on Individual { isGuest } }
-      expense { payeeLocation { country } }
+      expense { payeeLocation { country } payoutMethod { type data } }
       amountInHostCurrency { valueInCents currency }
     }
   }
@@ -167,6 +169,22 @@ def graphql(query: str, variables: dict) -> dict:
     if payload.get("errors"):
         sys.exit("GraphQL errors:\n" + json.dumps(payload["errors"], indent=2))
     return payload.get("data") or {}
+
+
+def payout_country(payout_method: dict | None) -> str | None:
+    """Country from payout details: Wise-style address country, else IBAN prefix.
+
+    PayPal payout methods carry only an email — no country to extract.
+    """
+    data = (payout_method or {}).get("data") or {}
+    details = data.get("details") or {}
+    country = data.get("country") or (details.get("address") or {}).get("country")
+    if country and isinstance(country, str) and len(country) == 2:
+        return country.upper()
+    iban = str(details.get("IBAN") or details.get("iban") or "").replace(" ", "")
+    if len(iban) >= 2 and iban[:2].isalpha():
+        return iban[:2].upper()
+    return None
 
 
 def new_collective(slug: str, name: str, host_slug: str, currency: str) -> dict:
@@ -261,12 +279,14 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
             elif kind == "EXPENSE" and tx_type == "DEBIT":
                 host["paid_cents"] += abs(cents)
                 entry["paid_cents"] += abs(cents)
-                # The payee-location snapshot on the expense (host-admin
-                # visible, near-always filled for invoices) beats the payee's
-                # mostly-private profile country.
-                snapshot = (((node.get("expense") or {}).get("payeeLocation"))
-                            or {}).get("country")
-                country = snapshot or profile_country
+                # Country preference: the expense's payee-location snapshot
+                # (host-admin visible, mandatory on invoices), then the payout
+                # method's bank details (reimbursement-only payees have no
+                # snapshot), then the mostly-private profile country.
+                expense = node.get("expense") or {}
+                country = ((expense.get("payeeLocation") or {}).get("country")
+                           or payout_country(expense.get("payoutMethod"))
+                           or profile_country)
                 if other:
                     for payees in (host["payees"], entry["payees"]):
                         payees[other] = payees.get(other) or country
@@ -323,7 +343,8 @@ def based_on(people: dict, who: str) -> str:
 
 COMPLETE = "complete (public ledger)"
 DONOR_CAVEAT = " — lower bound: only public donor profiles carry a country"
-PAYEE_NOTE = " — from expense payee-location snapshots (host admins see all)"
+PAYEE_NOTE = (" — from expense payee locations and payout bank details "
+              "(host admins see all; PayPal payees carry no country)")
 ANON_NOTE = " — accounts, not humans: one email can appear as profile + guest + incognito"
 
 
