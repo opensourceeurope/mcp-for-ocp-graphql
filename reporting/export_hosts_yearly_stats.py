@@ -375,14 +375,14 @@ def combined_rows(hosts: list[dict], year: int) -> list[tuple[str, str, str]]:
         rows.append((f"Money collected ({cur})", money(per_currency[cur]["collected"]), COMPLETE))
         rows.append((f"Money paid out ({cur})", money(per_currency[cur]["paid"]), COMPLETE))
     rows += [
-        ("Contributor countries (union)", str(len(countries(donors))),
+        ("Contributor countries (deduped across hosts)", str(len(countries(donors))),
          based_on(donors, "contributors") + DONOR_CAVEAT),
-        ("Payee countries (union)", str(len(countries(payees))),
+        ("Payee countries (deduped across hosts)", str(len(countries(payees))),
          based_on(payees, "payees") + PAYEE_NOTE),
-        ("Unique contributors (deduped)", str(len(donors)), COMPLETE),
+        ("Unique contributors (deduped across hosts)", str(len(donors)), COMPLETE),
         ("— of which anonymous (guest or incognito)", str(len(anon)),
          COMPLETE + ANON_NOTE),
-        ("Unique payees (deduped)", str(len(payees)), COMPLETE),
+        ("Unique payees (deduped across hosts)", str(len(payees)), COMPLETE),
         (f"Hosted collectives during {year}",
          str(sum(h["hosted_during"] for h in hosts)), hosted_note(year)),
         (f"— of which active in {year} (≥1 transaction)",
