@@ -11,7 +11,7 @@ Source Europe) over one calendar year (default 2025):
   - total money paid out or reimbursed (expenses)
   - number of countries contributors sent money from
   - number of countries payees were paid in
-  - unique contributors, unique payees
+  - unique contributors (with the anonymous guest/incognito share), unique payees
   - hosted collectives: currently hosted + active during the year
 
 plus a combined all-hosts section (money summed per currency — no FX guessing;
@@ -91,7 +91,7 @@ query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $of
           }
         }
       }
-      oppositeAccount { slug location { country } }
+      oppositeAccount { slug isIncognito location { country } ... on Individual { isGuest } }
       expense { payeeLocation { country } }
       amountInHostCurrency { valueInCents currency }
     }
@@ -178,6 +178,7 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
         "collected_cents": 0, "added_funds_cents": 0, "paid_cents": 0,
         # slug -> ISO country or None; one entry per unique donor/payee.
         "donors": {}, "payees": {},
+        "anon_donors": set(),  # donor slugs that are guest or incognito accounts
         "collectives": {},  # slug -> per-collective stats for the top-3 rankings
     }
     skipped: set[str] = set()
@@ -223,6 +224,8 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
                     # Only real contribution donors count as contributors.
                     for donors in (host["donors"], entry["donors"]):
                         donors[other] = donors.get(other) or profile_country
+                    if opposite.get("isGuest") or opposite.get("isIncognito"):
+                        host["anon_donors"].add(other)
             elif kind == "EXPENSE" and tx_type == "DEBIT":
                 host["paid_cents"] += abs(cents)
                 entry["paid_cents"] += abs(cents)
@@ -283,6 +286,7 @@ def based_on(people: dict, who: str) -> str:
 COMPLETE = "complete (public ledger)"
 DONOR_CAVEAT = " — lower bound: only public donor profiles carry a country"
 PAYEE_NOTE = " — from expense payee-location snapshots (host admins see all)"
+ANON_NOTE = " — accounts, not humans: one email can appear as profile + guest + incognito"
 
 
 def host_rows(host: dict) -> list[tuple[str, str, str]]:
@@ -297,6 +301,8 @@ def host_rows(host: dict) -> list[tuple[str, str, str]]:
         ("Payee countries", str(len(countries(host["payees"]))),
          based_on(host["payees"], "payees") + PAYEE_NOTE),
         ("Unique contributors", str(len(host["donors"])), COMPLETE),
+        ("— of which anonymous (guest or incognito)", str(len(host["anon_donors"])),
+         COMPLETE + ANON_NOTE),
         ("Unique payees (people/orgs paid)", str(len(host["payees"])), COMPLETE),
         ("Hosted collectives (current)", str(host["hosted_current"]), COMPLETE),
         ("Hosted collectives active this year", str(len(host["collectives"])), COMPLETE),
@@ -307,7 +313,9 @@ def combined_rows(hosts: list[dict]) -> list[tuple[str, str, str]]:
     per_currency: dict[str, dict[str, int]] = {}
     donors: dict[str, str | None] = {}
     payees: dict[str, str | None] = {}
+    anon: set[str] = set()
     for h in hosts:
+        anon |= h["anon_donors"]
         bucket = per_currency.setdefault(h["currency"], {"collected": 0, "paid": 0})
         bucket["collected"] += h["collected_cents"]
         bucket["paid"] += h["paid_cents"]
@@ -325,6 +333,8 @@ def combined_rows(hosts: list[dict]) -> list[tuple[str, str, str]]:
         ("Payee countries (union)", str(len(countries(payees))),
          based_on(payees, "payees") + PAYEE_NOTE),
         ("Unique contributors (deduped)", str(len(donors)), COMPLETE),
+        ("— of which anonymous (guest or incognito)", str(len(anon)),
+         COMPLETE + ANON_NOTE),
         ("Unique payees (deduped)", str(len(payees)), COMPLETE),
         ("Hosted collectives (current)",
          str(sum(h["hosted_current"] for h in hosts)), COMPLETE),
