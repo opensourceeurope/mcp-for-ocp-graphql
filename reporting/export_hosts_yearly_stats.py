@@ -52,7 +52,6 @@ script.
 
 import argparse
 import csv
-import datetime
 import json
 import os
 import sys
@@ -117,6 +116,10 @@ query ($requests: [CurrencyExchangeRateRequest!]!) {
 """
 
 
+def have_token() -> bool:
+    return bool(os.environ.get("OC_PERSONAL_TOKEN") or os.environ.get("OC_TOKEN"))
+
+
 def graphql(query: str, variables: dict) -> dict:
     token = os.environ.get("OC_PERSONAL_TOKEN") or os.environ.get("OC_TOKEN")
     headers = {
@@ -138,7 +141,7 @@ def graphql(query: str, variables: dict) -> dict:
             if e.code == 429 and attempt < 5:
                 try:
                     # OC sends a fractional Retry-After (e.g. "16.971").
-                    wait = float(e.headers.get("Retry-After") or 0) + 1 or 65
+                    wait = float(e.headers.get("Retry-After", 65)) + 1
                 except ValueError:
                     wait = 65
                 print(f"rate limited (429) — waiting {wait}s "
@@ -154,12 +157,11 @@ def graphql(query: str, variables: dict) -> dict:
 
 
 def new_collective(slug: str, name: str, host_slug: str, currency: str) -> dict:
+    # "donors"/"payees" map person-slug -> ISO country (or None if unknown),
+    # the same shape the host-level dicts use.
     return {
         "slug": slug, "name": name, "host": host_slug, "currency": currency,
-        "collected_cents": 0, "paid_cents": 0,
-        "donors": set(), "payees": set(),
-        "donor_countries": set(), "payee_countries": set(),
-        "donors_known": set(), "payees_known": set(),
+        "collected_cents": 0, "paid_cents": 0, "donors": {}, "payees": {},
     }
 
 
@@ -219,11 +221,8 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
                     host["added_funds_cents"] += cents
                 elif other:
                     # Only real contribution donors count as contributors.
-                    host["donors"][other] = host["donors"].get(other) or profile_country
-                    entry["donors"].add(other)
-                    if profile_country:
-                        entry["donor_countries"].add(profile_country)
-                        entry["donors_known"].add(other)
+                    for donors in (host["donors"], entry["donors"]):
+                        donors[other] = donors.get(other) or profile_country
             elif kind == "EXPENSE" and tx_type == "DEBIT":
                 host["paid_cents"] += abs(cents)
                 entry["paid_cents"] += abs(cents)
@@ -234,16 +233,14 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
                             or {}).get("country")
                 country = snapshot or profile_country
                 if other:
-                    host["payees"][other] = host["payees"].get(other) or country
-                    entry["payees"].add(other)
-                    if country:
-                        entry["payee_countries"].add(country)
-                        entry["payees_known"].add(other)
+                    for payees in (host["payees"], entry["payees"]):
+                        payees[other] = payees.get(other) or country
         offset += len(nodes)
         print(f"[{slug}] fetched {min(offset, total)}/{total} transaction(s)", file=sys.stderr)
         if not nodes or offset >= total:
             break
-        time.sleep(0.3)  # be polite to the API
+        if not have_token():
+            time.sleep(0.3)  # be polite to the anonymous rate limit
     if skipped:
         print(f"[{slug}] skipped {len(skipped)} account(s) no longer hosted here: "
               + ", ".join(sorted(skipped)), file=sys.stderr)
@@ -271,6 +268,10 @@ def money(cents: int) -> str:
     return f"{cents / 100:,.2f}"
 
 
+def countries(people: dict) -> set[str]:
+    return {c for c in people.values() if c}
+
+
 def based_on(people: dict, who: str) -> str:
     """Accuracy note for a country metric: which share of people it is based on."""
     if not people:
@@ -279,16 +280,12 @@ def based_on(people: dict, who: str) -> str:
     return f"based on {known} of {len(people)} {who} ({100 * known / len(people):.0f}%)"
 
 
-def countries(people: dict) -> set[str]:
-    return {c for c in people.values() if c}
-
-
 COMPLETE = "complete (public ledger)"
 DONOR_CAVEAT = " — lower bound: only public donor profiles carry a country"
 PAYEE_NOTE = " — from expense payee-location snapshots (host admins see all)"
 
 
-def host_rows(host: dict, active: int) -> list[tuple[str, str, str]]:
+def host_rows(host: dict) -> list[tuple[str, str, str]]:
     """(metric, value, accuracy) rows for one host."""
     cur = host["currency"]
     return [
@@ -302,7 +299,7 @@ def host_rows(host: dict, active: int) -> list[tuple[str, str, str]]:
         ("Unique contributors", str(len(host["donors"])), COMPLETE),
         ("Unique payees (people/orgs paid)", str(len(host["payees"])), COMPLETE),
         ("Hosted collectives (current)", str(host["hosted_current"]), COMPLETE),
-        ("Hosted collectives active this year", str(active), COMPLETE),
+        ("Hosted collectives active this year", str(len(host["collectives"])), COMPLETE),
     ]
 
 
@@ -337,30 +334,24 @@ def combined_rows(hosts: list[dict]) -> list[tuple[str, str, str]]:
     return rows
 
 
-def ratio(known: set, everyone: set, who: str) -> str:
-    if not everyone:
-        return f"no {who}"
-    return f"{len(known)}/{len(everyone)} {who} with known country"
-
-
 TOP_METRICS = [
-    # (title, sort-key factory (rates) -> fn, value label, value getter, accuracy getter)
+    # (title, sort key(collective, rates), value label, value getter, accuracy getter)
     ("Top 3 by money collected",
-     lambda rates: lambda c: c["collected_cents"] * rates.get(c["currency"], 1.0),
+     lambda c, rates: c["collected_cents"] * rates.get(c["currency"], 1.0),
      "Collected", lambda c: f"{money(c['collected_cents'])} {c['currency']}",
      lambda c: "complete"),
     ("Top 3 by money paid out",
-     lambda rates: lambda c: c["paid_cents"] * rates.get(c["currency"], 1.0),
+     lambda c, rates: c["paid_cents"] * rates.get(c["currency"], 1.0),
      "Paid out", lambda c: f"{money(c['paid_cents'])} {c['currency']}",
      lambda c: "complete"),
     ("Top 3 by contributor countries",
-     lambda rates: lambda c: len(c["donor_countries"]),
-     "Countries", lambda c: str(len(c["donor_countries"])),
-     lambda c: ratio(c["donors_known"], c["donors"], "contributors")),
+     lambda c, rates: len(countries(c["donors"])),
+     "Countries", lambda c: str(len(countries(c["donors"]))),
+     lambda c: based_on(c["donors"], "contributors")),
     ("Top 3 by payee countries",
-     lambda rates: lambda c: len(c["payee_countries"]),
-     "Countries", lambda c: str(len(c["payee_countries"])),
-     lambda c: ratio(c["payees_known"], c["payees"], "payees")),
+     lambda c, rates: len(countries(c["payees"])),
+     "Countries", lambda c: str(len(countries(c["payees"]))),
+     lambda c: based_on(c["payees"], "payees")),
 ]
 
 
@@ -368,8 +359,9 @@ def build_top_tables(hosts: list[dict], rates: dict[str, float], top: int = 3) -
     """[(title, header, [(row cells, slug)])] — rankings across ALL hosts."""
     everyone = [c for h in hosts for c in h["collectives"].values()]
     tables = []
-    for title, key_factory, label, get, accuracy in TOP_METRICS:
-        key = key_factory(rates)
+    for title, key_fn, label, get, accuracy in TOP_METRICS:
+        def key(c, key_fn=key_fn):
+            return key_fn(c, rates)
         ranked = sorted((c for c in everyone if key(c)), key=key, reverse=True)[:top]
         header = ["#", "Collective", "Host", label, "Accuracy"]
         rows = [([str(i), c["name"], c["host"], get(c), accuracy(c)], c["slug"])
@@ -378,16 +370,18 @@ def build_top_tables(hosts: list[dict], rates: dict[str, float], top: int = 3) -
     return tables
 
 
-def write_md(hosts, tops, out, title, notes):
+def build_sections(hosts: list[dict]) -> list[tuple[str, list[tuple[str, str, str]]]]:
+    """[(section title, (metric, value, accuracy) rows)] — one per host + combined."""
+    return ([(f"{h['name']} ({h['slug']})", host_rows(h)) for h in hosts]
+            + [("All hosts combined", combined_rows(hosts))])
+
+
+def write_md(sections, tops, out, title, notes):
     lines = [f"# {title}", ""] + [f"- {n}" for n in notes] + [""]
-    metric_header = ["| Metric | Value | Accuracy |", "| --- | --- | --- |"]
-    for h in hosts:
-        lines += [f"## {h['name']} (`{h['slug']}`)", ""] + metric_header
-        lines += [f"| {m} | {v} | {a} |" for m, v, a in host_rows(h, len(h["collectives"]))]
+    for section, rows in sections:
+        lines += [f"## {section}", "", "| Metric | Value | Accuracy |", "| --- | --- | --- |"]
+        lines += [f"| {m} | {v} | {a} |" for m, v, a in rows]
         lines.append("")
-    lines += ["## All hosts combined", ""] + metric_header
-    lines += [f"| {m} | {v} | {a} |" for m, v, a in combined_rows(hosts)]
-    lines.append("")
     for section, header, rows in tops:
         lines += [f"## {section}", "", "| " + " | ".join(header) + " |",
                   "| " + " | ".join(["---"] * len(header)) + " |"]
@@ -401,24 +395,21 @@ def write_md(hosts, tops, out, title, notes):
         f.write("\n".join(lines))
 
 
-def write_csv(hosts, tops, out, title, notes):
+def write_csv(sections, tops, out, title, notes):
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["Section", "Metric or #", "Value", "Accuracy",
                     "Collective", "Collective URL", "Host"])
-        for h in hosts:
-            section = f"{h['name']} ({h['slug']})"
-            for m, v, a in host_rows(h, len(h["collectives"])):
-                w.writerow([section, m, v, a, "", "", h["slug"]])
-        for m, v, a in combined_rows(hosts):
-            w.writerow(["All hosts combined", m, v, a, "", "", ""])
+        for section, rows in sections:
+            for m, v, a in rows:
+                w.writerow([section, m, v, a, "", "", ""])
         for section, header, rows in tops:
             for row, slug in rows:
                 w.writerow([section, row[0], row[3], row[4], row[1],
                             f"https://opencollective.com/{slug}", row[2]])
 
 
-def write_pdf(hosts, tops, out, title, notes):
+def write_pdf(sections, tops, out, title, notes):
     from fpdf import FPDF  # from fpdf2, declared in the script header
 
     def latin1(text: str) -> str:
@@ -448,11 +439,8 @@ def write_pdf(hosts, tops, out, title, notes):
     pdf.set_font("Helvetica", "", 9)
     for n in notes:
         pdf.multi_cell(0, 5, latin1(n), new_x="LMARGIN", new_y="NEXT")
-    for h in hosts:
-        table(f"{h['name']} ({h['slug']})", ["Metric", "Value", "Accuracy"], [65, 35, 90],
-              [[m, v, a] for m, v, a in host_rows(h, len(h["collectives"]))])
-    table("All hosts combined", ["Metric", "Value", "Accuracy"], [65, 35, 90],
-          [[m, v, a] for m, v, a in combined_rows(hosts)])
+    for section, rows in sections:
+        table(section, ["Metric", "Value", "Accuracy"], [65, 35, 90], rows)
     for section, header, rows in tops:
         table(section, header, [8, 62, 35, 35, 50], [row for row, _slug in rows])
     pdf.output(out)
@@ -469,7 +457,7 @@ def run() -> None:
                     help="Output file path (default: output/hosts-yearly-stats-<year>.<format> next to this script).")
     args = ap.parse_args()
 
-    if not (os.environ.get("OC_PERSONAL_TOKEN") or os.environ.get("OC_TOKEN")):
+    if not have_token():
         print("no OC_PERSONAL_TOKEN set — payee countries need a host-admin token "
               "(expense payee locations are admin-only); money/count stats are fine",
               file=sys.stderr)
@@ -482,6 +470,7 @@ def run() -> None:
     date_to = f"{args.year}-12-31T23:59:59Z"
     hosts = [fetch_host_stats(slug, date_from, date_to) for slug in args.hosts]
     rates = fetch_eur_rates({h["currency"] for h in hosts})
+    sections = build_sections(hosts)
     tops = build_top_tables(hosts, rates)
 
     title = f"Hosts yearly stats — {args.year}"
@@ -498,7 +487,7 @@ def run() -> None:
         "amounts shown in each host's currency.",
     ]
     writer = {"md": write_md, "csv": write_csv, "pdf": write_pdf}[args.format]
-    writer(hosts, tops, args.out, title, notes)
+    writer(sections, tops, args.out, title, notes)
     print(f"Wrote stats for {len(hosts)} host(s) to {args.out}")
 
 
