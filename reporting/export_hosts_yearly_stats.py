@@ -42,10 +42,11 @@ Usage, from inside the reporting/ directory (uv fetches deps automatically):
     uv run export_hosts_yearly_stats.py --year 2024
     uv run export_hosts_yearly_stats.py --hosts europe opensource --format csv
 
-Same aggregation rules as export_top_collectives.py: refund legs are skipped,
-events/projects roll up into their parent collective, collectives that migrated
-to another host mid-year are skipped (listed on stderr), and the host's own
-collective is excluded. "Contributors" counts CONTRIBUTION donors; ADDED_FUNDS
+Aggregation rules: refund legs are skipped, events/projects roll up into their
+parent collective, and the host's own collective is excluded. Unlike
+export_top_collectives.py, collectives that migrated to another host after
+transacting are INCLUDED (listed on stderr) — the API matches the host at
+transaction time, so their records are part of this host's period ledger. "Contributors" counts CONTRIBUTION donors; ADDED_FUNDS
 count toward money collected but their source accounts are not treated as
 contributors. Output defaults to the gitignored output/ folder next to this
 script.
@@ -210,7 +211,7 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
         "anon_donors": set(),  # donor slugs that are guest or incognito accounts
         "collectives": {},  # slug -> per-collective stats for the top-3 rankings
     }
-    skipped: set[str] = set()
+    departed: set[str] = set()
     offset = 0
     while True:
         data = graphql(TRANSACTIONS_QUERY, {
@@ -231,11 +232,11 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
             if not acc_slug or acc_slug == slug:
                 # The host's own collective is not a hostee.
                 continue
-            # The API matches the host at transaction time, so collectives that
-            # migrated away mid-period still show up — count only current ones.
+            # The API matches the host at transaction time, so these records
+            # are part of this host's period ledger even when the collective
+            # has since migrated to another host — count them, note them.
             if ((account.get("host") or {}).get("slug") or slug) != slug:
-                skipped.add(acc_slug)
-                continue
+                departed.add(acc_slug)
             amount = node.get("amountInHostCurrency") or {}
             cents = amount.get("valueInCents") or 0
             opposite = node.get("oppositeAccount") or {}
@@ -273,14 +274,15 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
             break
         if not have_token():
             time.sleep(0.3)  # be polite to the anonymous rate limit
-    if skipped:
-        print(f"[{slug}] skipped {len(skipped)} account(s) no longer hosted here: "
-              + ", ".join(sorted(skipped)), file=sys.stderr)
+    if departed:
+        print(f"[{slug}] included {len(departed)} account(s) that transacted in the "
+              f"period but have since left the host: " + ", ".join(sorted(departed)),
+              file=sys.stderr)
     # Hosted during the period = current hostees approved on/before the period's
     # end, plus everyone observed transacting under the host in the period (the
     # sweep proves they were hosted then, even if they left since).
     host["hosted_during"] = len(
-        fetch_hosted_slugs(slug, date_to) | skipped | set(host["collectives"]))
+        fetch_hosted_slugs(slug, date_to) | set(host["collectives"]))
     return host
 
 
