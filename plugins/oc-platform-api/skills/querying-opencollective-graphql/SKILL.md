@@ -1,6 +1,6 @@
 ---
 name: querying-opencollective-graphql
-description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission-shaped nulls, and metrics behind argument-bearing fields.
+description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission-shaped nulls, metrics behind argument-bearing fields, enumerating a host's collectives, corpus-wide text scans, and searchTerm/tagStats semantics.
 ---
 
 # Querying the Open Collective GraphQL MCP
@@ -26,6 +26,9 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 | Count records | select `totalCount` with `limit: 1` — never fetch rows to count (#3) |
 | Read a field not on base `Account` | inline fragment (#1) |
 | Roll a parent's Projects/Events into one total | `includeChildrenExpenses: true` (#4) |
+| List a host's hosted collectives | `accounts(host: [{slug: $h}], isActive: true, type: [COLLECTIVE, FUND])` (#9) |
+| Find collectives by tag | probe `tagStats(host: {slug: $h}, tagSearchTerm: $t)` first, then `accounts(tag: [...])` |
+| Keyword-scan many accounts' text | page cheap fields, post-process saved results (#10) |
 
 ## Gotchas (each one wastes real time)
 
@@ -57,14 +60,32 @@ Fetching rows just to length them wastes tokens and can produce huge results (#5
 ```graphql
 query($s: String) { account(slug: $s) { ... on AccountWithHost { host { slug } } } }
 ```
+Also: **display names drift; only slugs are stable.** Hosts and collectives get renamed (slug `europe` displays as "Open Source Europe", formerly "Open Collective Europe"). Verify identity by slug; treat a display-name mismatch as a probable rename, not a wrong account.
 
-**7. `null` can mean "not visible to your persona", not "empty".** The token is the logged-in persona (`me`); field visibility follows its privileges. A field that is `null` for one account but populated for another often signals a permission/ownership difference — cross-check with #6 before concluding the data is absent.
+**7. `null` can mean "not visible to your persona", not "empty".** The token is the logged-in persona (`me`); field visibility follows its privileges. A field that is `null` for one account but populated for another often signals a permission/ownership difference — cross-check with #6 before concluding the data is absent. Don't over-apply this to public profile fields: on a public list scan, `tags: null` or `description: null` just means the collective didn't set one.
 
 **8. Aggregate/metric data hides behind argument-bearing nested fields.** Host analytics — `host.metrics { hostedCollectivesFinancialActivity }`, `hostedCollectivesMembership`, etc. — each **require an argument**, so they never appear unless you ask with the argument inline:
 ```graphql
 "metrics { hostedCollectivesFinancialActivity(input: { dateRange: {...}, measures: [...] }) { ... } }"
 ```
 `schema_lookup` on the type shows the exact `…MetricsInput` shape; a wrong guess returns a 400 naming the invalid fields. This is the general rule for any nested field with a required arg.
+
+**9. There is no `host.hostedAccounts` field — enumerate a host's collectives via top-level `accounts`.** The canonical query is:
+```graphql
+query($h: String) {
+  accounts(host: [{slug: $h}], isActive: true, type: [COLLECTIVE, FUND], limit: 250, offset: 0) {
+    totalCount
+    nodes { slug name description tags }
+  }
+}
+```
+Without the `type` filter the result also includes hosted Projects, Events, and other account types, so the count can be ~2× the number of actual collectives (e.g. 954 hosted accounts vs 454 collectives/funds on one host). Decide whether "collectives" means `[COLLECTIVE]` or `[COLLECTIVE, FUND]` for the question at hand, and say which you used.
+
+**10. Corpus-wide text scans are a legitimate pattern — and result overflow is recoverable.** To keyword-scan every collective under a host, #5's "keep results small" doesn't apply: page through `accounts(...)` selecting only the cheap text fields (`slug name description tags`). A page can exceed the inline token limit — that's fine: the harness saves the oversized result to a file whose path appears in the tool result, and you filter it with `jq`/`grep` instead of re-reading it inline. Do this deliberately rather than shrinking `limit` until it fits. Two rules keep it cheap:
+- Scan `description` + `tags` broadly; fetch `longDescription` (large HTML with embedded image markup) **only** for shortlisted slugs — selecting it across hundreds of accounts explodes the result.
+- A term that appears *only* in `longDescription` is invisible to the cheap scan — cross-check shortlisting with a `searchTerm` probe (#11) and state the residual coverage gap in your answer.
+
+**11. `searchTerm` is a fuzzy relevance probe, not exhaustive filtering.** Observed behavior: matching is partial/OR-ish (`"open source intelligence"` matched accounts that are merely "open source"), yet a term can return zero hits while related words appear in hosted accounts' descriptions (`"investigation"` → 0 despite "investigate" in profile text). Which fields are indexed, and whether matching stems, is not documented. Use it to *find candidates* and to cross-check a manual scan — never as proof that no match exists. Zero hits ≠ no textual matches.
 
 ## Personal data — make the user aware before retrieving
 
@@ -99,3 +120,5 @@ For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **
 - Counting by fetching and length-ing rows instead of selecting `totalCount` (#3).
 - Aggregating by raw slug without rolling children into parents (#4) or without checking the current host (#6) → inflated, stale, or misattributed totals.
 - Expecting host metrics in a normal selection — they need an inline argument (#8).
+- Looking for a `host.hostedAccounts` field, or counting a host's "collectives" without a `type` filter (#9).
+- Selecting `longDescription` across a whole host's accounts, or trusting a `searchTerm` miss as proof of absence (#10, #11).
