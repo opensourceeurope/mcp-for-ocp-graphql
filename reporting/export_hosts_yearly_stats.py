@@ -26,7 +26,9 @@ are only as good as the underlying visibility:
 
   - PAYEE countries come from the expense's payee-location snapshot (visible to
     host admins; near-complete for invoices) with the payee's public profile as
-    fallback. Run with a host-admin OC_PERSONAL_TOKEN to get real numbers.
+    fallback. Run with a host-admin OC_PERSONAL_TOKEN that has the "expenses"
+    scope enabled — without that scope the API nulls the snapshots even for
+    host admins.
   - CONTRIBUTOR countries are a LOWER BOUND no matter the token: the API only
     exposes a donor's country when their profile makes it public. Payment-card
     countries are never exposed to hosts (verified in the API resolvers — the
@@ -517,6 +519,11 @@ def run() -> None:
     if not have_token():
         print("no OC_PERSONAL_TOKEN set — payee countries need a host-admin token "
               "(expense payee locations are admin-only); money/count stats are fine",
+              file=sys.stderr)
+    else:
+        print("reminder: payee countries need the 'expenses' scope on your token "
+              "AND host-admin rights — low payee coverage usually means the scope "
+              "is missing (Dashboard -> For developers -> your token)",
               file=sys.stderr)
     if not args.out:
         out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
