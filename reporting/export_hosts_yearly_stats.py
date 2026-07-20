@@ -16,8 +16,9 @@ Source Europe) over one calendar year (default 2025):
     (>=1 transaction), and hosted at run time
 
 plus a combined all-hosts section (money summed per currency — no FX guessing;
-people deduped across hosts) and, for each of the four headline metrics, the top 3
-collectives ACROSS all hosts. Cross-host money rankings are ordered using Open
+people deduped across hosts), for each of the four headline metrics the top 3
+collectives ACROSS all hosts, and the top 3 countries by contributor and by
+payee headcount (deduped across hosts). Cross-host money rankings are ordered using Open
 Collective's own USD->EUR exchange rate, but amounts are always displayed in the
 host's currency.
 
@@ -57,6 +58,7 @@ script.
 """
 
 import argparse
+import collections
 import csv
 import json
 import os
@@ -377,20 +379,25 @@ def host_rows(host: dict, year: int) -> list[tuple[str, str, str]]:
     ]
 
 
+def merged_people(hosts: list[dict], key: str) -> dict[str, str | None]:
+    """Dedup donors/payees across hosts; keep a country if any host knows it."""
+    merged: dict[str, str | None] = {}
+    for h in hosts:
+        for who, country in h[key].items():
+            merged[who] = merged.get(who) or country
+    return merged
+
+
 def combined_rows(hosts: list[dict], year: int) -> list[tuple[str, str, str]]:
     per_currency: dict[str, dict[str, int]] = {}
-    donors: dict[str, str | None] = {}
-    payees: dict[str, str | None] = {}
+    donors = merged_people(hosts, "donors")
+    payees = merged_people(hosts, "payees")
     anon: set[str] = set()
     for h in hosts:
         anon |= h["anon_donors"]
         bucket = per_currency.setdefault(h["currency"], {"collected": 0, "paid": 0})
         bucket["collected"] += h["collected_cents"]
         bucket["paid"] += h["paid_cents"]
-        # Dedup people across hosts; keep a country if any host knows it.
-        for src, dst in ((h["donors"], donors), (h["payees"], payees)):
-            for who, country in src.items():
-                dst[who] = dst.get(who) or country
     rows = []
     for cur in sorted(per_currency):
         rows.append((f"Money collected ({cur})", money(per_currency[cur]["collected"]), COMPLETE))
@@ -450,6 +457,22 @@ def build_top_tables(hosts: list[dict], rates: dict[str, float], top: int = 3) -
     return tables
 
 
+def build_country_tables(hosts: list[dict], top: int = 3) -> list:
+    """Top countries by contributor / payee headcount, deduped across hosts."""
+    tables = []
+    for key, who, label, caveat in (
+            ("donors", "contributors", "Contributors", DONOR_CAVEAT),
+            ("payees", "payees", "Payees", PAYEE_NOTE)):
+        people = merged_people(hosts, key)
+        counter = collections.Counter(c for c in people.values() if c)
+        note = based_on(people, who) + caveat
+        rows = [([str(i), country, "all", str(n), note], None)
+                for i, (country, n) in enumerate(counter.most_common(top), 1)]
+        tables.append((f"Top {top} countries by {who}",
+                       ["#", "Country", "Host", label, "Accuracy"], rows))
+    return tables
+
+
 def build_sections(hosts: list[dict], year: int) -> list[tuple[str, list[tuple[str, str, str]]]]:
     """[(section title, (metric, value, accuracy) rows)] — one per host + combined."""
     return ([(f"{h['name']} ({h['slug']})", host_rows(h, year)) for h in hosts]
@@ -467,8 +490,9 @@ def write_md(sections, tops, out, title, notes):
                   "| " + " | ".join(["---"] * len(header)) + " |"]
         for row, slug in rows:
             cells = list(row)
-            name = cells[1].replace("|", "\\|")
-            cells[1] = f"[{name}](https://opencollective.com/{slug})"
+            if slug:
+                name = cells[1].replace("|", "\\|")
+                cells[1] = f"[{name}](https://opencollective.com/{slug})"
             lines.append("| " + " | ".join(cells) + " |")
         lines.append("")
     with open(out, "w", encoding="utf-8") as f:
@@ -485,8 +509,8 @@ def write_csv(sections, tops, out, title, notes):
                 w.writerow([section, m, v, a, "", "", ""])
         for section, header, rows in tops:
             for row, slug in rows:
-                w.writerow([section, row[0], row[3], row[4], row[1],
-                            f"https://opencollective.com/{slug}", row[2]])
+                url = f"https://opencollective.com/{slug}" if slug else ""
+                w.writerow([section, row[0], row[3], row[4], row[1], url, row[2]])
 
 
 def write_pdf(sections, tops, out, title, notes):
@@ -556,7 +580,7 @@ def run() -> None:
     hosts = [fetch_host_stats(slug, date_from, date_to) for slug in args.hosts]
     rates = fetch_eur_rates({h["currency"] for h in hosts})
     sections = build_sections(hosts, args.year)
-    tops = build_top_tables(hosts, rates)
+    tops = build_top_tables(hosts, rates) + build_country_tables(hosts)
 
     title = f"Hosts yearly stats — {args.year}"
     notes = [
