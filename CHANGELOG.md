@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.2...v0.7.0) (2026-07-21)
+
+
+### Features
+
+* add multi-host yearly stats report ([#36](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/36)) ([455c46f](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/455c46f2760e615b2c48eafe0d802ae1e8e38ec1))
+
 ## [0.6.2](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.1...v0.6.2) (2026-07-17)
 
 
