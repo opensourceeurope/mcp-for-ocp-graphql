@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.7.0...v0.8.0) (2026-07-21)
+
+
+### Features
+
+* ship querying-skill guidance on scope-gated nulls and the location-data permission map ([#39](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/39)) ([3711156](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/371115665606d354265185c53e401dc94977bab8))
+
 ## [0.7.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.6.2...v0.7.0) (2026-07-21)
 
 
