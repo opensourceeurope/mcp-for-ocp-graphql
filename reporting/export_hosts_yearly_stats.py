@@ -17,8 +17,10 @@ Source Europe) over one calendar year (default 2025):
 
 plus a combined all-hosts section (money summed per currency — no FX guessing;
 people deduped across hosts), for each of the four headline metrics the top 3
-collectives ACROSS all hosts, and the top 3 countries by contributor and by
-payee headcount (deduped across hosts). Cross-host money rankings are ordered using Open
+collectives ACROSS all hosts, the top 3 countries by contributor and by payee
+headcount, a full country list, and a continent breakdown — each with
+contributor / payee / combined counts and percentage shares (all deduped
+across hosts; percentages are of people with a known country). Cross-host money rankings are ordered using Open
 Collective's own USD->EUR exchange rate, but amounts are always displayed in the
 host's currency.
 
@@ -352,6 +354,15 @@ def money(cents: int) -> str:
     return f"{cents / 100:,.2f}"
 
 
+def or_merge(*people_dicts: dict) -> dict:
+    """Merge slug->country dicts; a person counts once, keep any known country."""
+    merged: dict = {}
+    for d in people_dicts:
+        for who, country in d.items():
+            merged[who] = merged.get(who) or country
+    return merged
+
+
 def countries(people: dict) -> set[str]:
     return {c for c in people.values() if c}
 
@@ -388,6 +399,10 @@ def host_rows(host: dict, year: int) -> list[tuple[str, str, str]]:
          based_on(host["donors"], "contributors") + DONOR_CAVEAT),
         ("Payee countries", str(len(countries(host["payees"]))),
          based_on(host["payees"], "payees") + PAYEE_NOTE),
+        ("Countries reached (contributors + payees)",
+         str(len(countries(or_merge(host["donors"], host["payees"])))),
+         based_on(or_merge(host["donors"], host["payees"]), "people")
+         + " — union of the two country metrics above"),
         ("Unique contributors", str(len(host["donors"])), COMPLETE),
         ("— of which anonymous (guest or incognito)", str(len(host["anon_donors"])),
          COMPLETE + ANON_NOTE),
@@ -402,11 +417,7 @@ def host_rows(host: dict, year: int) -> list[tuple[str, str, str]]:
 
 def merged_people(hosts: list[dict], key: str) -> dict[str, str | None]:
     """Dedup donors/payees across hosts; keep a country if any host knows it."""
-    merged: dict[str, str | None] = {}
-    for h in hosts:
-        for who, country in h[key].items():
-            merged[who] = merged.get(who) or country
-    return merged
+    return or_merge(*(h[key] for h in hosts))
 
 
 def combined_rows(hosts: list[dict], year: int) -> list[tuple[str, str, str]]:
@@ -428,6 +439,10 @@ def combined_rows(hosts: list[dict], year: int) -> list[tuple[str, str, str]]:
          based_on(donors, "contributors") + DONOR_CAVEAT),
         ("Payee countries (deduped across hosts)", str(len(countries(payees))),
          based_on(payees, "payees") + PAYEE_NOTE),
+        ("Countries reached (contributors + payees)",
+         str(len(countries(or_merge(donors, payees)))),
+         based_on(or_merge(donors, payees), "people")
+         + " — union of the two country metrics above"),
         ("Unique contributors (deduped across hosts)", str(len(donors)), COMPLETE),
         ("— of which anonymous (guest or incognito)", str(len(anon)),
          COMPLETE + ANON_NOTE),
@@ -478,6 +493,68 @@ def build_top_tables(hosts: list[dict], rates: dict[str, float], top: int = 3) -
     return tables
 
 
+# ISO-3166 alpha-2 -> continent (UN geoscheme; Cyprus counted as Asia).
+CONTINENT_COUNTRIES = {
+    "Europe": "AD AL AT AX BA BE BG BY CH CZ DE DK EE ES FI FO FR GB GG GI GR HR "
+              "HU IE IM IS IT JE LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS RU "
+              "SE SI SJ SK SM UA VA XK",
+    "Asia": "AE AF AM AZ BD BH BN BT CC CN CX CY GE HK ID IL IN IO IQ IR JO JP KG "
+            "KH KP KR KW KZ LA LB LK MM MN MO MV MY NP OM PH PK PS QA SA SG SY TH "
+            "TJ TL TM TR TW UZ VN YE",
+    "Africa": "AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ "
+              "GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RE RW SC SD SH SL "
+              "SN SO SS ST SZ TD TG TN TZ UG YT ZA ZM ZW",
+    "North America": "AG AI AW BB BL BM BQ BS BZ CA CR CU CW DM DO GD GL GP GT HN "
+                     "HT JM KN KY LC MF MQ MS MX NI PA PM PR SV SX TC TT US VC VG VI",
+    "South America": "AR BO BR CL CO EC FK GF GY PE PY SR UY VE",
+    "Oceania": "AS AU CK FJ FM GU KI MH MP NC NF NR NU NZ PF PG PN PW SB TK TO TV "
+               "UM VU WF WS",
+    "Antarctica": "AQ BV GS HM TF",
+}
+COUNTRY_TO_CONTINENT = {code: continent
+                        for continent, codes in CONTINENT_COUNTRIES.items()
+                        for code in codes.split()}
+
+
+def build_country_breakdown(hosts: list[dict]) -> list:
+    """Full country and continent breakdowns: contributors / payees / combined.
+
+    Returns [(title, header, rows)] with plain string cells; percentages are of
+    people WITH a known country, and an "(unknown)" row shows who is outside them.
+    """
+    donors = merged_people(hosts, "donors")
+    payees = merged_people(hosts, "payees")
+    groups = [("Contributors", donors), ("Payees", payees),
+              ("Combined", or_merge(donors, payees))]
+
+    def group_rows(keyer) -> list[list[str]]:
+        counters = [collections.Counter(keyer(c) for c in people.values() if c)
+                    for _, people in groups]
+        known = [sum(c.values()) for c in counters]
+        keys = sorted(set().union(*counters),
+                      key=lambda k: (-counters[2][k], k))  # by combined count
+        rows = []
+        for k in keys:
+            row = [k]
+            for counter, base in zip(counters, known):
+                n = counter[k]
+                row += [str(n), f"{100 * n / base:.1f}%" if base else "-"]
+            rows.append(row)
+        unknown = ["(unknown)"]
+        for (_, people), base in zip(groups, known):
+            unknown += [str(len(people) - base), "-"]
+        return rows + [unknown]
+
+    header = lambda first: [first] + [c for name, _ in groups for c in (name, "%")]
+    return [
+        ("All countries — contributors / payees / combined",
+         header("Country"), group_rows(lambda c: c)),
+        ("Continents — contributors / payees / combined",
+         header("Continent"),
+         group_rows(lambda c: COUNTRY_TO_CONTINENT.get(c, "Other"))),
+    ]
+
+
 def build_country_tables(hosts: list[dict], top: int = 3) -> list:
     """Top countries by contributor / payee headcount, deduped across hosts."""
     tables = []
@@ -500,27 +577,33 @@ def build_sections(hosts: list[dict], year: int) -> list[tuple[str, list[tuple[s
             + [("All hosts combined", combined_rows(hosts, year))])
 
 
-def write_md(sections, tops, out, title, notes):
+def write_md(sections, tops, breakdowns, out, title, notes):
     lines = [f"# {title}", ""] + [f"- {n}" for n in notes] + [""]
-    for section, rows in sections:
-        lines += [f"## {section}", "", "| Metric | Value | Accuracy |", "| --- | --- | --- |"]
-        lines += [f"| {m} | {v} | {a} |" for m, v, a in rows]
+
+    def md_table(section, header, cell_rows):
+        lines.extend([f"## {section}", "", "| " + " | ".join(header) + " |",
+                      "| " + " | ".join(["---"] * len(header)) + " |"])
+        lines.extend("| " + " | ".join(cells) + " |" for cells in cell_rows)
         lines.append("")
+
+    for section, rows in sections:
+        md_table(section, ["Metric", "Value", "Accuracy"], rows)
     for section, header, rows in tops:
-        lines += [f"## {section}", "", "| " + " | ".join(header) + " |",
-                  "| " + " | ".join(["---"] * len(header)) + " |"]
+        linked = []
         for row, slug in rows:
             cells = list(row)
             if slug:
                 name = cells[1].replace("|", "\\|")
                 cells[1] = f"[{name}](https://opencollective.com/{slug})"
-            lines.append("| " + " | ".join(cells) + " |")
-        lines.append("")
+            linked.append(cells)
+        md_table(section, header, linked)
+    for section, header, rows in breakdowns:
+        md_table(section, header, rows)
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
 
-def write_csv(sections, tops, out, title, notes):
+def write_csv(sections, tops, breakdowns, out, title, notes):
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["Section", "Metric or #", "Value", "Accuracy",
@@ -532,9 +615,14 @@ def write_csv(sections, tops, out, title, notes):
             for row, slug in rows:
                 url = f"https://opencollective.com/{slug}" if slug else ""
                 w.writerow([section, row[0], row[3], row[4], row[1], url, row[2]])
+        for section, header, rows in breakdowns:
+            w.writerow([])
+            w.writerow([section] + header)
+            for cells in rows:
+                w.writerow([""] + cells)
 
 
-def write_pdf(sections, tops, out, title, notes):
+def write_pdf(sections, tops, breakdowns, out, title, notes):
     from fpdf import FPDF  # from fpdf2, declared in the script header
     from fpdf.fonts import FontFace
 
@@ -573,6 +661,8 @@ def write_pdf(sections, tops, out, title, notes):
         table(section, ["Metric", "Value", "Accuracy"], rows, (34, 14, 52))
     for section, header, rows in tops:
         table(section, header, [row for row, _slug in rows], (5, 25, 15, 15, 40))
+    for section, header, rows in breakdowns:
+        table(section, header, rows, tuple([3] + [2] * (len(header) - 1)))
     pdf.output(out)
 
 
@@ -607,6 +697,7 @@ def run() -> None:
     rates = fetch_eur_rates({h["currency"] for h in hosts})
     sections = build_sections(hosts, args.year)
     tops = build_top_tables(hosts, rates) + build_country_tables(hosts)
+    breakdowns = build_country_breakdown(hosts)
 
     title = f"Hosts yearly stats — {args.year}"
     notes = [
@@ -620,9 +711,11 @@ def run() -> None:
         "exposed to hosts, with any token.",
         "Top-3 money rankings are ordered via Open Collective's USD/EUR rate at run time; "
         "amounts shown in each host's currency.",
+        "Country/continent breakdown percentages are of people WITH a known country; "
+        "the (unknown) row shows how many people sit outside them.",
     ]
     writer = {"md": write_md, "csv": write_csv, "pdf": write_pdf}[args.format]
-    writer(sections, tops, args.out, title, notes)
+    writer(sections, tops, breakdowns, args.out, title, notes)
     print(f"Wrote stats for {len(hosts)} host(s) to {args.out}")
 
 
