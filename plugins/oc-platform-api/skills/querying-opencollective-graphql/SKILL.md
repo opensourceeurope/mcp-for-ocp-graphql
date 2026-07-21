@@ -1,6 +1,6 @@
 ---
 name: querying-opencollective-graphql
-description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission-shaped nulls, metrics behind argument-bearing fields, enumerating a host's collectives, corpus-wide text scans, and searchTerm/tagStats semantics.
+description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission- and scope-shaped nulls, metrics behind argument-bearing fields, enumerating a host's collectives, corpus-wide text scans, searchTerm/tagStats semantics, and where location/country data actually lives (and doesn't).
 ---
 
 # Querying the Open Collective GraphQL MCP
@@ -29,6 +29,9 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 | List a host's hosted collectives | `accounts(host: [{slug: $h}], isActive: true, type: [COLLECTIVE, FUND])` (#9) |
 | Find collectives by tag | probe `tagStats(host: {slug: $h}, tagSearchTerm: $t)` first, then `accounts(tag: [...])` |
 | Keyword-scan many accounts' text | page cheap fields, post-process saved results (#10) |
+| Convert between currencies | `currencyExchangeRate(requests: [{fromCurrency: USD, toCurrency: EUR}]) { value }` — OC's own rates |
+| Split out anonymous donors | `isIncognito` (any Account) + `... on Individual { isGuest }` — both public |
+| "Hosted during period X" | current hostees' `... on AccountWithHost { approvedAt }` (public) ≤ period end; departure dates are NOT exposed, so add accounts observed transacting under the host in the period |
 
 ## Gotchas (each one wastes real time)
 
@@ -64,11 +67,16 @@ Also: **display names drift; only slugs are stable.** Hosts and collectives get 
 
 **7. `null` can mean "not visible to your persona", not "empty".** The token is the logged-in persona (`me`); field visibility follows its privileges. A field that is `null` for one account but populated for another often signals a permission/ownership difference — cross-check with #6 before concluding the data is absent. Don't over-apply this to public profile fields: on a public list scan, `tags: null` or `description: null` just means the collective didn't set one.
 
+Three refinements that tell the cases apart:
+- **Shape is diagnostic.** A `null` *object* (`payeeLocation: null`) is a refused permission; an object *full of nulls* (`payeeLocation: {country: null, address: null}`) is a granted permission over data that was never captured. The second is final — no token sees more.
+- **Token scopes gate fields independently of role.** A host admin whose personal token lacks the `expenses` scope still gets `null` for `Expense.payeeLocation` and `PayoutMethod.data` — the resolver checks the scope before any role check. When an admin reports "I should see this but don't", suspect a missing scope (Dashboard → For developers → token scopes) before doubting their role.
+- **Permission rules aren't in the schema — read the resolver.** `schema_lookup` shows types, never visibility. The API is open source (`opencollective/opencollective-api`, `server/graphql/v2/object/*` and `server/graphql/common/*`); fetching the resolver answers "who can see this" definitively and beats running experiments.
+
 **8. Aggregate/metric data hides behind argument-bearing nested fields.** Host analytics — `host.metrics { hostedCollectivesFinancialActivity }`, `hostedCollectivesMembership`, etc. — each **require an argument**, so they never appear unless you ask with the argument inline:
 ```graphql
 "metrics { hostedCollectivesFinancialActivity(input: { dateRange: {...}, measures: [...] }) { ... } }"
 ```
-`schema_lookup` on the type shows the exact `…MetricsInput` shape; a wrong guess returns a 400 naming the invalid fields. This is the general rule for any nested field with a required arg.
+`schema_lookup` on the type shows the exact `…MetricsInput` shape; a wrong guess returns a 400 naming the invalid fields. This is the general rule for any nested field with a required arg. Note `host.metrics` itself is admin-gated: it returns `null` (not an error) without a host-admin token, and its membership measures are join/churn *flows*, not a "how many hosted at time T" stock.
 
 **9. There is no `host.hostedAccounts` field — enumerate a host's collectives via top-level `accounts`.** The canonical query is:
 ```graphql
@@ -86,6 +94,20 @@ Without the `type` filter the result also includes hosted Projects, Events, and 
 - A term that appears *only* in `longDescription` is invisible to the cheap scan — cross-check shortlisting with a `searchTerm` probe (#11) and state the residual coverage gap in your answer.
 
 **11. `searchTerm` is a fuzzy relevance probe, not exhaustive filtering.** Observed behavior: matching is partial/OR-ish (`"open source intelligence"` matched accounts that are merely "open source"), yet a term can return zero hits while related words appear in hosted accounts' descriptions (`"investigation"` → 0 despite "investigate" in profile text). Which fields are indexed, and whether matching stems, is not documented. Use it to *find candidates* and to cross-check a manual scan — never as proof that no match exists. Zero hits ≠ no textual matches.
+
+## Where location/country data lives (verified in the API resolvers)
+
+Recurring ask: "which countries do our contributors / payees come from?" The answer is bounded by design — know the map before promising coverage:
+
+| Source | Who sees it | What it holds |
+|--------|-------------|---------------|
+| `Individual.location` | The person themselves; others only via a context permission granted in *expense* contexts. **Donors' locations are never visible to the receiving host.** | Profile country — mostly empty in practice |
+| `Expense.payeeLocation` | Collective/host admins with the `expenses` scope | Address snapshot taken at submission — **mandatory for INVOICE, blank for RECEIPT** (reimbursements) |
+| `PayoutMethod.data` | Same as above | Bank details: Wise-style `details.address.country`, IBAN prefix = bank country. **PayPal = email only, no country** |
+| `PaymentMethod.data` | **Only the owning donor's admins** (+ `orders` scope) | Card country exists here but is unreachable for the receiving host — with any token |
+| `Order.data` | Nobody — resolver returns `pick(order.data, [])` | — |
+
+Consequences: payee countries are recoverable to ~95% for a host admin (payeeLocation → payout bank details → profile); contributor countries are a structural lower bound (public profiles only) — the real data sits in the host's payment processor (Stripe/PayPal dashboards), outside the API. Always report country stats with their evidence base ("based on N of M payees").
 
 ## Personal data — make the user aware before retrieving
 
@@ -122,3 +144,5 @@ For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **
 - Expecting host metrics in a normal selection — they need an inline argument (#8).
 - Looking for a `host.hostedAccounts` field, or counting a host's "collectives" without a `type` filter (#9).
 - Selecting `longDescription` across a whole host's accounts, or trusting a `searchTerm` miss as proof of absence (#10, #11).
+- Blaming a role ("but I'm host admin!") for a `null` that a missing token scope causes, or reading an object-of-nulls as hidden data when it means "never captured" (#7).
+- Promising contributor-country stats a host admin cannot obtain — donor locations and card countries are unreachable for the receiving host (see the location map).
