@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["fpdf2>=2.7"]
+# dependencies = ["fpdf2>=2.7", "pycountry>=23.12"]
 # ///
 """Yearly stats for a list of Open Collective hosts — run by YOU, never by the AI.
 
@@ -68,6 +68,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+
+import pycountry
 
 API_URL = "https://api.opencollective.com/graphql/v2"
 PAGE_SIZE = 500
@@ -367,6 +369,13 @@ def countries(people: dict) -> set[str]:
     return {c for c in people.values() if c}
 
 
+def country_name(code: str) -> str:
+    """Human name for an ISO-3166 alpha-2 code, e.g. 'DE' -> 'Germany (DE)'."""
+    match = pycountry.countries.get(alpha_2=code)
+    name = getattr(match, "common_name", None) or getattr(match, "name", None)
+    return f"{name} ({code})" if name else code
+
+
 def based_on(people: dict, who: str) -> str:
     """Accuracy note for a country metric: which share of people it is based on."""
     if not people:
@@ -527,7 +536,7 @@ def build_country_breakdown(hosts: list[dict]) -> list:
     groups = [("Contributors", donors), ("Payees", payees),
               ("Combined", or_merge(donors, payees))]
 
-    def group_rows(keyer) -> list[list[str]]:
+    def group_rows(keyer, labeler=lambda k: k) -> list[list[str]]:
         counters = [collections.Counter(keyer(c) for c in people.values() if c)
                     for _, people in groups]
         known = [sum(c.values()) for c in counters]
@@ -535,7 +544,7 @@ def build_country_breakdown(hosts: list[dict]) -> list:
                       key=lambda k: (-counters[2][k], k))  # by combined count
         rows = []
         for k in keys:
-            row = [k]
+            row = [labeler(k)]
             for counter, base in zip(counters, known):
                 n = counter[k]
                 row += [str(n), f"{100 * n / base:.1f}%" if base else "-"]
@@ -548,7 +557,7 @@ def build_country_breakdown(hosts: list[dict]) -> list:
     header = lambda first: [first] + [c for name, _ in groups for c in (name, "%")]
     return [
         ("All countries — contributors / payees / combined",
-         header("Country"), group_rows(lambda c: c)),
+         header("Country"), group_rows(lambda c: c, country_name)),
         ("Continents — contributors / payees / combined",
          header("Continent"),
          group_rows(lambda c: COUNTRY_TO_CONTINENT.get(c, "Other"))),
@@ -564,7 +573,7 @@ def build_country_tables(hosts: list[dict], top: int = 3) -> list:
         people = merged_people(hosts, key)
         counter = collections.Counter(c for c in people.values() if c)
         note = based_on(people, who) + caveat
-        rows = [([str(i), country, "all", str(n), note], None)
+        rows = [([str(i), country_name(country), "all", str(n), note], None)
                 for i, (country, n) in enumerate(counter.most_common(top), 1)]
         tables.append((f"Top {top} countries by {who}",
                        ["#", "Country", "Host", label, "Accuracy"], rows))
