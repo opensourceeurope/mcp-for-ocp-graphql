@@ -230,6 +230,7 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
         "collected_cents": 0, "added_funds_cents": 0, "paid_cents": 0,
         # slug -> ISO country or None; one entry per unique donor/payee.
         "donors": {}, "payees": {},
+        "payee_pm_types": {},  # payee slug -> payout-method types seen
         "anon_donors": set(),  # donor slugs that are guest or incognito accounts
         "collectives": {},  # slug -> per-collective stats for the top-3 rankings
     }
@@ -292,6 +293,8 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
                 if other:
                     for payees in (host["payees"], entry["payees"]):
                         payees[other] = payees.get(other) or country
+                    pm_type = (expense.get("payoutMethod") or {}).get("type") or "none"
+                    host["payee_pm_types"].setdefault(other, set()).add(pm_type)
         offset += len(nodes)
         print(f"[{slug}] fetched {min(offset, total)}/{total} transaction(s)", file=sys.stderr)
         if not nodes or offset >= total:
@@ -301,6 +304,15 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
     if departed:
         print(f"[{slug}] included {len(departed)} account(s) that transacted in the "
               f"period but have since left the host: " + ", ".join(sorted(departed)),
+              file=sys.stderr)
+    unknown = [p for p, c in host["payees"].items() if not c]
+    if unknown:
+        # Show what the countryless payees were paid with, so a low coverage
+        # number explains itself (PayPal/OTHER carry no country data).
+        type_counts = collections.Counter(
+            "+".join(sorted(host["payee_pm_types"].get(p) or {"none"})) for p in unknown)
+        print(f"[{slug}] {len(unknown)} payee(s) without country, by payout method: "
+              + ", ".join(f"{t}: {n}" for t, n in type_counts.most_common()),
               file=sys.stderr)
     # Hosted during the period = current hostees approved on/before the period's
     # end, plus everyone observed transacting under the host in the period (the
