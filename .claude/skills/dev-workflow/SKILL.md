@@ -80,6 +80,17 @@ merge the release PR.
 the version bump). Subjects may lead with acronyms/proper nouns — `subject-case` is
 disabled in `.commitlintrc.json`.
 
+**Pick the type by what ships, not by what kind of edit it is:**
+
+- Anything under `plugins/oc-platform-api/` — including skill content
+  (`skills/*/SKILL.md`) — only reaches users through a plugin release, so changes there
+  are `feat:` (or `fix:`), **never** `docs:`/`chore:`, even when the diff is pure prose.
+- `reporting/` scripts are side artifacts of the project, not part of the released
+  package/plugin — use `chore:` so they don't trigger a release.
+- If a plugin change already merged with a no-release type, recover with an empty-diff
+  `feat:` PR (`git commit --allow-empty`) describing the change so release-please cuts
+  the release; merged commits on main can't be retyped.
+
 ## The release flow
 
 ```
