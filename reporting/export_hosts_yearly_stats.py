@@ -100,7 +100,7 @@ query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $of
         }
       }
       oppositeAccount { slug isIncognito location { country } ... on Individual { isGuest } }
-      expense { payeeLocation { country } payoutMethod { type data } }
+      expense { legacyId account { slug } payeeLocation { country } payoutMethod { type data } }
       amountInHostCurrency { valueInCents currency }
     }
   }
@@ -230,7 +230,7 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
         "collected_cents": 0, "added_funds_cents": 0, "paid_cents": 0,
         # slug -> ISO country or None; one entry per unique donor/payee.
         "donors": {}, "payees": {},
-        "payee_pm_types": {},  # payee slug -> payout-method types seen
+        "payee_debug": {},  # payee slug -> payout types + a sample expense URL
         "anon_donors": set(),  # donor slugs that are guest or incognito accounts
         "collectives": {},  # slug -> per-collective stats for the top-3 rankings
     }
@@ -293,8 +293,12 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
                 if other:
                     for payees in (host["payees"], entry["payees"]):
                         payees[other] = payees.get(other) or country
-                    pm_type = (expense.get("payoutMethod") or {}).get("type") or "none"
-                    host["payee_pm_types"].setdefault(other, set()).add(pm_type)
+                    dbg = host["payee_debug"].setdefault(other, {"types": set(), "url": ""})
+                    dbg["types"].add((expense.get("payoutMethod") or {}).get("type") or "none")
+                    if not dbg["url"] and expense.get("legacyId"):
+                        exp_acc = (expense.get("account") or {}).get("slug") or acc_slug
+                        dbg["url"] = (f"https://opencollective.com/{exp_acc}"
+                                      f"/expenses/{expense['legacyId']}")
         offset += len(nodes)
         print(f"[{slug}] fetched {min(offset, total)}/{total} transaction(s)", file=sys.stderr)
         if not nodes or offset >= total:
@@ -307,13 +311,18 @@ def fetch_host_stats(slug: str, date_from: str, date_to: str) -> dict:
               file=sys.stderr)
     unknown = [p for p, c in host["payees"].items() if not c]
     if unknown:
-        # Show what the countryless payees were paid with, so a low coverage
-        # number explains itself (PayPal/OTHER carry no country data).
-        type_counts = collections.Counter(
-            "+".join(sorted(host["payee_pm_types"].get(p) or {"none"})) for p in unknown)
-        print(f"[{slug}] {len(unknown)} payee(s) without country, by payout method: "
-              + ", ".join(f"{t}: {n}" for t, n in type_counts.most_common()),
+        # Terminal-only breadcrumbs for manual investigation: the payee's
+        # profile, what they were paid with (PayPal/OTHER carry no country
+        # data), and one of their expenses to click into.
+        print(f"[{slug}] {len(unknown)} payee(s) without country — to investigate:",
               file=sys.stderr)
+        for p in sorted(unknown)[:40]:
+            dbg = host["payee_debug"].get(p) or {}
+            types = "/".join(sorted(dbg.get("types") or {"none"}))
+            sample = f"  e.g. {dbg['url']}" if dbg.get("url") else ""
+            print(f"  https://opencollective.com/{p} ({types}){sample}", file=sys.stderr)
+        if len(unknown) > 40:
+            print(f"  ... and {len(unknown) - 40} more", file=sys.stderr)
     # Hosted during the period = current hostees approved on/before the period's
     # end, plus everyone observed transacting under the host in the period (the
     # sweep proves they were hosted then, even if they left since).
