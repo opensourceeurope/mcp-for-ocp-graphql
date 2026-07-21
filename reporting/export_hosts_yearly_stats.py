@@ -515,25 +515,30 @@ def write_csv(sections, tops, out, title, notes):
 
 def write_pdf(sections, tops, out, title, notes):
     from fpdf import FPDF  # from fpdf2, declared in the script header
+    from fpdf.fonts import FontFace
 
     def latin1(text: str) -> str:
-        # latin-1 is fpdf's core-font encoding; drop anything outside it.
+        # latin-1 is fpdf's core-font encoding; swap the report's few
+        # non-latin-1 characters for ASCII, drop anything else.
+        text = text.replace("—", "-").replace("≥", ">=").replace("’", "'")
         return text.encode("latin-1", "replace").decode("latin-1")
 
-    def table(section, header, widths, rows):
-        pdf.ln(4)
+    def table(section, header, rows, widths):
+        pdf.ln(3)
         pdf.set_font("Helvetica", "B", 11)
         pdf.cell(0, 8, latin1(section), new_x="LMARGIN", new_y="NEXT")
-        if header:
-            pdf.set_font("Helvetica", "B", 7)
-            for w, label in zip(widths, header):
-                pdf.cell(w, 7, latin1(label), border=1)
-            pdf.ln()
-        pdf.set_font("Helvetica", "", 7)
-        for row in rows:
-            for w, text in zip(widths, row):
-                pdf.cell(w, 6, latin1(text), border=1)
-            pdf.ln()
+        pdf.set_font("Helvetica", "", 8)
+        # pdf.table() wraps long cell text and handles page breaks — plain
+        # cell() rows run off the page with the long accuracy notes.
+        with pdf.table(col_widths=widths, first_row_as_headings=True,
+                       headings_style=FontFace(emphasis="BOLD")) as t:
+            head = t.row()
+            for label in header:
+                head.cell(latin1(label))
+            for cells in rows:
+                row = t.row()
+                for text in cells:
+                    row.cell(latin1(text))
 
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -544,9 +549,9 @@ def write_pdf(sections, tops, out, title, notes):
     for n in notes:
         pdf.multi_cell(0, 5, latin1(n), new_x="LMARGIN", new_y="NEXT")
     for section, rows in sections:
-        table(section, ["Metric", "Value", "Accuracy"], [65, 35, 90], rows)
+        table(section, ["Metric", "Value", "Accuracy"], rows, (34, 14, 52))
     for section, header, rows in tops:
-        table(section, header, [8, 62, 35, 35, 50], [row for row, _slug in rows])
+        table(section, header, [row for row, _slug in rows], (5, 25, 15, 15, 40))
     pdf.output(out)
 
 
