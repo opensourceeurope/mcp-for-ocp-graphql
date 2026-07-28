@@ -22,6 +22,7 @@ Once a personal email lands in a `graphql_query` result, it is in the model's co
 2. **Do NOT run the script yourself** (no Bash, no `uv run`, not even to "test it"). Running it pulls the data back through you. Hand the user the file and the command; they run it.
 3. **The token is the user's.** The script reads it from the `OC_PERSONAL_TOKEN` environment variable — never hard-code it, never ask the user to paste it to you, never print it.
 4. The script only **queries and writes a file**. It must not send data anywhere else (no upload, no extra network calls).
+5. **Always send a real `User-Agent` header on the request.** Cloudflare sits in front of the API and 403s Python's default urllib user agent with `error code: 1010`, so the export fails before it starts. The template already sets `"User-Agent": "Mozilla/5.0 (compatible; oc-local-export/1.0)"` — if you customize, rewrite, or hand-roll the request, keep that header. This is the single most common reason a generated export script fails on first run.
 
 ## How to build it
 
