@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.9.0...v0.10.0) (2026-07-28)
+
+
+### Features
+
+* add plugin displayName for the /plugin picker ([#45](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/45)) ([4e21606](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/4e216069cabff25a6d2923ef3156b058b030082f))
+
 ## [0.9.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.8.1...v0.9.0) (2026-07-28)
 
 
