@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.8.0...v0.8.1) (2026-07-28)
+
+
+### Bug Fixes
+
+* require User-Agent header in export-script guidance to dodge Cloudflare 1010 ([#41](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/41)) ([352cf80](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/352cf80576d24fef9a2a42d7cf9e031690f3c545))
+
 ## [0.8.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.7.0...v0.8.0) (2026-07-21)
 
 
