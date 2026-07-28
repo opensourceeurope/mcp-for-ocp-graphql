@@ -91,8 +91,8 @@ If that prints a version number, you're set. Full instructions: [docs.astral.sh/
 For Claude Code, install the plugin instead of wiring things up by hand. It ships the MCP server (stdio, via `uvx`), the querying skill, and an `opencollective-analyst` agent — all pinned to a released version. Plugins install at **user scope** (globally, across all your projects), which is the recommended setup:
 
 ```bash
-/plugin marketplace add opensourceeurope/mcp-for-ocp-graphql
-/plugin install oc-platform-api@ose-ai
+/plugin marketplace add opensourceeurope/ose-ai
+/plugin install oc-platform-mcp@ose-ai
 /reload-plugins
 ```
 
@@ -115,9 +115,9 @@ export OC_PERSONAL_TOKEN=oc_xxx && claude
 Register your own user-scoped server with the token baked in. It's stored in your personal `~/.claude.json` (never committed to any repo). The `remove` makes re-running safe:
 
 ```bash
-claude mcp remove -s user oc-platform-api 2>/dev/null
+claude mcp remove -s user oc-platform-mcp 2>/dev/null
 claude mcp add -s user -e OC_PERSONAL_TOKEN=oc_xxx \
-  -t stdio oc-platform-api -- uvx mcp-for-ocp-graphql
+  -t stdio oc-platform-mcp -- uvx mcp-for-ocp-graphql
 ```
 
 Restart Claude Code afterwards to load it (this is a standalone server, so `/reload-plugins` won't pick it up). This standalone server exposes the same three tools, authenticated — it runs *alongside* the plugin's anonymous one, so you'll see the tools twice (redundant, not broken). If that bothers you, skip the `mcp add` and instead put `export OC_PERSONAL_TOKEN=oc_xxx` in your shell profile (`~/.zshrc`, `~/.bashrc`): the plugin's own server then starts authenticated every session, with no second server.
