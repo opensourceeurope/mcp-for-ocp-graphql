@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "oc-platform-api": {
+    "oc-platform-mcp": {
       "type": "stdio",
       "command": "uvx",
       "args": ["mcp-for-ocp-graphql==0.8.1"]
