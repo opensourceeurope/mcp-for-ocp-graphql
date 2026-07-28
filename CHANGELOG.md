@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.8.1...v0.9.0) (2026-07-28)
+
+
+### Features
+
+* rename plugin to oc-platform-mcp and publish via the ose-ai catalog ([#43](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/43)) ([4d0f4eb](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/4d0f4eb169f1d32dee498ded9c2f3a07c49d9f5c))
+
 ## [0.8.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.8.0...v0.8.1) (2026-07-28)
 
 
