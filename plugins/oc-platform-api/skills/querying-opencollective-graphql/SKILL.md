@@ -115,6 +115,8 @@ Some fields return **personal data** (`email`/`emails` and contact fields on Ind
 
 **Default: do not select these fields.** Don't slip them into a wider selection, and don't have a subagent fetch them.
 
+**Files on disk count too.** A local export produced by the export workflow (e.g. `reporting/output/*-admins.csv`) holds the same PII as a query result — reading its data rows with `cat`/`head`/`grep`/Read is the same disclosure as selecting the field, even for an innocent-looking task ("check the structure", "which script made this"). Inspect such files via `head -1` (header) and `wc -l` only, answer content questions from the generating script's code, and for "read me a value from it" requests follow the exporting-personal-data-locally skill: warn, then hand the user a command for their own terminal.
+
 **When the user asks for PII (or you'd recommend it):**
 1. Tell them plainly what will happen — the data enters the model's context (provider's servers for a hosted model, their machine for a local one), and anywhere you then write it is a further disclosure. If you don't know which kind of model you're running under, say so.
 2. Once they confirm with that awareness, do what they asked — it's their data and their call.
