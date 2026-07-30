@@ -2,8 +2,10 @@
 # requires-python = ">=3.10"
 # dependencies = ["fpdf2>=2.7", "openpyxl>=3.1"]
 # ///
-"""Export all collectives hosted by a host (default: "europe" / Open Source
-Europe), one row per collective — built as input for categorizing them.
+"""Export all collectives and funds hosted by a host (default: "europe" /
+Open Source Europe), one row per account — built as input for categorizing
+them. Funds matter: e.g. CaptainFact lives under this host as a FUND and
+would be invisible to a COLLECTIVE-only query.
 
 Per collective: creation date, last donation, last financial operation, a
 Never Active flag (same definition as export_never_active_collectives.py —
@@ -51,7 +53,7 @@ API_URL = "https://api.opencollective.com/graphql/v2"
 # flag with the same definition as export_never_active_collectives.py.
 QUERY = """
 query ($host: [AccountReferenceInput], $limit: Int!, $offset: Int!) {
-  accounts(host: $host, type: [COLLECTIVE], limit: $limit, offset: $offset) {
+  accounts(host: $host, type: [COLLECTIVE, FUND], limit: $limit, offset: $offset) {
     totalCount
     nodes {
       name
