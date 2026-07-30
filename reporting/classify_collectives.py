@@ -17,7 +17,8 @@ Two modes:
         Classifies every collective against the taxonomy file, in batches.
         Appends columns: Open Source (yes/no — does it produce/maintain open
         source software, hardware, or content; advocacy/meetups alone are
-        "no"), Category 1-3 (from the taxonomy, most specific first),
+        "no"), Tech (yes/no — is the activity technology-centered at all),
+        Category 1-3 (from the taxonomy, most specific first),
         Confidence (high/medium/low), AI Reasoning (one sentence).
         Writes <input stem>-classified.csv and .xlsx next to the input.
 
@@ -40,7 +41,7 @@ DEFAULT_INPUT = os.path.join(HERE, "output", "europe-collectives.csv")
 TAXONOMY_PATH = os.path.join(HERE, "output", "collectives-taxonomy.md")
 CACHE_PATH = os.path.join(HERE, "output", "classify-cache.jsonl")
 
-NEW_COLUMNS = ["Open Source", "Category 1", "Category 2", "Category 3", "Confidence", "AI Reasoning"]
+NEW_COLUMNS = ["Open Source", "Tech", "Category 1", "Category 2", "Category 3", "Confidence", "AI Reasoning"]
 BATCH_SIZE = 15
 LONG_DESC_CHARS = 800
 PROJECTS_CHARS = 400
@@ -150,6 +151,10 @@ For each collective output an object:
 - "open_source": "yes" only if it produces or maintains open source software,
   hardware, or openly licensed content; advocacy, meetups, user groups, or
   unrelated community projects are "no"
+- "tech": "yes" if the collective's activity centers on technology — building
+  or operating software, hardware, or digital services/infrastructure, or
+  organizing tech communities and events; "no" for arts, mutual aid, local
+  community, sports, food, and similar non-technology collectives
 - "categories": 1 to 3 category names from the taxonomy, most specific first
 - "confidence": "high", "medium" or "low" (how much signal the text gave you)
 - "reasoning": one short sentence justifying the judgement
@@ -165,6 +170,7 @@ The collectives:
         cats = [c for c in obj.get("categories") or [] if c in categories][:3]
         results[obj["slug"]] = {
             "Open Source": "yes" if obj.get("open_source") == "yes" else "no",
+            "Tech": "yes" if obj.get("tech") == "yes" else "no",
             "Category 1": cats[0] if len(cats) > 0 else "",
             "Category 2": cats[1] if len(cats) > 1 else "",
             "Category 3": cats[2] if len(cats) > 2 else "",
