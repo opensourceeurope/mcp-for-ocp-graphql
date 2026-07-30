@@ -1,4 +1,0 @@
-2026-07-30 12:21:49,858 - mcp.server.lowlevel.server - INFO - Processing request of type ListToolsRequest
-2026-07-30 12:21:49,858 - opencrane.mcp.services.milvus_client - INFO - Connecting to Milvus at /Users/derberg/.cache/uv/archive-v0/XmAS0pKIPPJacWI10JkjN/lib/python3.11/site-packages/ose_knowledge_mcp/data/milvus.db
-2026-07-30 12:21:50,410 - opencrane.mcp.services.milvus_client - INFO - Connected to Milvus successfully
-2026-07-30 12:21:50,492 - mcp.server.lowlevel.server - INFO - Warning: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
