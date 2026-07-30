@@ -1,6 +1,6 @@
 ---
 name: exporting-personal-data-locally
-description: Use when the user needs personal data from Open Collective (emails, phone numbers, addresses, legalName, payout/billing details on Individual accounts) OR wants a downloadable export/report of OC data as CSV, Markdown, or PDF. Instead of pulling the data through graphql_query — which puts it in the model's context and, for a hosted model, sends it to the provider — you generate a standalone script the user runs themselves. The data flows API → their disk and never passes through the AI.
+description: Use when the user needs personal data from Open Collective (emails, phone numbers, addresses, legalName, payout/billing details on Individual accounts) OR wants a downloadable export/report of OC data as CSV, Markdown, or PDF — AND whenever about to read, inspect, grep, verify, or answer a question from an already-generated export file (anything under reporting/output/ or produced by an export script), even for an innocent-looking task like "check the file structure" or "which script made this". Instead of pulling the data through graphql_query — which puts it in the model's context and, for a hosted model, sends it to the provider — you generate a standalone script the user runs themselves. The data flows API → their disk and never passes through the AI.
 ---
 
 # Exporting Open Collective data locally (keep PII out of the model)
@@ -9,6 +9,7 @@ description: Use when the user needs personal data from Open Collective (emails,
 
 - The user asks for a field that is **personal data**: `email`/`emails`, `phoneNumber`, `address`, `legalName`, or anything inside `payoutMethod`, `paymentMethod`, or `location` on an Individual.
 - The user wants a **file** back — a CSV, a Markdown report, or a PDF — of any OC data, personal or not.
+- You are about to **touch an existing export file** — read it, grep it, describe its structure, verify a run worked, or answer "what's in it". The rules below apply to those files, not only to new queries.
 
 For public, aggregate, non-PII answers the user just wants to *read*, keep using `graphql_query` normally (see the `querying-opencollective-graphql` skill). This skill is for when the data should **not** enter the model, or when the deliverable is a downloadable file.
 
@@ -23,6 +24,10 @@ Once a personal email lands in a `graphql_query` result, it is in the model's co
 3. **The token is the user's.** The script reads it from the `OC_PERSONAL_TOKEN` environment variable — never hard-code it, never ask the user to paste it to you, never print it.
 4. The script only **queries and writes a file**. It must not send data anywhere else (no upload, no extra network calls).
 5. **Always send a real `User-Agent` header on the request.** Cloudflare sits in front of the API and 403s Python's default urllib user agent with `error code: 1010`, so the export fails before it starts. The template already sets `"User-Agent": "Mozilla/5.0 (compatible; oc-local-export/1.0)"` — if you customize, rewrite, or hand-roll the request, keep that header. This is the single most common reason a generated export script fails on first run.
+6. **Do NOT read a generated export's data rows back into context** — no `cat`/`head`/`tail`/`grep`/Read over a PII-bearing export, not even to "check the structure" or "confirm it worked". A row on disk is the user's; a row in your context has reached the provider's servers and is in the transcript forever — reading it *is* the disclosure the whole workflow exists to prevent. What you may do instead:
+   - structure/verification questions → `head -1` (header line) and `wc -l` only, plus the generating script's `COLUMNS`/code;
+   - "give me X's email, it's already in the CSV" → don't read it out; warn per the querying skill's PII flow and hand them the command for **their** terminal, e.g. `grep -i '<name>' reporting/output/<file>.csv`;
+   - "it's the user's own export", "it's just one row", "the file is local anyway" — all mean STOP: header only, command hand-off.
 
 ## How to build it
 
