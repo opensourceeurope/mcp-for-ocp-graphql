@@ -149,6 +149,13 @@ explicit version arg) — not for routine edits.
   worktree → use `.claude/skills/dev-workflow/resources/worktree.sh new feat/<name>`. Before
   opening the PR, verify isolation: `git log --oneline origin/main..HEAD` shows only your commits.
 - About to `git push` to `main` directly → branch instead.
+- About to run a **Bash git command** (`git rm`, `git add`, `git commit`, `git checkout`) while
+  working in a worktree → the branch guard only covers `Edit`/`Write`, **not Bash**, and your
+  shell's cwd can silently be the shared main checkout (it resets between turns; `cd` does not
+  persist). A `git rm` fired from the wrong directory stages the deletion on `main`.
+  Always target the worktree explicitly — `git -C "$WORKTREE" rm …` — or run `pwd &&
+  git branch --show-current` immediately before. If it did land on main:
+  `git -C <main> restore --staged --worktree <path>`, then redo it with `-C`.
 - About to hand-bump a version (pyproject, plugin.json, .mcp.json pin, manifest) → that's
   release-please's job; land a `feat:`/`fix:` commit.
 - About to hand-cut a tag (`git tag vX.Y.Z`) or create a GitHub Release manually → merging

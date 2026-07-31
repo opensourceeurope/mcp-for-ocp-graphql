@@ -127,7 +127,8 @@ For maximum control, **run the server yourself** rather than using one operated 
 
 1. Is the project instruction with the PII rule pinned in your client?
 2. Does the task need a field that contains personal data? → Don't ask the AI to fetch it. Have the agent generate a script you run yourself (results go to a local file; the AI never sees them).
-3. About to paste a transcript or tool result somewhere? → Skim it for emails/phone/address first, especially if the next destination is cloud-hosted.
+3. Already have an export on disk from an earlier run? → Don't ask the AI to read it back — not to grep a value out of it, not to "check it worked", not to describe its structure. The file is safe on your disk; the moment the agent reads a data row, that row is on the provider's servers exactly as if it had queried it. Ask for the header line only, or run the lookup in your own terminal. (With the plugin, the `exporting-personal-data-locally` skill enforces this; other clients won't.)
+4. About to paste a transcript or tool result somewhere? → Skim it for emails/phone/address first, especially if the next destination is cloud-hosted.
 
 ## Further reading
 
