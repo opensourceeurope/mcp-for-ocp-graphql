@@ -80,7 +80,7 @@ query($s: String) {
   }
 }
 ```
-The error message names the fragment type to use — read it and adapt. Use `schema_lookup` to confirm which interface a field lives on.
+**Through this MCP you do not get to read the error** — a bad selection surfaces only `Client error '400 Bad Request'`, with the GraphQL message stripped. So don't plan on "run it and read what it says": use `schema_lookup` up front to confirm which interface a field lives on.
 
 **2. Only truly-required args must be supplied — trust `schema_lookup`, not the `!`.** An arg errors only if it is `NON_NULL` **and has no default**. Many args that look mandatory (e.g. `accounts`' `limit`/`offset`/`tagSearchOperator` are `Int!`/enum!) actually carry defaults, so you can omit them. `schema_lookup(name)` reports `required: true/false` per arg (it already accounts for defaults) — that flag is the source of truth, not the type's `!`.
 
@@ -92,9 +92,9 @@ Fetching rows just to length them wastes tokens and can produce huge results (#5
 
 **4. Accounts have parent/child structure.** A Collective **or a Fund** can own Project and Event sub-accounts, each with its own slug; the host Organization itself can own Events directly. When aggregating, resolve children to their parent (`... on AccountWithParent { parent { slug type } }`) and count the parent once with `includeChildrenExpenses: true`, or you double-count / misattribute. Don't assume the parent is a Collective — select `parent { type }` and handle Fund and Organization parents, or those children silently fall out of your rollup. To go the other way (list one account's children) use `childrenAccounts` on the account, or the top-level `accounts(parent: [{slug: $s}])`.
 
-**5. Keep results small.** `graphql_query` returns the JSON inline — a broad selection over a large collection can be enormous. Prefer `totalCount`; page with `limit`/`offset` (collections cap around `limit: 1000`); select only the fields you need.
+**5. Keep results small.** `graphql_query` returns the JSON inline — a broad selection over a large collection can be enormous. Prefer `totalCount`; page with `limit`/`offset`; select only the fields you need. There is no server-side cap at 1000 — `accounts(limit: 1500)` returns 1500 nodes — so the binding constraint is the harness's inline token limit, not the API. Oversized results spill to a file rather than failing (#10).
 
-**6. Host-level queries reflect membership *at record time*, not now.** A query filtered by `host` (e.g. `expenses(host: {slug}, hostContext: HOSTED)`) returns records created while the account was under that host — an account that has since **migrated to another host still shows up**. Before asserting "account X belongs to host Y" today, confirm the *current* host:
+**6. Don't assume how a `host:` filter treats accounts that have moved — check.** This skill previously stated that host-filtered queries return records from the account's time under that host, so migrated accounts still appear. A spot check contradicts that: for a collective that left `europe`, `transactions(host: {slug: "europe"})` returns **0**, every one of its transactions reports its *current* host, and `expenses(host: …, account: …)` errors outright with "Each selected account must be active and fiscally hosted by the given host." That is one account on one host — enough to distrust the old rule, not enough to state its opposite. So: **verify the behaviour for your own query before building a report on it**, and to reach departed accounts use `hostedAccounts(isUnhosted: true)` (#9), which is explicitly designed for it. Regardless, before asserting "account X belongs to host Y" today, confirm the *current* host:
 ```graphql
 query($s: String) { account(slug: $s) { ... on AccountWithHost { host { slug } } } }
 ```
