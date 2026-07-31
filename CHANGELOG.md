@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.10.0...v0.11.0) (2026-07-30)
+
+
+### Features
+
+* forbid reading generated PII exports back into model context ([#48](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/48)) ([6976758](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/6976758eb2cfa9bacc2eb2873109d0e628b8f7a6))
+
 ## [0.10.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.9.0...v0.10.0) (2026-07-28)
 
 
