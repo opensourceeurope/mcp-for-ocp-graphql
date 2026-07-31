@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.11.0...v0.12.0) (2026-07-31)
+
+
+### Features
+
+* document the account model and fix wrong host-enumeration guidance ([#50](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/50)) ([85acdf0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/85acdf010dd1f67bd937432b394636a759fc9e4a))
+
 ## [0.11.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.10.0...v0.11.0) (2026-07-30)
 
 
