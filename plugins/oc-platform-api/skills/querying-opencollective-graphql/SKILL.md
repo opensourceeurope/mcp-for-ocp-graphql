@@ -13,7 +13,7 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 - **`schema_lookup(name)`** — exact definition of a type or query field (fields, args with name/type/required/default). Substring matches return candidate names.
 - **`search_docs(query, top_k=5)`** — keyword search over the OC docs + a query-field map.
 
-**Workflow: `search_docs` (find the right query/approach) → `schema_lookup` (confirm exact fields, args, required-ness) → `graphql_query` (run it).** Don't guess field names — look them up.
+**Workflow: `search_docs` (find the right query/approach) → `schema_lookup` (confirm exact fields, args, required-ness) → `graphql_query` (run it).** Don't guess field names — look them up. `schema_lookup` resolves **types and root query fields only** — for a field nested on an object (`hostedAccounts`, `childrenAccounts`) it returns "no exact match"; look up the type that owns it (`Host`, `Collective`) instead, and expect a long response.
 
 ## Quick reference
 
@@ -26,14 +26,49 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 | Count records | select `totalCount` with `limit: 1` — never fetch rows to count (#3) |
 | Read a field not on base `Account` | inline fragment (#1) |
 | Roll a parent's Projects/Events into one total | `includeChildrenExpenses: true` (#4) |
-| List a host's hosted collectives | `accounts(host: [{slug: $h}], isActive: true, type: [COLLECTIVE, FUND])` (#9) |
+| Count a host's collectives+funds | `host(slug: $h) { totalHostedAccounts }` — one number, already excludes children (#9) |
+| List a host's hosted collectives | `accounts(host: [{slug: $h}], type: [COLLECTIVE, FUND])`, or `host(slug: $h) { hostedAccounts(accountType: [COLLECTIVE, FUND]) }` (#9) |
+| Accounts that JOINED / LEFT a host in a period | `host(slug: $h) { hostedAccounts(joinedBetween: {from, to}) }` / `(isUnhosted: true, unhostedBetween: {from, to})` — top-level accounts only, children never match (#9) |
+| How many hostees are actually ALIVE | `hostedAccounts(accountType: [COLLECTIVE, FUND], hadActivityBetween: {from, to})` — the number most reports should lead with |
 | Find collectives by tag | probe `tagStats(host: {slug: $h}, tagSearchTerm: $t)` first, then `accounts(tag: [...])` |
 | Keyword-scan many accounts' text | page cheap fields, post-process saved results (#10) |
 | Convert between currencies | `currencyExchangeRate(requests: [{fromCurrency: USD, toCurrency: EUR}]) { value }` — OC's own rates |
 | Split out anonymous donors | `isIncognito` (any Account) + `... on Individual { isGuest }` — both public |
-| "Hosted during period X" | current hostees' `... on AccountWithHost { approvedAt }` (public) ≤ period end; departure dates are NOT exposed, so add accounts observed transacting under the host in the period |
+| "Hosted during period X" | `hostedAccounts(joinedBetween:)` + `(isUnhosted: true, unhostedBetween:)` — both public. The per-account `unhostedAt` *field* returns null, but these *filters* work (#9) |
+| Find a host's vendors | `accounts(includeVendorsForHost: {slug: $h}, type: [VENDOR])` — vendors never appear in the `host:` filter (#12) |
 
-## Gotchas (each one wastes real time)
+## The account model — read this before answering anything about a host
+
+Everything in Open Collective is an `Account`. `AccountType` has nine values, and the differences decide what any count means. Read the user's question against this table before querying — "how many projects does our host have" and "how many things does our host host" have different right answers, and users routinely mean the second while saying the first.
+
+| Type | What it is | Appears under a host? |
+|---|---|---|
+| `COLLECTIVE` | A group/project raising money; the usual unit of "who we host" | **Yes — top level** |
+| `FUND` | Pools and redistributes money (grants). Behaves like a Collective, including owning children | **Yes — top level** |
+| `PROJECT` | Child of a Collective **or a Fund**, own slug/budget/ledger | Yes, as a child |
+| `EVENT` | Child of a Collective, Fund, or the host Organization; time-bound, sells tickets | Yes, as a child |
+| `ORGANIZATION` | A company or legal entity — sponsors, and **hosts themselves** | The host's own row (see below), and occasionally a hosted Organization — rare, but real: they show up in departure history, sometimes having left to become their own host |
+| `INDIVIDUAL` | A person. The only type carrying emails/PII | **Never** — people relate via roles (admin, contributor, payee) |
+| `VENDOR` | A payee entity a host creates for supplier expenses; not a user | **Never in the `host:` filter** — separate query, see #12 |
+| `BOT`, `PLATFORM` | Automation; Open Collective itself | No |
+
+**"Host" is a role, not a type.** A host is an `ORGANIZATION` with `isHost: true`. `account(slug: $h)` and `host(slug: $h)` are two GraphQL views of the *same* row (same `id`, `__typename` `Organization` vs `Host`) — use `host(...)` when you want the host-only fields (#9). Because `Organization` does **not** implement `AccountWithHost`, asking a host "who hosts you" through that fragment returns *silently nothing* — no error, no key. That is a quieter failure than #1's usual error message.
+
+**A host appears inside its own hosted-account list.** The lone `ORGANIZATION` in `accounts(host: [{slug: $h}])` is the host itself. Subtract it, or you count the host as one of its own hostees.
+
+**Hierarchy is one level deep.** Top-level accounts (Collective/Fund, plus the host Org) own Projects and Events; those children own nothing further. Every Project and Event has a parent — treat a parentless one as an anomaly worth checking, not a normal case.
+
+**"How big is this host" has five defensible answers.** Pick deliberately and say which you used — an unqualified count is the commonest way to mislead here. The illustrative figures are one host at one moment, shown only for the gaps between them:
+
+| The question actually being asked | Query | e.g. |
+|---|---|---|
+| How many groups do we host? | `host { totalHostedAccounts }` — COLLECTIVE+FUND, children excluded | 455 |
+| How many accounts exist under us? | `accounts(host: [{slug: $h}])` — every type, plus the host's own row | 960 |
+| …including archived ones? | `host { hostedAccounts { totalCount } }` (#9) | 968 |
+| How many have we *ever* hosted? | add `hostedAccounts(isUnhosted: true)` — departures often rival the current count | +522 |
+| How many are actually **alive**? | `hostedAccounts(accountType: [COLLECTIVE, FUND], hadActivityBetween: {from, to})` | 225 of 455 |
+
+That last row is usually the honest headline and the one nobody asks for: roughly half of a host's collectives can be dormant, a wider gap than any of the other distinctions. Vendors sit outside all five (#12).
 
 **1. Many fields are NOT on the base `Account` type** and error if selected directly. Wrap them in inline fragments:
 ```graphql
@@ -45,7 +80,7 @@ query($s: String) {
   }
 }
 ```
-The error message names the fragment type to use — read it and adapt. Use `schema_lookup` to confirm which interface a field lives on.
+**Through this MCP you do not get to read the error** — a bad selection surfaces only `Client error '400 Bad Request'`, with the GraphQL message stripped. So don't plan on "run it and read what it says": use `schema_lookup` up front to confirm which interface a field lives on.
 
 **2. Only truly-required args must be supplied — trust `schema_lookup`, not the `!`.** An arg errors only if it is `NON_NULL` **and has no default**. Many args that look mandatory (e.g. `accounts`' `limit`/`offset`/`tagSearchOperator` are `Int!`/enum!) actually carry defaults, so you can omit them. `schema_lookup(name)` reports `required: true/false` per arg (it already accounts for defaults) — that flag is the source of truth, not the type's `!`.
 
@@ -55,11 +90,11 @@ query($s: String) { account(slug: $s) { expenses(limit: 1) { totalCount } } }
 ```
 Fetching rows just to length them wastes tokens and can produce huge results (#5).
 
-**4. Accounts have parent/child structure.** A Collective can own Project and Event sub-accounts, each with its own slug. When aggregating, resolve children to their parent (`... on AccountWithParent { parent { slug } }`) and count the parent once with `includeChildrenExpenses: true`, or you double-count / misattribute.
+**4. Accounts have parent/child structure.** A Collective **or a Fund** can own Project and Event sub-accounts, each with its own slug; the host Organization itself can own Events directly. When aggregating, resolve children to their parent (`... on AccountWithParent { parent { slug type } }`) and count the parent once with `includeChildrenExpenses: true`, or you double-count / misattribute. Don't assume the parent is a Collective — select `parent { type }` and handle Fund and Organization parents, or those children silently fall out of your rollup. To go the other way (list one account's children) use `childrenAccounts` on the account, or the top-level `accounts(parent: [{slug: $s}])`.
 
-**5. Keep results small.** `graphql_query` returns the JSON inline — a broad selection over a large collection can be enormous. Prefer `totalCount`; page with `limit`/`offset` (collections cap around `limit: 1000`); select only the fields you need.
+**5. Keep results small.** `graphql_query` returns the JSON inline — a broad selection over a large collection can be enormous. Prefer `totalCount`; page with `limit`/`offset`; select only the fields you need. There is no server-side cap at 1000 — `accounts(limit: 1500)` returns 1500 nodes — so the binding constraint is the harness's inline token limit, not the API. Oversized results spill to a file rather than failing (#10).
 
-**6. Host-level queries reflect membership *at record time*, not now.** A query filtered by `host` (e.g. `expenses(host: {slug}, hostContext: HOSTED)`) returns records created while the account was under that host — an account that has since **migrated to another host still shows up**. Before asserting "account X belongs to host Y" today, confirm the *current* host:
+**6. Don't assume how a `host:` filter treats accounts that have moved — check.** This skill previously stated that host-filtered queries return records from the account's time under that host, so migrated accounts still appear. A spot check contradicts that: for a collective that left `europe`, `transactions(host: {slug: "europe"})` returns **0**, every one of its transactions reports its *current* host, and `expenses(host: …, account: …)` errors outright with "Each selected account must be active and fiscally hosted by the given host." That is one account on one host — enough to distrust the old rule, not enough to state its opposite. So: **verify the behaviour for your own query before building a report on it**, and to reach departed accounts use `hostedAccounts(isUnhosted: true)` (#9), which is explicitly designed for it. Regardless, before asserting "account X belongs to host Y" today, confirm the *current* host:
 ```graphql
 query($s: String) { account(slug: $s) { ... on AccountWithHost { host { slug } } } }
 ```
@@ -78,22 +113,47 @@ Three refinements that tell the cases apart:
 ```
 `schema_lookup` on the type shows the exact `…MetricsInput` shape; a wrong guess returns a 400 naming the invalid fields. This is the general rule for any nested field with a required arg. Note `host.metrics` itself is admin-gated: it returns `null` (not an error) without a host-admin token, and its membership measures are join/churn *flows*, not a "how many hosted at time T" stock.
 
-**9. There is no `host.hostedAccounts` field — enumerate a host's collectives via top-level `accounts`.** The canonical query is:
+**9. Two ways to enumerate a host's accounts — `host.hostedAccounts` is the richer one.** Both work; pick by what you need.
+
+Top-level `accounts` — good for listing and text scans, pages to 250+:
 ```graphql
 query($h: String) {
-  accounts(host: [{slug: $h}], isActive: true, type: [COLLECTIVE, FUND], limit: 250, offset: 0) {
+  accounts(host: [{slug: $h}], type: [COLLECTIVE, FUND], limit: 250, offset: 0) {
     totalCount
     nodes { slug name description tags }
   }
 }
 ```
-Without the `type` filter the result also includes hosted Projects, Events, and other account types, so the count can be ~2× the number of actual collectives (e.g. 954 hosted accounts vs 454 collectives/funds on one host). Decide whether "collectives" means `[COLLECTIVE]` or `[COLLECTIVE, FUND]` for the question at hand, and say which you used.
+`host.hostedAccounts` — the same set plus filters `accounts` does not have (`isUnhosted`, `isFrozen`, `isApproved`, `balance`, `consolidatedBalance`, `currencies`, `joinedBetween`, `unhostedBetween`, `hadActivityBetween`, `noActivityBetween`, `searchTerm`, `accountType`, `orderBy`), and `host { totalHostedAccounts }` gives the COLLECTIVE+FUND count as a single number:
+```graphql
+query($h: String) {
+  host(slug: $h) {
+    totalHostedAccounts                                  # 455 — collectives + funds only
+    hostedAccounts(accountType: [COLLECTIVE], limit: 1) { totalCount }
+    left: hostedAccounts(isUnhosted: true, limit: 1) { totalCount }   # 522 — departed accounts
+  }
+}
+```
+Three differences that change your numbers:
+- **`accounts(host:)` hides some rows by default; `hostedAccounts` doesn't.** Setting `includeArchived: true` on `accounts(host:)` makes the two agree exactly (europe PROJECT: 195 → 201, matching `hostedAccounts(accountType: [PROJECT])`). **Do not report the difference as "these are archived accounts"** — every one of those 201 nodes returns `isArchived: false` and `isActive: true`, so no node-level field explains why the default filter hides them. State the arg, not a cause you can't see.
+- `accounts(host:)` **includes the host's own Organization row**; `hostedAccounts` doesn't.
+- Only `hostedAccounts` reaches accounts that have **left** (`isUnhosted: true`) or filters by activity/balance.
+
+Two silent filters on `hostedAccounts` to know about: `isApproved` **defaults to `true`**, and the date filters `joinedBetween`/`unhostedBetween` **only match top-level accounts** — they return 0 for `accountType: [PROJECT]` even though 182 projects have left europe. So "27 accounts left in 2025" means 27 budget-holders; children that left with their parent are not counted. Say so rather than implying it covers everything.
+
+Whichever you use, without a `type`/`accountType` filter the result also includes hosted Projects and Events, so the count runs ~2× the number of real budget-holders. Decide whether "collectives" means `[COLLECTIVE]` or `[COLLECTIVE, FUND]`, and say which you used — see the account-model section above for the defensible totals.
 
 **10. Corpus-wide text scans are a legitimate pattern — and result overflow is recoverable.** To keyword-scan every collective under a host, #5's "keep results small" doesn't apply: page through `accounts(...)` selecting only the cheap text fields (`slug name description tags`). A page can exceed the inline token limit — that's fine: the harness saves the oversized result to a file whose path appears in the tool result, and you filter it with `jq`/`grep` instead of re-reading it inline. Do this deliberately rather than shrinking `limit` until it fits. Two rules keep it cheap:
 - Scan `description` + `tags` broadly; fetch `longDescription` (large HTML with embedded image markup) **only** for shortlisted slugs — selecting it across hundreds of accounts explodes the result.
 - A term that appears *only* in `longDescription` is invisible to the cheap scan — cross-check shortlisting with a `searchTerm` probe (#11) and state the residual coverage gap in your answer.
 
 **11. `searchTerm` is a fuzzy relevance probe, not exhaustive filtering.** Observed behavior: matching is partial/OR-ish (`"open source intelligence"` matched accounts that are merely "open source"), yet a term can return zero hits while related words appear in hosted accounts' descriptions (`"investigation"` → 0 despite "investigate" in profile text). Which fields are indexed, and whether matching stems, is not documented. Use it to *find candidates* and to cross-check a manual scan — never as proof that no match exists. Zero hits ≠ no textual matches.
+
+**12. Vendors are invisible to every host query above.** A host's Vendors (payee entities for supplier expenses) are not returned by `accounts(host: [...])` or `host.hostedAccounts` at any `type` filter. They need their own arg, which does **not** compose with `host:` — passing both silently returns the ordinary hosted list, not vendors:
+```graphql
+accounts(includeVendorsForHost: {slug: $h}, type: [VENDOR], limit: 1) { totalCount }   # 78 on europe
+```
+If a question involves everyone a host pays, vendors are a separate query — omitting them understates payees with no error to warn you. One exception to the invisibility: **departed** vendors *do* show up in `hostedAccounts(isUnhosted: true, accountType: [VENDOR])` (6 on europe), which is why an unhosted-account total won't reconcile from Collectives/Funds/Projects/Events alone — Organizations and Vendors make up the remainder.
 
 ## Where location/country data lives (verified in the API resolvers)
 
@@ -144,7 +204,10 @@ For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **
 - Counting by fetching and length-ing rows instead of selecting `totalCount` (#3).
 - Aggregating by raw slug without rolling children into parents (#4) or without checking the current host (#6) → inflated, stale, or misattributed totals.
 - Expecting host metrics in a normal selection — they need an inline argument (#8).
-- Looking for a `host.hostedAccounts` field, or counting a host's "collectives" without a `type` filter (#9).
+- Counting a host's "collectives" without a `type` filter, or reaching for `accounts(host:)` when the question needs `hostedAccounts`' filters — departed, frozen, archived, joined-in-period (#9).
+- Treating every Project/Event parent as a Collective (Funds and the host Org own children too), or forgetting the host's own Organization row is inside its hosted list (account model section).
+- Answering "how many accounts does this host have" with one unqualified number when four defensible ones exist (account model section).
+- Omitting Vendors from "everyone this host pays" — no host query returns them (#12).
 - Selecting `longDescription` across a whole host's accounts, or trusting a `searchTerm` miss as proof of absence (#10, #11).
 - Blaming a role ("but I'm host admin!") for a `null` that a missing token scope causes, or reading an object-of-nulls as hidden data when it means "never captured" (#7).
 - Promising contributor-country stats a host admin cannot obtain — donor locations and card countries are unreachable for the receiving host (see the location map).
