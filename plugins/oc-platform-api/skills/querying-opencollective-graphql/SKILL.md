@@ -47,7 +47,7 @@ Everything in Open Collective is an `Account`. `AccountType` has nine values, an
 | `FUND` | Pools and redistributes money (grants). Behaves like a Collective, including owning children | **Yes — top level** |
 | `PROJECT` | Child of a Collective **or a Fund**, own slug/budget/ledger | Yes, as a child |
 | `EVENT` | Child of a Collective, Fund, or the host Organization; time-bound, sells tickets | Yes, as a child |
-| `ORGANIZATION` | A company or legal entity — sponsors, and **hosts themselves** | The host's own row (see below), and occasionally a hosted Organization — europe currently has none but 7 have left it, one of which (`revanced`) is now its own host |
+| `ORGANIZATION` | A company or legal entity — sponsors, and **hosts themselves** | The host's own row (see below), and occasionally a hosted Organization — rare, but real: they show up in departure history, sometimes having left to become their own host |
 | `INDIVIDUAL` | A person. The only type carrying emails/PII | **Never** — people relate via roles (admin, contributor, payee) |
 | `VENDOR` | A payee entity a host creates for supplier expenses; not a user | **Never in the `host:` filter** — separate query, see #12 |
 | `BOT`, `PLATFORM` | Automation; Open Collective itself | No |
@@ -58,22 +58,17 @@ Everything in Open Collective is an `Account`. `AccountType` has nine values, an
 
 **Hierarchy is one level deep.** Top-level accounts (Collective/Fund, plus the host Org) own Projects and Events; those children own nothing further. Every Project and Event has a parent — treat a parentless one as an anomaly worth checking, not a normal case.
 
-Concrete shape, host `europe` on 2026-07-31 (numbers drift; the *ratios* are the point):
+**"How big is this host" has five defensible answers.** Pick deliberately and say which you used — an unqualified count is the commonest way to mislead here. The illustrative figures are one host at one moment, shown only for the gaps between them:
 
-```
-960  accounts(host: [{slug: "europe"}])      all types, current, non-archived
-     = 448 COLLECTIVE + 7 FUND               ← 455 real budget-holders
-     + 195 PROJECT + 309 EVENT               ← children of those 455 (and 4 of the host itself)
-     + 1 ORGANIZATION                        ← the host's own row
-455  host { totalHostedAccounts }            COLLECTIVE + FUND only — the "how many do we host" headline
-968  host { hostedAccounts { totalCount } }  same set, archived INCLUDED, host row excluded
-522  host { hostedAccounts(isUnhosted: true) }   accounts that LEFT — ~50% on top of any "hosted now" count
- 78  accounts(includeVendorsForHost: {slug: "europe"}, type: [VENDOR])   invisible to every query above
-225  host { hostedAccounts(accountType: [COLLECTIVE, FUND],
-                           hadActivityBetween: {from, to}) }   ← of the 455, actually alive in the last year
-```
+| The question actually being asked | Query | e.g. |
+|---|---|---|
+| How many groups do we host? | `host { totalHostedAccounts }` — COLLECTIVE+FUND, children excluded | 455 |
+| How many accounts exist under us? | `accounts(host: [{slug: $h}])` — every type, plus the host's own row | 960 |
+| …including archived ones? | `host { hostedAccounts { totalCount } }` (#9) | 968 |
+| How many have we *ever* hosted? | add `hostedAccounts(isUnhosted: true)` — departures often rival the current count | +522 |
+| How many are actually **alive**? | `hostedAccounts(accountType: [COLLECTIVE, FUND], hadActivityBetween: {from, to})` | 225 of 455 |
 
-So four defensible answers to "how big is this host" (455 / 960 / 968 / +522 historical) — plus a fifth, and often the most honest one: **how many are alive**. On europe, 225 of the 455 had activity in the last 12 months and 230 did not, a bigger gap than any of the other four distinctions. **Say which number you used and why** — an unqualified count is the single most common way to mislead someone here.
+That last row is usually the honest headline and the one nobody asks for: roughly half of a host's collectives can be dormant, a wider gap than any of the other distinctions. Vendors sit outside all five (#12).
 
 **1. Many fields are NOT on the base `Account` type** and error if selected directly. Wrap them in inline fragments:
 ```graphql
