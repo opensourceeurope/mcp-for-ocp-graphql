@@ -35,6 +35,17 @@ YYYY-MM is a shortcut for a calendar month and cannot be combined with the two
 explicit bounds; it also suffixes the output filename with the month, so
 successive months do not overwrite each other.
 
+An "operation" is an economic EVENT, not a ledger row. Open Collective keeps a
+double-entry ledger, so a single donation also writes host-fee and
+payment-processor-fee rows — for one host-month those derived rows outnumbered
+the real events roughly 3 to 1. Counted kinds are CONTRIBUTION, ADDED_FUNDS
+(money the host recorded by hand, e.g. a bank transfer or grant — it counts
+towards Received exactly like a contribution), EXPENSE, and BALANCE_TRANSFER.
+A balance transfer moves money between two accounts of the same host: it marks
+BOTH sides active but is not new money in or out, so it is left out of the
+money columns. Fee kinds are excluded — counting them would multiply-count
+every contribution.
+
 Events and projects are rolled up into their parent collective, so an event's
 donations count for the collective running it. Only collectives CURRENTLY
 hosted by the host are ranked — ones that migrated to another host mid-period
@@ -67,7 +78,7 @@ QUERY = """
 query ($slug: String!, $dateFrom: DateTime, $dateTo: DateTime, $limit: Int!, $offset: Int!) {
   transactions(
     host: {slug: $slug}
-    kind: [CONTRIBUTION, EXPENSE]
+    kind: [CONTRIBUTION, EXPENSE, ADDED_FUNDS, BALANCE_TRANSFER]
     dateFrom: $dateFrom
     dateTo: $dateTo
     limit: $limit
@@ -208,18 +219,28 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
                 "paid_cents": 0, "payees": set(),
                 "operations": 0, "updates": 0,
             })
-            # Only the collective-side leg of each transaction is counted, so a
-            # single contribution/expense is one operation, not two.
-            if node.get("kind") == "CONTRIBUTION" and node.get("type") == "CREDIT":
+            # Open Collective is a double-entry ledger: one donation also writes
+            # host-fee and processor-fee rows, and symmetric kinds write both legs.
+            # We count economic EVENTS, so the query already drops the derived fee
+            # kinds and we take only the collective-side leg of each event.
+            kind, ttype = node.get("kind"), node.get("type")
+            if kind in ("CONTRIBUTION", "ADDED_FUNDS") and ttype == "CREDIT":
+                # Added funds is real money in, just recorded by the host by hand
+                # rather than through a payment processor.
                 entry["received_cents"] += cents
                 entry["operations"] += 1
                 if other:
                     entry["donors"].add(other)
-            elif node.get("kind") == "EXPENSE" and node.get("type") == "DEBIT":
+            elif kind == "EXPENSE" and ttype == "DEBIT":
                 entry["paid_cents"] += abs(cents)
                 entry["operations"] += 1
                 if other:
                     entry["payees"].add(other)
+            elif kind == "BALANCE_TRANSFER":
+                # Movement between two accounts under the same host. Both sides are
+                # genuinely active, so both count an operation, but it is not new
+                # money entering or leaving and stays out of the money columns.
+                entry["operations"] += 1
         offset += len(nodes)
         print(f"fetched {min(offset, total)}/{total} transaction(s)", file=sys.stderr)
         if not nodes or offset >= total:
@@ -516,11 +537,17 @@ def run() -> None:
         title = f"Active collectives — {args.slug} host"
         subtitle = (f"Period: {period}. Every collective with at least one financial operation "
                     f"or published update. Amounts in {currency or 'host currency'}. "
-                    f"Refunded transactions excluded; events and projects roll up into their "
-                    f"parent; only collectives currently hosted by '{args.slug}' are listed.")
+                    f"Operations count economic events (contributions, added funds, expenses, "
+                    f"balance transfers), not ledger rows — derived host-fee and "
+                    f"payment-processor-fee entries are excluded. Added funds count towards "
+                    f"Received; balance transfers are operations only. Refunded transactions "
+                    f"excluded; events and projects roll up into their parent; only collectives "
+                    f"currently hosted by '{args.slug}' are listed.")
     else:
         title = f"Top collectives — {args.slug} host"
-        subtitle = f"Period: {period}. Amounts in {currency or 'host currency'}. Refunded transactions excluded."
+        subtitle = (f"Period: {period}. Amounts in {currency or 'host currency'}. Operations count "
+                    f"economic events (contributions, added funds, expenses, balance transfers), not "
+                    f"ledger rows. Refunded transactions excluded.")
     if args.format == "csv":
         write_csv(tables, args.out)
     elif args.format == "md":
