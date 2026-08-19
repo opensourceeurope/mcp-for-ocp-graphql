@@ -5,19 +5,28 @@
 """Rank the collectives of a host (default: "europe" / Open Source Europe) over a
 period — run by YOU, never by the AI.
 
-Four top-N rankings (default top 10, over the current year up to now):
+Five top-N rankings (default top 10, over the current year up to now):
 
-  1. most money received (contributions)
-  2. most distinct donors — 30k from a single donor is not the same as 30k from 300
-  3. most money paid out (expenses)
-  4. most distinct payees — how many people actually got paid
+  1. most financial operations — the "most active" ranking: 40 small expenses
+     outrank a single big grant
+  2. most money received (contributions)
+  3. most distinct donors — 30k from a single donor is not the same as 30k from 300
+  4. most money paid out (expenses)
+  5. most distinct payees — how many people actually got paid
 
 Usage, from inside the reporting/ directory (uv fetches the deps automatically
 from the header above):
 
     uv run export_top_collectives.py                          # current year -> now
+    uv run export_top_collectives.py --month 2026-07          # one calendar month
     uv run export_top_collectives.py --date-from 2025-01-01 --date-to 2025-12-31
     uv run export_top_collectives.py --slug oce --top 20 --format csv
+
+--date-to is INCLUSIVE: the named day counts in full (it ends at 23:59:59Z), so
+--date-from 2025-01-01 --date-to 2025-12-31 really is the whole year. --month
+YYYY-MM is a shortcut for a calendar month and cannot be combined with the two
+explicit bounds; it also suffixes the output filename with the month, so
+successive months do not overwrite each other.
 
 Events and projects are rolled up into their parent collective, so an event's
 donations count for the collective running it. Only collectives CURRENTLY
@@ -158,13 +167,18 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
                 "slug": acc_slug, "name": account.get("name") or acc_slug,
                 "received_cents": 0, "donors": set(),
                 "paid_cents": 0, "payees": set(),
+                "operations": 0,
             })
+            # Only the collective-side leg of each transaction is counted, so a
+            # single contribution/expense is one operation, not two.
             if node.get("kind") == "CONTRIBUTION" and node.get("type") == "CREDIT":
                 entry["received_cents"] += cents
+                entry["operations"] += 1
                 if other:
                     entry["donors"].add(other)
             elif node.get("kind") == "EXPENSE" and node.get("type") == "DEBIT":
                 entry["paid_cents"] += abs(cents)
+                entry["operations"] += 1
                 if other:
                     entry["payees"].add(other)
         offset += len(nodes)
@@ -184,6 +198,12 @@ def money(cents: int) -> str:
 
 RANKINGS = [
     # (title, sort key, [(column label, value getter)])
+    # Keep every ranking at exactly two metric columns — the CSV and PDF writers
+    # assume a fixed four-column layout.
+    ("Top by number of financial operations", lambda s: s["operations"], [
+        ("Operations", lambda s: s["operations"]),
+        ("Received", lambda s: money(s["received_cents"])),
+    ]),
     ("Top by money received", lambda s: s["received_cents"], [
         ("Received", lambda s: money(s["received_cents"])),
         ("Donors", lambda s: len(s["donors"])),
@@ -272,26 +292,56 @@ def write_pdf(tables: list, out: str, title: str, subtitle: str) -> None:
 
 
 def iso_date(value: str) -> str:
+    """Period start — the named day counts from 00:00:00Z."""
     try:
         return datetime.date.fromisoformat(value).isoformat() + "T00:00:00Z"
     except ValueError:
         raise argparse.ArgumentTypeError(f"not a YYYY-MM-DD date: {value!r}")
 
 
+def iso_date_end(value: str) -> str:
+    """Period end — INCLUSIVE, so the named day counts in full, not up to midnight."""
+    try:
+        return datetime.date.fromisoformat(value).isoformat() + "T23:59:59Z"
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a YYYY-MM-DD date: {value!r}")
+
+
+def month_range(value: str) -> tuple[str, str]:
+    """'YYYY-MM' -> (first day 00:00:00Z, last day 23:59:59Z) of that calendar month."""
+    try:
+        first = datetime.date.fromisoformat(value + "-01")
+    except ValueError:
+        raise ValueError(f"not a YYYY-MM month: {value!r}")
+    # Jump into the next month from a day every month has, then step back one day.
+    last = (first.replace(day=28) + datetime.timedelta(days=4)).replace(day=1) - datetime.timedelta(days=1)
+    return first.isoformat() + "T00:00:00Z", last.isoformat() + "T23:59:59Z"
+
+
 def run() -> None:
     now = datetime.datetime.now(datetime.timezone.utc)
-    ap = argparse.ArgumentParser(description="Rank a host's collectives by money received, donors, payouts, and payees.")
+    ap = argparse.ArgumentParser(description="Rank a host's collectives by financial operations, money received, donors, payouts, and payees.")
     ap.add_argument("--slug", default="europe", help="Host slug (default: europe).")
     ap.add_argument("--date-from", type=iso_date, default=None,
                     help=f"Period start, YYYY-MM-DD (default: {now.year}-01-01).")
-    ap.add_argument("--date-to", type=iso_date, default=None,
-                    help="Period end, YYYY-MM-DD (default: now).")
+    ap.add_argument("--date-to", type=iso_date_end, default=None,
+                    help="Period end, YYYY-MM-DD, INCLUSIVE of that day (default: now).")
+    ap.add_argument("--month", default=None, metavar="YYYY-MM",
+                    help="Whole calendar month, e.g. 2026-07. Cannot be combined with "
+                         "--date-from/--date-to; suffixes the output filename with the month.")
     ap.add_argument("--top", type=int, default=10, help="Rows per ranking (default: 10).")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
                     help="Output file path (default: output/<host-slug>-top-collectives.<format> next to this script).")
     args = ap.parse_args()
 
+    if args.month:
+        if args.date_from or args.date_to:
+            ap.error("--month cannot be combined with --date-from/--date-to")
+        try:
+            args.date_from, args.date_to = month_range(args.month)
+        except ValueError as e:
+            ap.error(str(e))
     if not args.date_from:
         args.date_from = f"{now.year}-01-01T00:00:00Z"
     if not args.date_to:
@@ -299,7 +349,9 @@ def run() -> None:
     if not args.out:
         out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
         os.makedirs(out_dir, exist_ok=True)
-        args.out = os.path.join(out_dir, f"{args.slug}-top-collectives.{args.format}")
+        # A month run is suffixed so successive months do not overwrite each other.
+        suffix = f"-{args.month}" if args.month else ""
+        args.out = os.path.join(out_dir, f"{args.slug}-top-collectives{suffix}.{args.format}")
 
     stats, currency = fetch_stats(args.slug, args.date_from, args.date_to)
     tables = build_tables(stats, args.top)
