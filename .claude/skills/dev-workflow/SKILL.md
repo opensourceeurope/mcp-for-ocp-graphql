@@ -28,7 +28,15 @@ checked-out branch, all backed by this repo's single `.git`.
 ```
 
 Then open `.worktrees/<name>` and work there. Install dev deps with `uv sync` inside the
-worktree. `.worktrees/` is gitignored, and the branch-guard hook is worktree-aware (it
+worktree.
+
+**Expect a spurious `M uv.lock` after any `uv sync`/`uv run`.** release-please bumps
+`pyproject.toml`'s version but nothing bumps the `mcp-for-ocp-graphql` entry inside
+`uv.lock`, so the lock sits behind (observed: lock `0.6.2` vs pyproject `0.12.0`) and every
+uv invocation rewrites that one line. `git checkout -- uv.lock` before committing — do not
+let it ride along in an unrelated PR, where it is pure noise and also triggers
+`security-audit.yml`. Re-check `git status` right before `git push`/`gh pr create`, since
+running the tests dirties it again. `.worktrees/` is gitignored, and the branch-guard hook is worktree-aware (it
 gates each file by the branch of the worktree that owns it).
 
 **A worktree is required, not optional:** the branch-guard hook makes the shared main
