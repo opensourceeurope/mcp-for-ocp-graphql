@@ -1,6 +1,6 @@
 ---
 name: querying-opencollective-graphql
-description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission- and scope-shaped nulls, metrics behind argument-bearing fields, enumerating a host's collectives, corpus-wide text scans, searchTerm/tagStats semantics, and where location/country data actually lives (and doesn't).
+description: Use when querying Open Collective through this repo's MCP (the graphql_query / schema_lookup / search_docs tools) — resolving accounts and hosts, counting records, paging, selecting fields, handling PII, or any analysis over Open Collective data. Covers the read-only proxy model, inline-fragment field gotchas, counting via totalCount, child Project/Event rollup, current-host verification, permission- and scope-shaped nulls, metrics behind argument-bearing fields, enumerating a host's collectives, corpus-wide text scans, searchTerm/tagStats semantics, platform tips (PLATFORM_TIP vs PLATFORM_TIP_DEBT) and how to total them for any host or collective, and where location/country data actually lives (and doesn't).
 ---
 
 # Querying the Open Collective GraphQL MCP
@@ -36,6 +36,8 @@ This MCP exposes **three** tools over Open Collective's GraphQL v2 API — there
 | Split out anonymous donors | `isIncognito` (any Account) + `... on Individual { isGuest }` — both public |
 | "Hosted during period X" | `hostedAccounts(joinedBetween:)` + `(isUnhosted: true, unhostedBetween:)` — both public. The per-account `unhostedAt` *field* returns null, but these *filters* work (#9) |
 | Find a host's vendors | `accounts(includeVendorsForHost: {slug: $h}, type: [VENDOR])` — vendors never appear in the `host:` filter (#12) |
+| Total platform tips for ANY host/collective | order route: sum `order.platformTipAmount` over `CONTRIBUTION`/`CREDIT` charges (#13) |
+| Tips a host's own processor collected | `transactions(host:…, kind: [PLATFORM_TIP_DEBT], type: CREDIT, includeDebts: true)` — **`0` here does not mean "no tips"** (#13) |
 
 ## The account model — read this before answering anything about a host
 
@@ -155,6 +157,38 @@ accounts(includeVendorsForHost: {slug: $h}, type: [VENDOR], limit: 1) { totalCou
 ```
 If a question involves everyone a host pays, vendors are a separate query — omitting them understates payees with no error to warn you. One exception to the invisibility: **departed** vendors *do* show up in `hostedAccounts(isUnhosted: true, accountType: [VENDOR])` (6 on europe), which is why an unhosted-account total won't reconcile from Collectives/Funds/Projects/Events alone — Organizations and Vendors make up the remainder.
 
+**13. Platform tips are booked in two different places, and the obvious query silently returns 0 for half of all hosts.** A "tip" is the optional extra a donor adds for Open Collective itself. Two `TransactionKind`s carry it, and which ones exist depends on *whose payment processor took the money*:
+
+| Kind | Legs | When it exists |
+|---|---|---|
+| `PLATFORM_TIP` | donor → **`ofitech`** (Open Finance Technologies) | **Always.** This is the platform's revenue |
+| `PLATFORM_TIP_DEBT` | `ofitech` → **the host** | Only when the *host's own* processor collected the cash, so the host holds money it owes the platform |
+
+Consequences, each verified against the ledger of a single order:
+
+- **A tip is never the host's income**, on any host. The `PLATFORM_TIP` leg credits `ofitech`. Where `PLATFORM_TIP_DEBT` also exists it credits the host, but as a liability for cash in transit — do not report it as host revenue.
+- **`host:`-filtered tip queries see only the debt rows.** The `PLATFORM_TIP` legs carry `host: null` (donor side) and `host: ofitech` (credit side), so `transactions(host: {slug: $h}, kind: [PLATFORM_TIP])` cannot return them. On a host whose contributions run through the *platform's* processor there are no debt rows either, so **the query returns a flat `0` while the host's collectives are in fact being tipped** — observed: `raft` reports 0 tips by this route and $7.4k by the order route. Never read that 0 as "this host gets no tips"; the same trap makes `stats.totalAmountReceived(kind: [PLATFORM_TIP_DEBT])` return `0`.
+- **`includeDebts: true` is mandatory** for `PLATFORM_TIP_DEBT` — without it the same query returns 0 rather than an error.
+- **Count the `CREDIT` leg only** (`type: CREDIT`): the debt pair's DEBIT side sits on `ofitech`'s ledger, so a host-filtered query without `type` mixes in a small number of stray rows.
+
+**The portable route — use this whenever the host's tip model is unknown, or you need one collective rather than a whole host.** Page the contribution charges and sum the tip stored on each one's order:
+```graphql
+transactions(host: {slug: $h}, kind: [CONTRIBUTION], type: CREDIT, isRefund: false,
+             dateFrom: $from, dateTo: $to, limit: 1000, offset: $o) {
+  totalCount
+  nodes { createdAt order { platformTipAmount { valueInCents currency } } }
+}
+```
+`Order.platformTipAmount` is the **per-charge** tip and is stable across a subscription's charges (checked: an order with 8 charges in a period had exactly 8 `PLATFORM_TIP` transactions, each equal to its `platformTipAmount`), so summing it over charges — not over orders — gives the money actually tipped in the period. `null` occurs alongside `0`; treat both as untipped. Expect result overflow and `jq` the saved file (#10). Cross-checked against the debt route for one host-month: **identical** tipped-charge counts (1,507 = 1,507), amounts within 0.2% (the debt route converts to host currency).
+
+**Two aggregation traps:**
+- `stats.totalAmountReceived(kind: [PLATFORM_TIP_DEBT], …)` is trustworthy — it matched a hand-summed day cent-for-cent, and its months sum exactly to its year. But **`totalAmountReceivedTimeSeries` with the same `kind` overcounts badly** (€67.48 vs the true €44.23 for one day; €62.3k vs €20.9k for one year). Don't use the time series for tips — call the scalar once per period instead.
+- **Tip currency is per order, not per host.** One host-month held EUR, SEK, DKK and USD tips. Sum per currency and convert explicitly, or you silently add cents of different currencies.
+
+**Tips are donor-chosen, not a host rate.** Open Collective offers percentage presets, so amounts cluster hard without being fixed — one host-month: 15% on 73% of tipped charges, then 10%/5%/20%, with a tail from 2% to 100%; 87 distinct values ranging €0.01–€600. Never describe a sampled tip (`€0.75` on a €5 contribution) as "the host's tip".
+
+Two smaller schema facts found the hard way: `Transaction.isDebt` does not exist (400), and `currencyExchangeRate`'s fields are `fromCurrency`/`toCurrency`, not `from`/`to`. And because tip totals are built on host-filtered transactions, they inherit #6's unresolved question about accounts that have since left the host — state that limit rather than implying full historical coverage.
+
 ## Where location/country data lives (verified in the API resolvers)
 
 Recurring ask: "which countries do our contributors / payees come from?" The answer is bounded by design — know the map before promising coverage:
@@ -208,6 +242,8 @@ For a **file export** (CSV / Markdown / PDF), or any larger PII pull, use the **
 - Treating every Project/Event parent as a Collective (Funds and the host Org own children too), or forgetting the host's own Organization row is inside its hosted list (account model section).
 - Answering "how many accounts does this host have" with one unqualified number when four defensible ones exist (account model section).
 - Omitting Vendors from "everyone this host pays" — no host query returns them (#12).
+- Reporting `0` platform tips because the `host:`-filtered `PLATFORM_TIP*` query returned nothing, or omitting `includeDebts: true`; or calling a tip the host's income (#13).
+- Totalling tips from `totalAmountReceivedTimeSeries`, summing mixed-currency tips, or summing `platformTipAmount` per order instead of per charge (#13).
 - Selecting `longDescription` across a whole host's accounts, or trusting a `searchTerm` miss as proof of absence (#10, #11).
 - Blaming a role ("but I'm host admin!") for a `null` that a missing token scope causes, or reading an object-of-nulls as hidden data when it means "never captured" (#7).
 - Promising contributor-country stats a host admin cannot obtain — donor locations and card countries are unreachable for the receiving host (see the location map).
