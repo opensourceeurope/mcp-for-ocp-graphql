@@ -22,12 +22,16 @@ from the header above):
     uv run export_top_collectives.py --date-from 2025-01-01 --date-to 2025-12-31
     uv run export_top_collectives.py --slug oce --top 20 --format csv
     uv run export_top_collectives.py --month 2026-07 --all   # every active one
+    uv run export_top_collectives.py --month 2026-07 --all --activity money
 
 --all swaps the rankings for a single census table listing EVERY active
-collective, one row each, with all metrics side by side. "Active" is wider
-there than in the rankings: at least one financial operation OR at least one
-published update in the period, so a collective that only posted an update
-still shows up (with zeroes in the money columns).
+collective, one row each, with all metrics side by side. --activity picks what
+"active" means there: "any" (the default) counts a published update as
+activity too, so a collective that only posted an update shows up with zeroes
+in the money columns; "money" requires at least one financial operation and
+skips the updates sweep entirely. The two write to different filenames
+(<host>-active-collectives-* and <host>-collectives-with-transactions-*) so
+they do not overwrite each other.
 
 --date-to is INCLUSIVE: the named day counts in full (it ends at 23:59:59Z), so
 --date-from 2025-01-01 --date-to 2025-12-31 really is the whole year. --month
