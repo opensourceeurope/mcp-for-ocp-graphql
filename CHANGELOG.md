@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.12.0...v0.13.0) (2026-08-19)
+
+
+### Features
+
+* platform tips — skill guidance + reporting script ([#55](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/55)) ([e597ba9](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/e597ba9667f80244989662add31bbeeb94e8bae9))
+
 ## [0.12.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.11.0...v0.12.0) (2026-07-31)
 
 
