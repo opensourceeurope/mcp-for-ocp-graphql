@@ -206,7 +206,10 @@ def fetch_stats(slug: str, date_from: str, date_to: str) -> tuple[dict, str]:
                 continue
             # The API matches the host at transaction time, so collectives that
             # migrated away mid-period still show up — rank only current ones.
-            if ((account.get("host") or {}).get("slug") or slug) != slug:
+            # A null host means "no current host" (left, or archived on the way
+            # out), NOT "still ours" — the previous `or slug` fallback let those
+            # through and contradicted the rule stated above.
+            if ((account.get("host") or {}).get("slug")) != slug:
                 skipped.add(acc_slug)
                 continue
             amount = node.get("amountInHostCurrency") or {}
@@ -287,7 +290,7 @@ def fetch_updates(slug: str, date_from: str, date_to: str, stats: dict) -> int:
             acc_slug = account.get("slug")
             if not acc_slug or acc_slug == slug:
                 continue
-            if ((account.get("host") or {}).get("slug") or slug) != slug:
+            if ((account.get("host") or {}).get("slug")) != slug:
                 continue
             entry = stats.setdefault(acc_slug, {
                 "slug": acc_slug, "name": account.get("name") or acc_slug,
@@ -363,9 +366,16 @@ ALL_COLUMNS = [
 ]
 
 
-def build_all_table(stats: dict) -> list[tuple[str, list[str], list]]:
-    """Returns a single [(title, header, rows)] census of every active collective."""
-    active = [s for s in stats.values() if s["operations"] or s["updates"]]
+def build_all_table(stats: dict, activity: str = "any") -> list[tuple[str, list[str], list]]:
+    """Returns a single [(title, header, rows)] census of every active collective.
+
+    activity="any" counts a published update as activity; "money" requires at
+    least one financial operation.
+    """
+    if activity == "money":
+        active = [s for s in stats.values() if s["operations"]]
+    else:
+        active = [s for s in stats.values() if s["operations"] or s["updates"]]
     # A census, not a ranking — the sort is only to make the table readable.
     active.sort(key=lambda s: (-s["operations"], -s["updates"], s["name"].lower()))
     header = ["#", "Collective"] + [label for label, _ in ALL_COLUMNS]
@@ -500,6 +510,9 @@ def run() -> None:
                     help="Instead of the rankings, list EVERY active collective — one row "
                          "each, with all metrics. Active means at least one financial "
                          "operation or one published update in the period.")
+    ap.add_argument("--activity", choices=["any", "money"], default="any",
+                    help="With --all, what counts as active: 'any' (default) also counts a "
+                         "published update; 'money' requires at least one financial operation.")
     ap.add_argument("--format", choices=["csv", "md", "pdf"], default="md")
     ap.add_argument("--out", default=None,
                     help="Output file path (default: output/<host-slug>-top-collectives.<format> next to this script).")
@@ -522,21 +535,27 @@ def run() -> None:
         # A month run is suffixed so successive months do not overwrite each other.
         suffix = f"-{args.month}" if args.month else ""
         stem = "active-collectives" if args.all else "top-collectives"
+        if args.all and args.activity == "money":
+            stem = "collectives-with-transactions"
         args.out = os.path.join(out_dir, f"{args.slug}-{stem}{suffix}.{args.format}")
 
     stats, currency = fetch_stats(args.slug, args.date_from, args.date_to)
     if args.all:
         # Only the census needs updates; the rankings are money-only.
-        fetch_updates(args.slug, args.date_from, args.date_to, stats)
-        tables = build_all_table(stats)
+        if args.activity == "any":
+            # Only the "any" census needs updates; "money" is transactions-only.
+            fetch_updates(args.slug, args.date_from, args.date_to, stats)
+        tables = build_all_table(stats, args.activity)
     else:
         tables = build_tables(stats, args.top)
 
     period = f"{args.date_from[:10]} to {args.date_to[:10]}"
     if args.all:
         title = f"Active collectives — {args.slug} host"
-        subtitle = (f"Period: {period}. Every collective with at least one financial operation "
-                    f"or published update. Amounts in {currency or 'host currency'}. "
+        what = ("at least one financial operation" if args.activity == "money"
+                else "at least one financial operation or published update")
+        subtitle = (f"Period: {period}. Every collective with {what}. "
+                    f"Amounts in {currency or 'host currency'}. "
                     f"Operations count economic events (contributions, added funds, expenses, "
                     f"balance transfers), not ledger rows — derived host-fee and "
                     f"payment-processor-fee entries are excluded. Added funds count towards "
