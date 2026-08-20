@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.13.0...v0.13.1) (2026-08-20)
+
+
+### Bug Fixes
+
+* surface GraphQL error messages instead of a bare HTTP status ([#57](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/57)) ([7a44129](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/7a441298edb4b766f4f9c986121cf0805bfaa623))
+
 ## [0.13.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.12.0...v0.13.0) (2026-08-19)
 
 

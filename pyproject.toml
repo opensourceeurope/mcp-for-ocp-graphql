@@ -1,6 +1,6 @@
 [project]
 name = "mcp-for-ocp-graphql"
-version = "0.13.0"
+version = "0.13.1"
 description = "MCP server for the Open Collective GraphQL API — read-only query proxy, schema lookup, and docs search."
 readme = "README.md"
 requires-python = ">=3.11"
