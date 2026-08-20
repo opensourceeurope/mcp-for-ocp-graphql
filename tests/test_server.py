@@ -97,6 +97,7 @@ class _CapturingClient:
 
         class _Resp:
             status_code = 200
+            is_error = False
 
             def raise_for_status(self_inner):
                 return None

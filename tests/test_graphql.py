@@ -59,3 +59,55 @@ def test_execute_query_raises_on_http_error():
     with _client(handler) as client:
         with pytest.raises(httpx.HTTPStatusError):
             execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+
+from mcp_for_ocp_graphql.graphql import GraphQLHTTPError
+
+
+def test_execute_query_surfaces_graphql_error_messages_on_400():
+    def handler(request):
+        return httpx.Response(400, json={"errors": [
+            {"message": 'Cannot query field "totalHostedCollectives" on type "Host".'},
+            {"message": 'Unknown argument "dateFrom" on field "Host.metrics".'},
+        ]})
+    with _client(handler) as client:
+        with pytest.raises(GraphQLHTTPError) as excinfo:
+            execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+    message = str(excinfo.value)
+    assert "totalHostedCollectives" in message
+    assert 'Unknown argument "dateFrom"' in message
+    assert "400" in message
+
+
+def test_graphql_http_error_is_an_httpx_status_error():
+    def handler(request):
+        return httpx.Response(400, json={"errors": [{"message": "nope"}]})
+    with _client(handler) as client:
+        with pytest.raises(httpx.HTTPStatusError):
+            execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+
+
+def test_execute_query_falls_back_to_body_excerpt_when_not_graphql_shaped():
+    def handler(request):
+        return httpx.Response(429, text="error code: 1015 rate limited")
+    with _client(handler) as client:
+        with pytest.raises(GraphQLHTTPError) as excinfo:
+            execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+    assert "1015" in str(excinfo.value)
+
+
+def test_execute_query_truncates_a_huge_error_body():
+    def handler(request):
+        return httpx.Response(502, text="x" * 5000)
+    with _client(handler) as client:
+        with pytest.raises(GraphQLHTTPError) as excinfo:
+            execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+    assert len(str(excinfo.value)) < 700
+    assert str(excinfo.value).endswith("…")
+
+
+def test_execute_query_still_returns_body_when_200_carries_errors():
+    def handler(request):
+        return httpx.Response(200, json={"data": None, "errors": [{"message": "partial"}]})
+    with _client(handler) as client:
+        result = execute_query("{ me { id } }", None, endpoint="https://oc/graphql", token="t", client=client)
+    assert result["errors"][0]["message"] == "partial"
