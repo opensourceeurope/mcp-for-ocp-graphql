@@ -287,8 +287,8 @@
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/offPlatformTransactionsInstitutions.md"
   },
   {
-    "chunk_id": "d3a84ed44561573e235390358126423eb4d6afc3b13261324b7d42c839fc8447",
-    "content": "# `order` query\n\nReturns `Order`.\n\nArguments: `order` (OrderReferenceInput!, required).",
+    "chunk_id": "98784ce0e49e550bf2e5c0a6fff94becfbd1fc39f46a11df012b2dc83719523a",
+    "content": "# `order` query\n\nReturns `Order`.\n\nGet an order by reference. Scope: \"orders\".\n\nArguments: `order` (OrderReferenceInput!, required).",
     "source_name": "local",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/order.md"

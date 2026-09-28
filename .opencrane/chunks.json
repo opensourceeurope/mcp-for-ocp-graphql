@@ -665,9 +665,9 @@
     "token_count": 49
   },
   {
-    "chunk_id": "d3a84ed44561573e235390358126423eb4d6afc3b13261324b7d42c839fc8447",
+    "chunk_id": "98784ce0e49e550bf2e5c0a6fff94becfbd1fc39f46a11df012b2dc83719523a",
     "chunk_type": "prose",
-    "content": "# `order` query\n\nReturns `Order`.\n\nArguments: `order` (OrderReferenceInput!, required).",
+    "content": "# `order` query\n\nReturns `Order`.\n\nGet an order by reference. Scope: \"orders\".\n\nArguments: `order` (OrderReferenceInput!, required).",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "`order` query",
@@ -675,7 +675,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "local",
-    "token_count": 22
+    "token_count": 33
   },
   {
     "chunk_id": "00ad3aa99677f3f31ef4e859f8d8a42865705a60f98e96f049fafeb28faea31d",
