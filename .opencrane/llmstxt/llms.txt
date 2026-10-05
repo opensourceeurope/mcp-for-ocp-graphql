@@ -37,7 +37,6 @@
 - [`tagStats` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/tagStats.md)
 - [`tier` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/tier.md)
 - [`transaction` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transaction.md)
-- [`transactionGroups` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactionGroups.md)
 - [`transactions` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactions.md)
 - [`transactionsImport` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactionsImport.md)
 - [`update` query](https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/update.md)

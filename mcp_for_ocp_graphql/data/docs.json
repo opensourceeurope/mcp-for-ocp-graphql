@@ -378,13 +378,6 @@
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transaction.md"
   },
   {
-    "chunk_id": "fd155c2b0a18d5363b99645ce188ad73ab4274b9c4e792fd115bc38b76f6c077",
-    "content": "# `transactionGroups` query\n\nReturns `TransactionGroupCollection!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `account` (AccountReferenceInput!, required), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `kind` (TransactionKind), `dateFrom` (DateTime), `dateTo` (DateTime).",
-    "source_name": "local",
-    "source_file": ".opencrane/llmstxt/llms-full.txt",
-    "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/transactionGroups.md"
-  },
-  {
     "chunk_id": "9ae1f4bdc13ab186b3d960e393b0b3ef0f657649b5cbaabe302bd12b927fb3bf",
     "content": "# `transactions` query\n\nReturns `TransactionCollection!`.\n\nArguments: `account` ([AccountReferenceInput!]), `limit` (Int!), `offset` (Int!), `type` (TransactionType), `paymentMethodType` ([PaymentMethodType]), `paymentMethodService` ([PaymentMethodService]), `excludeAccount` ([AccountReferenceInput]), `fromAccount` (AccountReferenceInput), `host` (AccountReferenceInput), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `dateFrom` (DateTime), `dateTo` (DateTime), `clearedFrom` (DateTime), `clearedTo` (DateTime), `searchTerm` (String), `hasDebt` (Boolean), `hasExpense` (Boolean), `expense` (ExpenseReferenceInput), `expenseType` ([ExpenseType]), `hasOrder` (Boolean), `order` (OrderReferenceInput), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeHost` (Boolean!), `includeRegularTransactions` (Boolean!), `includeIncognitoTransactions` (Boolean!), `includeChildrenTransactions` (Boolean!), `includeGiftCardTransactions` (Boolean!), `includeDebts` (Boolean!), `includeEditedReversedTransactions` (Boolean!), `kind` ([TransactionKind]), `group` ([String]), `virtualCard` ([VirtualCardReferenceInput]), `isRefund` (Boolean), `merchantId` ([String]), `accountingCategory` ([String]), `paymentMethod` ([PaymentMethodReferenceInput]), `payoutMethod` (PayoutMethodReferenceInput).",
     "source_name": "local",
