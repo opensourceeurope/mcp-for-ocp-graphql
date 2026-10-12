@@ -150,6 +150,8 @@ Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMiss
 
 Returns `HostApplication`.
 
+Fetch a host application. Scope: "applications".
+
 Arguments: `hostApplication` (HostApplicationReferenceInput).
 
 
