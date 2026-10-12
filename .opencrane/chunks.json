@@ -574,9 +574,9 @@
     "token_count": 39
   },
   {
-    "chunk_id": "77bfcccdf928e6ec2e94e9b86e6377f7725270e12468caf225bc6af829c0a25f",
+    "chunk_id": "76c9b1642a991adfb970e7e588a3db691294bea9eb1b15c622530e7664307b90",
     "chunk_type": "prose",
-    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
+    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nFetch a host application. Scope: \"applications\".\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "`hostApplication` query",
@@ -584,7 +584,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "local",
-    "token_count": 24
+    "token_count": 34
   },
   {
     "chunk_id": "0b10f83f8e13bbb6b6f41b437c1e5f9b32f823730f77df12c39c493baffa05ef",
@@ -1009,9 +1009,9 @@
     "token_count": 132
   },
   {
-    "chunk_id": "86328a06299d1a914a3e3dbacc81a8547d752771becf1560aca964c8b2e50aea",
+    "chunk_id": "bcf0a54cf688ae55c2d0a7e780225f5a12ab99f7cac97431d82fbbb5ce6aaae8",
     "chunk_type": "prose",
-    "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://docs.opencollective.com/help/developers/oauth",
+    "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://documentation.opencollective.com/development/oauth",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "How to access the API > With OAuth",
@@ -1020,7 +1020,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "opencollective/graphql-docs-v2",
-    "token_count": 44
+    "token_count": 43
   },
   {
     "chunk_id": "0c72bea37b14d7c08554a62736f330d57d84647a664859c19db53308d92075c6",

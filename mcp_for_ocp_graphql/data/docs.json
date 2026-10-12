@@ -238,8 +238,8 @@
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/host.md"
   },
   {
-    "chunk_id": "77bfcccdf928e6ec2e94e9b86e6377f7725270e12468caf225bc6af829c0a25f",
-    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
+    "chunk_id": "76c9b1642a991adfb970e7e588a3db691294bea9eb1b15c622530e7664307b90",
+    "content": "# `hostApplication` query\n\nReturns `HostApplication`.\n\nFetch a host application. Scope: \"applications\".\n\nArguments: `hostApplication` (HostApplicationReferenceInput).",
     "source_name": "local",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/hostApplication.md"
@@ -469,8 +469,8 @@
     "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#with-a-personal-token"
   },
   {
-    "chunk_id": "86328a06299d1a914a3e3dbacc81a8547d752771becf1560aca964c8b2e50aea",
-    "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://docs.opencollective.com/help/developers/oauth",
+    "chunk_id": "bcf0a54cf688ae55c2d0a7e780225f5a12ab99f7cac97431d82fbbb5ce6aaae8",
+    "content": "## With OAuth\n\nOAuth lets you create applications that can access Open Collective's API to read information and trigger changes on the platform.\n\nDocumentation is here for now: https://documentation.opencollective.com/development/oauth",
     "source_name": "opencollective/graphql-docs-v2",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_url": "https://github.com/opencollective/graphql-docs-v2/blob/main/pages/02.Access.md#with-oauth"
