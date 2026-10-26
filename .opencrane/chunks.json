@@ -782,9 +782,9 @@
     "token_count": 39
   },
   {
-    "chunk_id": "1f1d65022da9e055b268ec2810db30bb38c827e072594df355c5b699cee9df3c",
+    "chunk_id": "3567f6398c46e63e7be9ee05b50752847422de8db0de4087cd401833144799f6",
     "chunk_type": "prose",
-    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
+    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `backend` (SearchBackend!), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "`search` query",
@@ -792,7 +792,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "local",
-    "token_count": 76
+    "token_count": 83
   },
   {
     "chunk_id": "e55b2e23fc559a5796d0353a135a93f889b17917e027ea72aafdae98f41cbf5a",
