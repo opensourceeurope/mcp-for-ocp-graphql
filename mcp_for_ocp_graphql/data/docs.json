@@ -350,8 +350,8 @@
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/project.md"
   },
   {
-    "chunk_id": "1f1d65022da9e055b268ec2810db30bb38c827e072594df355c5b699cee9df3c",
-    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
+    "chunk_id": "3567f6398c46e63e7be9ee05b50752847422de8db0de4087cd401833144799f6",
+    "content": "# `search` query\n\nReturns `SearchResponse!`.\n\n[!] Warning: this query is currently in beta and the API might change\n\nArguments: `searchTerm` (String!, required), `backend` (SearchBackend!), `account` (AccountReferenceInput), `host` (AccountReferenceInput), `useTopHits` (Boolean!), `timeout` (Int!), `defaultLimit` (Int!).",
     "source_name": "local",
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_url": "https://github.com/opensourceeurope/mcp-for-ocp-graphql/blob/main/.opencrane/sources/local/search.md"
