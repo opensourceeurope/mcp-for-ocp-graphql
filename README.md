@@ -11,6 +11,7 @@ An MCP server for the [Open Collective GraphQL API v2](https://api.opencollectiv
 - [Install — Claude Code plugin (easiest)](#install--claude-code-plugin-easiest)
   - [Authorize for one session](#authorize-for-one-session)
   - [Authorize permanently](#authorize-permanently)
+- [Install in Codex and other Agent Plugins clients](#install-in-codex-and-other-agent-plugins-clients)
 - [Two ways to run](#two-ways-to-run)
   - [Local — stdio (recommended)](#local--stdio-recommended)
   - [Hosted — Streamable HTTP + OAuth](#hosted--streamable-http--oauth)
@@ -121,6 +122,18 @@ claude mcp add -s user -e OC_PERSONAL_TOKEN=oc_xxx \
 ```
 
 Restart Claude Code afterwards to load it (this is a standalone server, so `/reload-plugins` won't pick it up). This standalone server exposes the same three tools, authenticated — it runs *alongside* the plugin's anonymous one, so you'll see the tools twice (redundant, not broken). If that bothers you, skip the `mcp add` and instead put `export OC_PERSONAL_TOKEN=oc_xxx` in your shell profile (`~/.zshrc`, `~/.bashrc`): the plugin's own server then starts authenticated every session, with no second server.
+
+## Install in Codex and other Agent Plugins clients
+
+The same plugin directory, [`plugins/oc-platform-api/`](plugins/oc-platform-api/), is also a portable [Agent Plugins](https://agent-plugins.org/) package for OpenAI Codex. Codex reads `plugin.json` and `mcp.json` at the plugin root, and Claude Code reads `.claude-plugin/plugin.json` and `.mcp.json`. Both clients start the same pinned `uvx` server and load the same skills from `skills/`. The `opencollective-analyst` agent is for Claude Code only.
+
+In Codex, add the `ose-ai` marketplace:
+
+```bash
+codex plugin marketplace add opensourceeurope/ose-ai
+```
+
+Then run `/plugins` in Codex and install `oc-platform-mcp`. Start a new Codex session after the install to load the skills and the MCP server. The server runs anonymously, the same as in Claude Code.
 
 ## Two ways to run
 
