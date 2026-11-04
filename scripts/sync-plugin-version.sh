@@ -22,8 +22,10 @@ printf '%s' "$VERSION" | grep -qE '^[0-9A-Za-z.+_-]+$' || {
   exit 1
 }
 
-FILE="plugins/oc-platform-api/.mcp.json"
-# The only `mcp-for-ocp-graphql` occurrence in .mcp.json is the uvx arg pin; rewrite it
+# Claude Code reads .mcp.json; Codex and other Agent Plugins clients read mcp.json.
+# The only `mcp-for-ocp-graphql` occurrence in each file is the uvx arg pin; rewrite it
 # (with or without an existing ==spec) to ==$VERSION.
-VERSION="$VERSION" perl -i -pe 's/(mcp-for-ocp-graphql)(==[0-9A-Za-z.+_-]+)?/"$1==$ENV{VERSION}"/ge' "$FILE"
-echo "pinned $FILE -> mcp-for-ocp-graphql==$VERSION"
+for FILE in plugins/oc-platform-api/.mcp.json plugins/oc-platform-api/mcp.json; do
+  VERSION="$VERSION" perl -i -pe 's/(mcp-for-ocp-graphql)(==[0-9A-Za-z.+_-]+)?/"$1==$ENV{VERSION}"/ge' "$FILE"
+  echo "pinned $FILE -> mcp-for-ocp-graphql==$VERSION"
+done

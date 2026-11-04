@@ -20,6 +20,11 @@
           "type": "json",
           "path": "plugins/oc-platform-api/.claude-plugin/plugin.json",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "plugins/oc-platform-api/plugin.json",
+          "jsonpath": "$.version"
         }
       ]
     }

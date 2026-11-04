@@ -130,7 +130,8 @@ required on `main`; and the PyPI trusted publisher's `workflow_ref` must point a
 - `CHANGELOG.md` — regenerated from commits.
 - `pyproject.toml` `[project].version` — release-please python updater.
 - `plugins/oc-platform-api/.claude-plugin/plugin.json` `version` — json updater.
-- `plugins/oc-platform-api/.mcp.json` `mcp-for-ocp-graphql==` pin — the sync step.
+- `plugins/oc-platform-api/plugin.json` `version` (the portable Codex manifest), json updater.
+- `plugins/oc-platform-api/.mcp.json` and `mcp.json` `mcp-for-ocp-graphql==` pins, the sync step.
 - `.release-please-manifest.json` — release-please's version STATE file (auto-managed).
 - git tags `vX.Y.Z` + GitHub Releases — created on release-PR merge.
 
