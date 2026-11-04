@@ -127,14 +127,13 @@ Restart Claude Code afterwards to load it (this is a standalone server, so `/rel
 
 The same plugin directory, [`plugins/oc-platform-api/`](plugins/oc-platform-api/), is also a portable [Agent Plugins](https://agent-plugins.org/) package for OpenAI Codex. Codex reads `plugin.json` and `mcp.json` at the plugin root, and Claude Code reads `.claude-plugin/plugin.json` and `.mcp.json`. Both clients start the same pinned `uvx` server and load the same skills from `skills/`. The `opencollective-analyst` agent is for Claude Code only.
 
-In Codex, install `oc-platform-mcp` from a marketplace that lists it. Open the plugin browser with `/plugins`:
+In Codex, add the `ose-ai` marketplace:
 
 ```bash
-codex
-/plugins
+codex plugin marketplace add opensourceeurope/ose-ai
 ```
 
-Start a new Codex session after the install to load the skills and the MCP server. The server runs anonymously, the same as in Claude Code.
+Then run `/plugins` in Codex and install `oc-platform-mcp`. Start a new Codex session after the install to load the skills and the MCP server. The server runs anonymously, the same as in Claude Code.
 
 ## Two ways to run
 
