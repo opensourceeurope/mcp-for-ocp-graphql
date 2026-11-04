@@ -106,9 +106,10 @@ commit feat:/fix:/feat!: to main
   → release.yml (release-please) maintains a rolling release PR that:
       - bumps the version in .release-please-manifest.json + pyproject.toml (release-type python)
       - regenerates CHANGELOG.md
-      - writes the version into plugins/oc-platform-api/.claude-plugin/plugin.json ($.version)
+      - writes the version into plugins/oc-platform-api/.claude-plugin/plugin.json
+        and the portable plugins/oc-platform-api/plugin.json ($.version)
       - a follow-up step runs scripts/sync-plugin-version.sh to rewrite the
-        `mcp-for-ocp-graphql==X.Y.Z` pin in plugins/oc-platform-api/.mcp.json,
+        `mcp-for-ocp-graphql==X.Y.Z` pin in plugins/oc-platform-api/.mcp.json and mcp.json,
         committed onto the PR branch
       - arms GitHub auto-merge (gh pr merge --auto --squash)
   → release PR auto-merges once CI is green → tag vX.Y.Z + GitHub Release, and IN THE SAME
@@ -165,7 +166,7 @@ explicit version arg) — not for routine edits.
   Always target the worktree explicitly — `git -C "$WORKTREE" rm …` — or run `pwd &&
   git branch --show-current` immediately before. If it did land on main:
   `git -C <main> restore --staged --worktree <path>`, then redo it with `-C`.
-- About to hand-bump a version (pyproject, plugin.json, .mcp.json pin, manifest) → that's
+- About to hand-bump a version (pyproject, either plugin.json, the .mcp.json/mcp.json pins, manifest) → that's
   release-please's job; land a `feat:`/`fix:` commit.
 - About to hand-cut a tag (`git tag vX.Y.Z`) or create a GitHub Release manually → merging
   the release PR does this, and only that path triggers the PyPI publish.
