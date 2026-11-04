@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.13.1...v0.14.0) (2026-11-04)
+
+
+### Features
+
+* ship the plugin as a portable Agent Plugins package for Codex ([#65](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/65)) ([9c02472](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/9c02472bac14d9a73c14b5197ef5364f2a2d5399))
+
 ## [0.13.1](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.13.0...v0.13.1) (2026-08-20)
 
 
