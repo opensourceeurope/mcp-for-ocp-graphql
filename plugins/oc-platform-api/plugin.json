@@ -1,16 +1,22 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "oc-platform-mcp",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "Read-only Open Collective GraphQL for AI agents. Bundles the mcp-for-ocp-graphql MCP server (graphql_query / schema_lookup / search_docs) and the querying and local-export skills.",
   "license": "MIT",
-  "keywords": ["opencollective", "graphql", "mcp"],
+  "keywords": [
+    "opencollective",
+    "graphql",
+    "mcp"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Read-Only MCP for Open Collective Platform",
         "shortDescription": "Query Open Collective data read-only",
-        "capabilities": ["Read"]
+        "capabilities": [
+          "Read"
+        ]
       }
     }
   }
