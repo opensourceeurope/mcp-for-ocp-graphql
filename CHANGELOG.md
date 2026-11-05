@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.14.0...v0.15.0) (2026-11-05)
+
+
+### Features
+
+* stop hosting the community instance on Scaleway ([#67](https://github.com/opensourceeurope/mcp-for-ocp-graphql/issues/67)) ([d9552b5](https://github.com/opensourceeurope/mcp-for-ocp-graphql/commit/d9552b5d767ee71cf434cbceb5c8c1a68642c001))
+
 ## [0.14.0](https://github.com/opensourceeurope/mcp-for-ocp-graphql/compare/v0.13.1...v0.14.0) (2026-11-04)
 
 
