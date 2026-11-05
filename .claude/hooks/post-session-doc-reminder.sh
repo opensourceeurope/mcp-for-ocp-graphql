@@ -70,7 +70,7 @@ Candidate doc homes:
 - AGENTS.md — architecture, module map, RAG pipeline, key decisions (rules not narrative)
 - docs/using-with-ai-safely.md — PII posture + safe usage
 - docs/local-agent-with-ollama.md / docs/local-agent-with-ui.md — local stdio setup
-- docs/scaleway-deployment.md — hosted HTTP / Scaleway deploy
+- docs/self-hosting.md: self-hosted HTTP server, Docker, and the configuration reference
 - plugins/oc-platform-api/skills/querying-opencollective-graphql/SKILL.md — querying playbook
 "
 fi

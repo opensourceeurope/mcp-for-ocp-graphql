@@ -1,6 +1,6 @@
 ---
 name: dev-workflow
-description: Use when starting any change to mcp-for-ocp-graphql — starting a change, branching, running locally, writing a commit, opening a PR, bumping a version, or cutting a release. Covers per-topic worktrees, the branch + PR + CI flow, conventional commits, the release-please release-PR flow, what release-please owns (never hand-edit), and the release → PyPI + hosted-deploy chain.
+description: Use when starting any change to mcp-for-ocp-graphql — starting a change, branching, running locally, writing a commit, opening a PR, bumping a version, or cutting a release. Covers per-topic worktrees, the branch + PR + CI flow, conventional commits, the release-please release-PR flow, what release-please owns (never hand-edit), and the release → PyPI chain.
 ---
 
 # mcp-for-ocp-graphql Dev Workflow
@@ -64,8 +64,6 @@ git push -u origin feat/<short-name>  # 2. push the branch
 # 6. release-please (release.yml) opens/updates a rolling release PR (version + changelog + pins)
 # 7. that release PR AUTO-MERGES once CI is green → tag vX.Y.Z + GitHub Release, and the
 #      SAME release.yml run publishes mcp-for-ocp-graphql to PyPI (trusted publishing)
-# 8. build-and-push.yml (on push to main) rebuilds the Docker image and redeploys the
-#      hosted Scaleway container
 ```
 
 **There is NO per-PR preview environment.** You review on the diff + CI, not a preview URL.
@@ -118,8 +116,8 @@ commit feat:/fix:/feat!: to main
 ```
 
 There is no separate `publish-pypi.yml` / `release: published` handoff — publish is a job
-in `release.yml`. The hosted Docker image + Scaleway deploy are handled by
-`build-and-push.yml` on every push to `main`.
+in `release.yml`. Nothing is deployed: CI builds no Docker image and there is no hosted
+instance. Users run the server locally, or self-host it from the `Dockerfile`.
 
 One-time maintainer setup (see `release.yml` header): the `RELEASE_TOKEN` secret (PAT/App
 token, Contents + PRs write) must exist; "Allow auto-merge" enabled with `commitlint`
