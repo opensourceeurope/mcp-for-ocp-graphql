@@ -4,7 +4,7 @@
     "oc-platform-mcp": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["mcp-for-ocp-graphql==0.14.0"]
+      "args": ["mcp-for-ocp-graphql==0.15.0"]
     }
   }
 }
