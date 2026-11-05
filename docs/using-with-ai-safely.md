@@ -117,7 +117,7 @@ The MCP server in this repo:
 - Does not log tokens, headers, or request bodies (see [`AGENTS.md`](../AGENTS.md) › "Never log tokens").
 - Is read-only — the `graphql_query` tool parses every operation in the document and rejects anything that isn't a `query` (mutations and subscriptions error before any network call).
 
-For maximum control, **run the server yourself** rather than using one operated by someone else. The most local option is **stdio mode on your own machine** (`uvx mcp-for-ocp-graphql`) — then the only third party that sees your queries is Open Collective, which already holds the data. If you need a shared HTTP server for a team, host your own instance (Scaleway, OVH, Hetzner — see [`docs/scaleway-deployment.md`](scaleway-deployment.md)). With your own instance:
+For maximum control, **run the server yourself** rather than using one operated by someone else. The most local option is **stdio mode on your own machine** (`uvx mcp-for-ocp-graphql`) — then the only third party that sees your queries is Open Collective, which already holds the data. Open Source Europe does not run a shared instance. If your team needs a shared HTTP server, host your own instance as [Self-hosting the HTTP server](self-hosting.md) describes. With your own instance:
 
 - You control the host region (keep it in the EU for GDPR purposes).
 - You control the logs.

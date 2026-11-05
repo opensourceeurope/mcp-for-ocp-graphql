@@ -1,8 +1,8 @@
-# Self-hosting the hosted (HTTP) server
+# Self-hosting the HTTP server
 
-The [README](../README.md) recommends the local **stdio** transport whenever your client supports it. Reach for the hosted **Streamable HTTP** transport only when your tool speaks MCP over HTTP and cannot launch a local stdio subprocess (typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors).
+The [README](../README.md) recommends the local stdio transport whenever your client supports it. Use the Streamable HTTP transport only when your MCP client cannot start a local process, such as claude.ai custom connectors or ChatGPT connectors.
 
-A shared [community instance](../README.md#hosted--streamable-http--oauth) exists, but it's a small, cost-shared deployment — if you query a lot, need guaranteed availability, or want to control the region, run your own instance as described below.
+Open Source Europe does not run a public instance of this server, and the project does not publish a container image. To use the HTTP transport, build the image from this repository and run your own instance as this page describes.
 
 ## How auth works
 
@@ -35,7 +35,7 @@ claude mcp add --transport http mcp-for-ocp-graphql https://your-host/mcp
 
 The client prompts for OAuth on first use; a browser opens the token form. Each user authenticates independently — no shared token lives on the server.
 
-Runs on any EU container platform: Scaleway Serverless Containers (free tier), OVH, Hetzner. See **[scaleway-deployment.md](scaleway-deployment.md)** for a step-by-step Scaleway walkthrough.
+The image runs on any platform that runs containers. Pick a region that fits your data protection needs, for example an EU region for GDPR.
 
 ## Configuration
 

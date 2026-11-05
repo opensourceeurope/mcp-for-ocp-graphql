@@ -14,7 +14,7 @@ An MCP server for the [Open Collective GraphQL API v2](https://api.opencollectiv
 - [Install in Codex and other Agent Plugins clients](#install-in-codex-and-other-agent-plugins-clients)
 - [Two ways to run](#two-ways-to-run)
   - [Local — stdio (recommended)](#local--stdio-recommended)
-  - [Hosted — Streamable HTTP + OAuth](#hosted--streamable-http--oauth)
+  - [Self-hosted HTTP server](#self-hosted-http-server)
 - [The three tools](#the-three-tools)
 - [Further reading](#further-reading)
 - [Stack & credits](#stack--credits)
@@ -166,24 +166,13 @@ Generic MCP client config:
 
 `OC_PERSONAL_TOKEN` is delivered to the server as a process environment variable — either via the config's `env` block above or exported in your shell before launch (there is no CLI flag for it). Omit it to run anonymously.
 
-### Hosted — Streamable HTTP + OAuth
+### Self-hosted HTTP server
 
-**Prefer stdio (above) whenever your client supports it** — it's simpler and your data and token never leave your machine. Reach for the HTTP transport **only if your tool speaks MCP over HTTP and cannot launch a local stdio subprocess** — typically web/hosted assistants like claude.ai custom connectors or ChatGPT connectors. Desktop agents (Claude Code, Cursor, Windsurf, Zed, VS Code) all support stdio — use that.
+Use [stdio](#local--stdio-recommended) whenever your client supports it. The HTTP transport is for MCP clients that cannot start a local process, such as claude.ai custom connectors or ChatGPT connectors.
 
-Each user authenticates with their own Open Collective personal token via an OAuth 2.1 / PKCE passthrough (a browser form at `/oc-login`); the server mints no tokens of its own and stores no shared credentials.
+Open Source Europe does not run a public instance of this server. To use the HTTP transport, run your own instance with Docker. Each user signs in with their own Open Collective personal token through an OAuth 2.1 form at `/oc-login`. The server does not create tokens and does not store shared credentials.
 
-A shared **community instance** is hosted for the community in the EU (Scaleway, `pl-waw`). Point an HTTP-only MCP client at it:
-
-```bash
-claude mcp add --transport http mcp-for-ocp-graphql \
-  https://opensourceeuropeb9a9bb69-oc-graphql-mcp.functions.fnc.pl-waw.scw.cloud/mcp
-```
-
-On first use the client opens a browser for OAuth; paste your own Open Collective personal token. Each user authenticates independently — no shared token lives on the server.
-
-> ⚠️ **Please don't overuse the community instance.** It's a small, cost-shared community deployment that scales to zero when idle — provided so people whose tools *can't* do stdio can still connect, not for heavy or automated load. If you query a lot, need guaranteed availability, or want to control the region, **run stdio locally** (above) or **[self-host your own](docs/self-hosting.md)** instead.
-
-To run your own HTTP instance, see **[docs/self-hosting.md](docs/self-hosting.md)** (Docker + configuration reference).
+For the Docker commands and the configuration reference, see [Self-hosting the HTTP server](docs/self-hosting.md).
 
 ## The three tools
 
@@ -195,10 +184,9 @@ The intended flow is **learn, then execute**:
 
 ## Further reading
 
-- **[Using with AI safely](docs/using-with-ai-safely.md)** — the PII posture and safe field-selection guidance.
-- **[Self-hosting](docs/self-hosting.md)** — run your own hosted HTTP server via Docker, plus the full configuration reference.
-- **[Scaleway deployment](docs/scaleway-deployment.md)** — step-by-step walkthrough for the hosted HTTP server on Scaleway.
-- **[Development](docs/development.md)** — local dev setup, the docs-corpus pipeline, and the release process.
+- [Using with AI safely](docs/using-with-ai-safely.md): the PII posture and safe field-selection guidance.
+- [Self-hosting the HTTP server](docs/self-hosting.md): run your own HTTP server with Docker, and the full configuration reference.
+- [Development](docs/development.md): local dev setup, the docs-corpus pipeline, and the release process.
 
 ## Stack & credits
 

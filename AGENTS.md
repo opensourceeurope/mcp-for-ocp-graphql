@@ -37,8 +37,8 @@ Tests live in `tests/` and use `pytest`. Follow TDD: write the failing test firs
 
 Both serve the **same three tools** built by `server.register_tools`; they differ only in how the OC token is supplied.
 
-- **stdio** — console script `mcp-for-ocp-graphql` (`app_stdio.main`). Single user. Token comes from the `OC_PERSONAL_TOKEN` env var and is **optional**: no token → anonymous public-data mode. The token is a plain string passed to the tools.
-- **hosted HTTP** — console script `mcp-for-ocp-graphql-http` (`app_http.main`). Streamable HTTP with an OAuth 2.1 / PKCE passthrough. Each user pastes their own OC personal token into the browser form at `/oc-login`; that token becomes the OAuth bearer and is read per-request from the auth context and forwarded as the `Personal-Token` header. `OC_PERSONAL_TOKEN` is **not** used here. Env: `PORT` (default 3000), `PUBLIC_URL` (OAuth issuer; https in prod), `OC_GRAPHQL_ENDPOINT`. Deployed via the Docker image (Scaleway/OVH/Hetzner).
+- **stdio**: console script `mcp-for-ocp-graphql` (`app_stdio.main`). Single user. Token comes from the `OC_PERSONAL_TOKEN` env var and is **optional**: no token → anonymous public-data mode. The token is a plain string passed to the tools.
+- **self-hosted HTTP**: console script `mcp-for-ocp-graphql-http` (`app_http.main`). Streamable HTTP with an OAuth 2.1 / PKCE passthrough. Each user pastes their own OC personal token into the browser form at `/oc-login`; that token becomes the OAuth bearer and is read per-request from the auth context and forwarded as the `Personal-Token` header. `OC_PERSONAL_TOKEN` is **not** used here. Env: `PORT` (default 3000), `PUBLIC_URL` (OAuth issuer; https in prod), `OC_GRAPHQL_ENDPOINT`. Self-hosted only, through the `Dockerfile`: Open Source Europe runs no public instance, and CI builds and deploys no image.
 
 ### Module map
 
@@ -49,7 +49,7 @@ Both serve the **same three tools** built by `server.register_tools`; they diffe
 | `schema_fetch.py` | Introspects the live OC API and writes `data/schema.json` (run as `python -m ...schema_fetch`). |
 | `server.py` | `register_tools()` / `build_server()` — wires the three tools onto a `FastMCP`. `resolve_call_token()` allows a per-call callable token. |
 | `app_stdio.py` | stdio entry point: loads baked schema + docs corpus, resolves env token, runs FastMCP over stdio. |
-| `app_http.py` | hosted HTTP entry point: builds the Starlette app, OAuth provider, `/oc-login` routes, per-request token from auth context. |
+| `app_http.py` | self-hosted HTTP entry point: builds the Starlette app, OAuth provider, `/oc-login` routes, per-request token from auth context. |
 | `auth.py` | `OCAuthProvider` (OAuth 2.1 authorization server), `verify_oc_token()`, `render_auth_form()`, single-use short-TTL auth codes. |
 | `search.py` | `DocSearch` — pure-Python BM25 lexical search over the baked `data/docs.json` corpus for `search_docs`. |
 | `schema_ref.py` | Renders the schema to markdown; `--queries-only` emits just the top-level query fields for the corpus (`python -m …schema_ref`). |

@@ -1,4 +1,5 @@
-# Hosted Streamable-HTTP server image for mcp-for-ocp-graphql.
+# Streamable HTTP server image for self-hosting mcp-for-ocp-graphql.
+# See docs/self-hosting.md.
 #
 # Committed-data approach: the docs/schema data
 # (mcp_for_ocp_graphql/data/{schema.json, docs.json}) is COMMITTED to the repo and
@@ -23,9 +24,9 @@ COPY . .
 RUN uv sync --no-dev --frozen
 
 ENV PORT=3000
-# PUBLIC_URL is read at runtime by app_http.build_http_app(); set it via the
-# container platform (Scaleway) env. Defaults to http://localhost:$PORT if unset.
+# PUBLIC_URL is read at runtime by app_http.build_http_app(); set it in the
+# container environment. Defaults to http://localhost:$PORT if unset.
 EXPOSE 3000
 
-# Run the hosted HTTP entrypoint console script from the synced venv.
+# Run the HTTP entrypoint console script from the synced venv.
 CMD ["uv", "run", "--no-dev", "--frozen", "mcp-for-ocp-graphql-http"]
