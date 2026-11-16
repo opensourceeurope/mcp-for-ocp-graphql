@@ -678,9 +678,9 @@
     "token_count": 33
   },
   {
-    "chunk_id": "00ad3aa99677f3f31ef4e859f8d8a42865705a60f98e96f049fafeb28faea31d",
+    "chunk_id": "9a4133f4e8f7141dbdd531ddc81ab0204384ba9a35cc51a89d41dee50dd9d7ff",
     "chunk_type": "prose",
-    "content": "# `orders` query\n\nReturns `OrderCollection!`.\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).",
+    "content": "# `orders` query\n\nReturns `OrderCollection!`.\n\nArguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `accountingCategory` ([String]), `hostContext` (HostContext), `includeChildrenAccounts` (Boolean!), `pausedBy` ([OrderPausedBy]), `paymentMethod` ([PaymentMethodReferenceInput]), `paymentMethodService` ([PaymentMethodService]), `paymentMethodType` ([PaymentMethodType]), `manualPaymentProvider` ([ManualPaymentProviderReferenceInput!]), `includeIncognito` (Boolean), `filter` (AccountOrdersFilter), `frequency` ([ContributionFrequency]), `status` ([OrderStatus]), `orderBy` (ChronologicalOrderInput!), `amount` (AmountRangeInput), `minAmount` (Int), `maxAmount` (Int), `dateFrom` (DateTime), `dateTo` (DateTime), `expectedDateFrom` (DateTime), `expectedDateTo` (DateTime), `chargedDateFrom` (DateTime), `chargedDateTo` (DateTime), `searchTerm` (String), `maxTotalCount` (Int), `tier` ([TierReferenceInput]), `onlySubscriptions` (Boolean), `onlyActiveSubscriptions` (Boolean), `expectedFundsFilter` (ExpectedFundsFilter), `oppositeAccount` (AccountReferenceInput), `hostedAccounts` ([AccountReferenceInput]), `host` (AccountReferenceInput), `oppositeAccountScope` (OppositeAccountScope), `createdBy` ([AccountReferenceInput]).",
     "line_start": null,
     "metadata": {
       "breadcrumb_path": "`orders` query",
@@ -688,7 +688,7 @@
     },
     "source_file": ".opencrane/llmstxt/llms-full.txt",
     "source_name": "local",
-    "token_count": 311
+    "token_count": 319
   },
   {
     "chunk_id": "2384449b1ceac1526a05219c4b8ac0a4d559a0c917e6f6ac7dc2ad1583c722f4",
