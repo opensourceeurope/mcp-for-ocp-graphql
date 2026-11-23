@@ -49,7 +49,7 @@ Returns `AccountCollection!`.
 
 Return accounts that have interacted with a given account or host
 
-Arguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeInput), `totalExpended` (AmountRangeInput), `limit` (Int!), `offset` (Int!).
+Arguments: `account` (AccountReferenceInput), `host` (AccountReferenceInput!, required), `type` ([AccountType]), `searchTerm` (String), `relation` ([CommunityRelationType!]), `missingInformation` ([MissingInformationField!]), `orderBy` (OrderByInput), `totalContributed` (AmountRangeWithYearInput), `totalExpended` (AmountRangeWithYearInput), `limit` (Int!), `offset` (Int!).
 
 
 <!-- opencrane:page -->
@@ -244,24 +244,13 @@ Arguments: `id` (String), `slug` (String), `githubHandle` (String), `throwIfMiss
 
 <!-- opencrane:page -->
 
-# `paymentIntent` query
+# `paymentMethod` query
 
-Returns `PaymentIntent`.
+Returns `PaymentMethod`.
 
-Returns a single payment intent identified by its public id
+Get a payment method by reference. Returns null if it does not exist or if the logged in user is not an admin of the account that owns it. Scope: "orders".
 
-Arguments: `publicId` (String!, required).
-
-
-<!-- opencrane:page -->
-
-# `paymentIntents` query
-
-Returns `PaymentIntentCollection!`.
-
-Returns a list of payment intents
-
-Arguments: `account` (AccountReferenceInput), `limit` (Int!), `offset` (Int!), `host` (AccountReferenceInput), `hostContext` (HostContext), `direction` (PaymentIntentDirection), `includeChildrenPaymentIntents` (Boolean!), `status` ([PaymentIntentStatus!]), `type` ([PaymentIntentType!]), `dateFrom` (DateTime), `dateTo` (DateTime), `counterparty` (AccountReferenceInput).
+Arguments: `paymentMethod` (PaymentMethodReferenceInput!, required).
 
 
 <!-- opencrane:page -->
